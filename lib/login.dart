@@ -1,70 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:path/path.dart';
 import 'dart:core';
+import 'package:sqflite/sqflite.dart';
+import 'dart:convert';
 import 'package:songradar/login.dart';
 import 'package:songradar/signup.dart';
+import 'package:songradar/sqlHelper.dart';
+import 'package:songradar/mainAppPage.dart';
+import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 
 class LoginPage extends StatefulWidget {
+
   const LoginPage({Key? key}) : super(key: key);
 
-
   @override
-
 
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  int _counter = 0;
-  TextEditingController user = TextEditingController();
+  TextEditingController username = TextEditingController();
   TextEditingController password = TextEditingController();
   bool _passwordVisible = false;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
 
-  Future<void> login(String mail, String password) async {
-
-    // var url = Uri.parse(connection+"login.php");
-    var body = {
-      "user_mail": mail,
-      "user_password": password,
-    };
-    /*
-    try {
-
-      final response = await http.post(url, body: body);
-      if (response.statusCode == 200) {
-        try {
-          var datauser = response.body;
-          if (datauser is String && datauser.isNotEmpty) {
-            mail = jsonDecode(datauser)[0]['mail']; // Assign the mail value
-            String password1 = jsonDecode(datauser)[0]['password'];
-            Navigator.pushReplacementNamed(context, '/logged',
-                arguments: {'mail': mail, "password": password1});
-          }
-        } catch (e) {
-          debugPrint('Failed to parse response as JSON: ${response.body}');
-        }
-      } else {
-        throw Exception('Failed to login. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      debugPrint('$e');
-    }
-*/
-
-  }
   @override
+  void initState() {
+      SqlHelper.dbPath();
+  }
+
   Widget build(BuildContext context) {
 
     return Scaffold(
@@ -78,10 +43,10 @@ class _LoginPageState extends State<LoginPage> {
           children: <Widget>[
             SizedBox(height: 20),
             TextField(
-              controller: user,
+              controller: username,
               decoration: InputDecoration(
                 icon: Icon(Icons.mail_outline),
-                hintText: 'User mail',
+                hintText: 'Username',
               ),
             ),
             SizedBox(height: 20),
@@ -106,8 +71,33 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
+                final List<Map<String, dynamic>> user_info = await SqlHelper.searchUser(username.text, password.text);
+                print(user_info);
 
-                //await login(user.text, password.text);
+                if (user_info.isNotEmpty) {
+                  // successful login to main page
+                  Navigator.pushReplacementNamed(context,'/mainAppPage', arguments:{'username': username.text});
+
+                } else {
+                  // Display an error message if the login fails
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Login Failed'),
+                        content: Text('Invalid username or password. Please try again.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
               },
               child: Text('Login'),
             ),

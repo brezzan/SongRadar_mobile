@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:path/path.dart';
 import 'dart:core';
+import 'package:sqflite/sqflite.dart';
+import 'dart:convert';
 import 'package:songradar/login.dart';
 import 'package:songradar/signup.dart';
 
@@ -14,27 +16,16 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
 
-  int _counter = 0;
-  TextEditingController user = TextEditingController();
+  TextEditingController username = TextEditingController();
   TextEditingController password = TextEditingController();
   bool _passwordVisible = false;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
 
-  Future<void> login(String mail, String password) async {
+  Future<void> signup(String username, String password) async {
 
     // var url = Uri.parse(connection+"signup.php");
     var body = {
-      "user_mail": mail,
+      "user_mail": username,
       "user_password": password,
     };
     /*
@@ -75,10 +66,10 @@ class _SignUpPageState extends State<SignUpPage> {
           children: <Widget>[
             SizedBox(height: 20),
             TextField(
-              controller: user,
+              controller: username,
               decoration: InputDecoration(
                 icon: Icon(Icons.mail_outline),
-                hintText: 'User mail',
+                hintText: 'Username',
               ),
             ),
             SizedBox(height: 20),
