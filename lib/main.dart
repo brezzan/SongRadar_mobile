@@ -6,16 +6,11 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:convert';
 import 'package:songradar/login.dart';
 import 'package:songradar/signup.dart';
-import 'package:songradar/sqlHelper.dart';
 import 'package:songradar/mainAppPage.dart';
 import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 
 void main() async {
-  /*
-  WidgetsFlutterBinding.ensureInitialized();
-  //Copy the database from assets to data directory
-  await SqlHelper.copyAsset();
-*/
+
   runApp(SongRadar());
 }
 
