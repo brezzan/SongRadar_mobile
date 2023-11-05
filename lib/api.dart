@@ -2,33 +2,36 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AuthService {
-  final String baseUrl = 'http://10.0.2.2:8000'; // Replace with your actual API base URL
+  final String baseUrl =
+      'http://10.0.2.2:8000'; // Replace with your actual API base URL
 
-  Future<Map<String, dynamic>> loginUser(String username, String password) async {
+  Future<Map<String, dynamic>> loginUser(
+      String username, String password) async {
     final String loginUrl = '$baseUrl/auth/sign_in';
 
     final Map<String, String> headers = {
-      'Content-Type': 'application/json', // Remove 'accept' header
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'accept': 'application/json',
     };
 
     final Map<String, String> body = {
       'username': username,
       'password': password,
+      'scope': '',
     };
 
     try {
       final http.Response response = await http.post(
         Uri.parse(loginUrl),
         headers: headers,
-        body: jsonEncode(body),
+        body: body,
       );
 
       print('Response Body: ${response.body}');
       print('Response Status Code: ${response.statusCode}');
       print('Response Headers: ${response.headers}');
 
-
-      if (response.statusCode == 200|| response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         // Successful login
         final Map<String, dynamic> responseData = jsonDecode(response.body);
 
@@ -36,9 +39,7 @@ class AuthService {
         final String accessToken = responseData['access_token'];
         final String tokenType = responseData['token_type'];
 
-
         // Include the access token in the headers for future requests
-
 
         // You can return the access token or use it as needed
         return {'access_token': accessToken, 'token_type': tokenType};
@@ -54,7 +55,38 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> signUpUser(String username, String email, String password) async {
+  Future<Map<String, dynamic>> getUser( String accessToken) async {
+    final String meUrl = '$baseUrl/auth/me';
+
+    final Map<String, String> headers = {
+      'accept': 'application/json',
+      'Authorization': 'Bearer $accessToken',
+    };
+
+    try {
+      final http.Response response = await http.get(
+        Uri.parse(meUrl),
+        headers: headers,
+      );
+
+      print('User Response Body: ${response.body}');
+      print('User Response Status Code: ${response.statusCode}');
+      print('User Response Headers: ${response.headers}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> userData = jsonDecode(response.body);
+        return userData;
+      } else {
+        final Map<String, dynamic> errorData = jsonDecode(response.body);
+        return {'error': errorData['detail']};
+      }
+    } catch (error) {
+      print('Error: $error');
+      return {'error': 'An unexpected error occurred.'};
+    }
+  }
+
+  Future<Map<String, dynamic>> signUpUser( String username, String email, String password) async {
     final String signUpUrl = '$baseUrl/auth/sign_up';
 
     final Map<String, String> headers = {
@@ -92,4 +124,5 @@ class AuthService {
       return {'error': 'An unexpected error occurred.'};
     }
   }
+
 }

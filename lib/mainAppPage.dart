@@ -33,14 +33,21 @@ class _mainAppPageState extends State<mainAppPage> {
     final arguments = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     username= '${arguments?['username']}';
 
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Welcome, $username'),
-      ),
-      // Add the rest of your main app UI here
-    );
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Welcome, $username'),
+        ),
+        body: Center(
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.pushReplacementNamed(context, '/login', arguments: {});
+            },
+            child: Text('Log out'),
+          ),
+        ),
+        // Add the rest of your main app UI here
+      );
+    }
   }
-}
 
 

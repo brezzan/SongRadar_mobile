@@ -76,25 +76,38 @@ class _SignUpPageState extends State<SignUpPage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                if (username.text.isNotEmpty && password.text.isNotEmpty) {
-                  final Map<String, dynamic> loginResult =
-                  await authService.loginUser(username.text, password.text);
+                if (username.text.isNotEmpty && mail.text.isNotEmpty && password.text.isNotEmpty) {
+                  final Map<String, dynamic> signUpResult = await authService.signUpUser(username.text,mail.text, password.text);
 
-                  if (!loginResult.containsKey('error')) {
+                  if (!signUpResult.containsKey('error')) {
                     // Successful login
-                    print('Login successful! Access Token: ${loginResult['access_token']}');
-
-                    // TODO: Navigate or perform actions after successful login
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Successful Sign Up '),
+                          content: Text(
+                            'You can login now',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushReplacementNamed(context, '/login', arguments: {});
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   } else {
                     // Display an error message if the login fails
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text('Login Failed'),
-                          content: Text(
-                            'Invalid username or password. Please try again.',
-                          ),
+                          title: Text('Sign Up Failed'),
+                          content: Text( '${signUpResult['detail']}', ),
                           actions: [
                             TextButton(
                               onPressed: () {
@@ -119,6 +132,7 @@ class _SignUpPageState extends State<SignUpPage> {
               onPressed: () async {
 
                 Navigator.pushReplacementNamed(context, '/login', arguments: {});
+
               },
               child: Text('If you are already signed up, click here to login'),
             ),

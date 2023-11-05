@@ -68,16 +68,38 @@ class _LoginPageState extends State<LoginPage> {
             ElevatedButton(
               onPressed: () async {
                 if (username.text.isNotEmpty && password.text.isNotEmpty) {
-                  final Map<String, dynamic> loginResult =
-                  await authService.loginUser(username.text, password.text);
+                  final Map<String, dynamic> loginResult = await authService.loginUser(username.text, password.text);
 
                   if (!loginResult.containsKey('error')) {
-                    // Navigate to the main app page with username as an argument
-                    Navigator.pushReplacementNamed(
-                      context,
-                      '/mainAppPage',
-                      arguments: {'username': username.text},
-                    );
+
+                    final String accessToken = loginResult['access_token'];
+                    final Map<String, dynamic> userResult = await authService.getUser(accessToken);
+                    print(userResult);
+                    if(!userResult.containsKey('error')){
+
+                      Navigator.pushReplacementNamed(context, '/mainAppPage', arguments: {'username': userResult['username']});
+                      // successful loginnn
+
+                    } else {
+                      // Display an error message if the login fails
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Login Failed'),
+                            content: Text('${loginResult['error']}'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
                   } else {
                     // Display an error message if the login fails
                     showDialog(
