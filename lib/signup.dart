@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:songradar/api.dart';
-
 import 'dart:core';
 import 'package:sqflite/sqflite.dart';
 import 'dart:convert';
