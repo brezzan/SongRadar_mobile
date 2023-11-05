@@ -11,11 +11,11 @@ import 'package:songradar/mainAppPage.dart';
 import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 
 void main() async {
+  /*
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Copy the database from assets to data directory
+  //Copy the database from assets to data directory
   await SqlHelper.copyAsset();
-
+*/
   runApp(SongRadar());
 }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:path/path.dart';
 import 'package:flutter/services.dart';
@@ -37,6 +38,14 @@ class SqlHelper{
 
     return sql.openDatabase(dbPath, version: 2, onCreate: (sql.Database database, int version)
     async { await createTables(database); });
+  }
+
+  static Future<List<Map<String, dynamic>>> seeAll() async {
+    final db = await SqlHelper.db();
+    final path = await sql.getDatabasesPath();
+    final result = await db.rawQuery("""SELECT * FROM users """);
+    return result;
+
   }
 
   static Future<void> dbPath() async {
@@ -97,6 +106,17 @@ class SqlHelper{
     }
   }
 /*
+  static Future<void> fetchData() async {
+  final response = await http.get(Uri.parse('http://127.0.0.1:8000/docs#/auth/sign_in'));
+  if (response.statusCode == 200) {
+    // Handle successful response
+    print('Response data: ${response.body}');
+  } else {
+    // Handle errors
+    print('Error: ${response.statusCode}');
+  }
+}
+
   static Future<List<Map<String, dynamic>>> searchUser(String username, String password) async {
     try {
       final db = await SqlHelper.db();
