@@ -65,6 +65,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
               onPressed: () async {
                 if (username.text.isNotEmpty && password.text.isNotEmpty) {
                   final Map<String, dynamic> loginResult = await authService.loginUser(username.text, password.text);
@@ -120,7 +121,7 @@ class _LoginPageState extends State<LoginPage> {
                     );
                   }
                 }
-              }, child: Text('OK'),
+              }, child: Text('Login'),
 
             ),
             SizedBox(height: 20),

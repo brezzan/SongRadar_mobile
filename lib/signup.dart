@@ -74,6 +74,7 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
               onPressed: () async {
                 if (username.text.isNotEmpty && mail.text.isNotEmpty && password.text.isNotEmpty) {
                   final Map<String, dynamic> signUpResult = await authService.signUpUser(username.text,mail.text, password.text);
@@ -106,7 +107,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: Text('Sign Up Failed'),
-                          content: Text( '${signUpResult['detail']}', ),
+                          content: Text('${signUpResult['detail']}'),
                           actions: [
                             TextButton(
                               onPressed: () {
@@ -121,9 +122,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   }
                 }
               },
-              child: Text('Login'),
+              child: Text('Sign Up'),
             ),
-            SizedBox(height: 20),
             SizedBox(height: 20),
             SizedBox(height: 20),
 
