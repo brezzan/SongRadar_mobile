@@ -25,7 +25,6 @@ class _addNewSongState extends State<addNewSong> {
   TextEditingController genre = TextEditingController();
   TextEditingController album = TextEditingController();
 
-  String selectedButton = 'album'; // Track which button is pressed
 
   @override
   void initState() {
