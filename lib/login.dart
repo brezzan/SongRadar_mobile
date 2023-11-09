@@ -35,51 +35,76 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           children: <Widget>[
             SizedBox(height: 20),
-            TextField(
-              controller: username,
-              decoration: InputDecoration(
-                icon: Icon(Icons.person),
-                hintText: 'Username',
-              ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: password,
-              obscureText: !_passwordVisible,
-              decoration: InputDecoration(
-                icon: Icon(Icons.vpn_key),
-                hintText: 'Password',
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _passwordVisible
-                        ? Icons.visibility
-                        : Icons.visibility_off,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _passwordVisible = !_passwordVisible;
-                    });
-                  },
+            Flexible (
+              child: TextField(
+                controller: username,
+                decoration: InputDecoration(
+                  icon: Icon(Icons.person),
+                  hintText: 'Username',
                 ),
               ),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              onPressed: () async {
-                if (username.text.isNotEmpty && password.text.isNotEmpty) {
-                  final Map<String, dynamic> loginResult = await authService.loginUser(username.text, password.text);
+            Flexible (
+              child: TextField(
+                controller: password,
+                obscureText: !_passwordVisible,
+                decoration: InputDecoration(
+                  icon: Icon(Icons.vpn_key),
+                  hintText: 'Password',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _passwordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _passwordVisible = !_passwordVisible;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            Flexible (
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                onPressed: () async {
+                  if (username.text.isNotEmpty && password.text.isNotEmpty) {
+                    final Map<String, dynamic> loginResult = await authService.loginUser(username.text, password.text);
 
-                  if (!loginResult.containsKey('error')) {
+                    if (!loginResult.containsKey('error')) {
 
-                    final String accessToken = loginResult['access_token'];
-                    final Map<String, dynamic> userResult = await authService.getUser(accessToken);
-                    print(userResult);
-                    if(!userResult.containsKey('error')){
+                      final String accessToken = loginResult['access_token'];
+                      final Map<String, dynamic> userResult = await authService.getUser(accessToken);
+                      print(userResult);
+                      if(!userResult.containsKey('error')){
 
-                      Navigator.pushReplacementNamed(context, '/mainAppPage', arguments: {'username': userResult['username']});
-                      // successful loginnn
+                        Navigator.pushReplacementNamed(context, '/mainAppPage', arguments: {'username': userResult['username']});
+                        // successful loginnn
 
+                      } else {
+                        // Display an error message if the login fails
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Login Failed'),
+                              content: Text('${loginResult['error']}'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
                     } else {
                       // Display an error message if the login fails
                       showDialog(
@@ -100,38 +125,21 @@ class _LoginPageState extends State<LoginPage> {
                         },
                       );
                     }
-                  } else {
-                    // Display an error message if the login fails
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('Login Failed'),
-                          content: Text('${loginResult['error']}'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text('OK'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
                   }
-                }
-              }, child: Text('Login'),
+                }, child: Text('Login'),
 
+              ),
             ),
             SizedBox(height: 20),
             SizedBox(height: 20),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/signup');
-              },
-              child: Text('If you do not have an account, click here to sign up'),
+            Flexible (
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/signup');
+                },
+                child: Text('If you do not have an account, click here to sign up'),
+              ),
             ),
           ],
         ),

@@ -273,21 +273,17 @@ class AuthService {
       'album_id':album_id
     };
 
-    final response = await http.post(
-      Uri.parse(url),
-      headers: headers,
-      body: jsonEncode(body),
-    );
-
     try {
       final response = await http.post(
         Uri.parse(url),
         headers: headers,
+        body: jsonEncode(body),
       );
 
       if (response.statusCode == 200) {
         // Successful signup
         final Map<String, dynamic> responseData = jsonDecode(response.body);
+        print(responseData);
         return responseData;
       } else {
         // Handle signup error
