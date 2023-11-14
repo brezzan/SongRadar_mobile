@@ -75,7 +75,10 @@ class _mainAppPageState extends State<mainAppPage> {
         ),
       ),
       body: Center(
-
+            /*
+            *  song, albums
+            *
+            * */
       ),
       // Add the rest of your main app UI here
     );

@@ -167,81 +167,243 @@ class _addNewSongState extends State<addNewSong> {
                     int album_id_to_add_to = 0;
                     bool album_exists = false;
 
-                    // Check if the album exists
-                    for (var albumLine in albums) {
-                      if (albumLine['title'] == album.text &&
-                          albumLine['performers'] == performers.text &&
-                          albumLine['year'] == int.parse(year) &&
-                          albumLine['genre'] == genre.text) {
-                        album_id_to_add_to = albumLine['id'];
-                        album_exists = true;
+                    if(album.text.isNotEmpty) {
+                      // Check if the album exists
+                      for (var albumLine in albums) {
+                        if (albumLine['title'] == album.text &&
+                            albumLine['performers'] == performers.text &&
+                            albumLine['year'] == int.parse(year) &&
+                            albumLine['genre'] == genre.text) {
+                          album_id_to_add_to = albumLine['id'];
+                          album_exists = true;
+                        }
+                      }
+
+                      if (!album_exists) {
+                        // Add the album first
+                        final Map<String,
+                            dynamic> newlyAddedAlbum = await AuthService()
+                            .createAlbum(
+                          album.text,
+                          performers.text,
+                          int.parse(year),
+                          genre.text,
+                        );
+
+                        // Get the ID of the newly added album
+                        album_id_to_add_to = newlyAddedAlbum['id'];
+                        print(
+                            'Song will be added to this album id= $album_id_to_add_to');
+
+                        final Map<String,
+                            dynamic> newlyAddedSong = await AuthService()
+                            .createSong(
+                          title.text,
+                          performers.text,
+                          int.parse(year),
+                          genre.text,
+                          album_id_to_add_to,
+                        );
+
+                        if (!newlyAddedSong.containsKey('error')) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                content: Text(
+                                  'Song added to system',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                        else {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Could not add the song'),
+                                content: Text('${newlyAddedSong['detail']}',),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      }
+
+                      else { // album exists
+                        List<Map<String, dynamic>> songs = await AuthService()
+                            .getSongs();
+                        bool song_exists = false;
+
+                        for (var songLine in songs) {
+                          if (songLine['title'] == title.text &&
+                              songLine['performers'] == performers.text &&
+                              songLine['year'] == int.parse(year) &&
+                              songLine['genre'] == genre.text &&
+                              songLine['id'] == album_id_to_add_to) {
+                            song_exists = true;
+                          }
+                        }
+
+                        if (!song_exists) {
+                          final Map<String,
+                              dynamic> newlyAddedSong = await AuthService()
+                              .createSong(
+                            title.text,
+                            performers.text,
+                            int.parse(year),
+                            genre.text,
+                            album_id_to_add_to,
+                          );
+
+                          if (!newlyAddedSong.containsKey('error')) {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  content: Text(
+                                    'Song added to system',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
+                          else {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Could not add the song'),
+                                  content: Text('${newlyAddedSong['detail']}',),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
+                        }
+                        else { // both song and album exists
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Already in System'),
+                                content: Text(
+                                    'Both song and the album are already in the system'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
                       }
                     }
+                    else{    // empty album text a
+                      List<Map<String, dynamic>> songs = await AuthService()
+                          .getSongs();
+                      bool song_exists = false;
 
-                    if (!album_exists) {
-                      // Add the album first
-                      final Map<String, dynamic> newlyAddedAlbum = await AuthService().createAlbum(
-                        album.text,
-                        performers.text,
-                        int.parse(year),
-                        genre.text,
-                      );
+                      for (var songLine in songs) {
+                        if (songLine['title'] == title.text &&
+                            songLine['performers'] == performers.text &&
+                            songLine['year'] == int.parse(year) &&
+                            songLine['genre'] == genre.text ) {
+                          song_exists = true;
+                        }
+                      }
 
-                      // Get the ID of the newly added album
-                      album_id_to_add_to = newlyAddedAlbum['id'];
-                      print('Song will be added to this album id= $album_id_to_add_to');
-                    }
+                      if (!song_exists) {
+                        int place_holder = 0;
+                        final Map<String,
+                            dynamic> newlyAddedSong = await AuthService()
+                            .createSong(
+                          title.text,
+                          performers.text,
+                          int.parse(year),
+                          genre.text,
+                          place_holder
+                        );
 
-                    // Now that we have the correct album ID, add the song
-                    final Map<String, dynamic> newlyAddedSong = await AuthService().createSong(
-                      title.text,
-                      performers.text,
-                      int.parse(year),
-                      genre.text,
-                      album_id_to_add_to,
-                    );
-
-                    if (!newlyAddedSong.containsKey('error')) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            content: Text(
-                              'Song added to system',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text('OK'),
-                              ),
-                            ],
+                        if (!newlyAddedSong.containsKey('error')) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                content: Text(
+                                  'Song added to system',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
                           );
-                        },
-                      );
-                    }
-                    else{
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Could not add the song'),
-                            content: Text( '${newlyAddedSong['detail']}', ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text('OK'),
-                              ),
-                            ],
+                        }
+                        else {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Could not add the song'),
+                                content: Text('${newlyAddedSong['detail']}',),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
                           );
-                        },
-                      );
+                        }
+                      }
+
+
 
                     }
-
                   } catch (e) {
                     print("Error: $e");
                     // Handle the error as needed
@@ -256,6 +418,7 @@ class _addNewSongState extends State<addNewSong> {
     );
   }
 }
+
 
 
 /*
