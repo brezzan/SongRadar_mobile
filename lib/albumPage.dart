@@ -38,6 +38,7 @@ class _albumPageState extends State<albumPage> {
 
   }
 
+
   @override
   Widget build(BuildContext context) {
     final arguments = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
@@ -82,12 +83,75 @@ class _albumPageState extends State<albumPage> {
 
         ),
       ),
-      body:Column(
-        children: [
-          Text('Album Id: $albumId'),
-          Text('Album name: '),
+      body:Center(
+        child: Column(
+          children: [
+            Flexible(child: Row(children: [
+              Expanded(
+              child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 15),
+                      shape: BeveledRectangleBorder()),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Confirm Delete'),
+                          content: Text('Are you sure you want to delete this album?'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text('Cancel'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            TextButton(
+                              child: Text('Delete'),
+                              onPressed: () {
+                                AuthService().deleteAlbum(albumId).then((response) {
+                                  if (!response.containsKey('error')) {
+                                    Navigator.of(context).pop(); // Close the dialog
+                                    Navigator.pushReplacementNamed(context, '/mainAppPage',
+                                        arguments: {'userid': userid,'username':username});
+                                  } else {
+                                    // Handle deletion error here
+                                    Navigator.of(context).pop();
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                              title: Text('Error'),
+                                              content: Text('Album could not delete'),
+                                              actions: <Widget>[
+                                                TextButton(
+                                                  child: Text('OK'),
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                    },
+                                          ),
+                                          ]);
+                                        },
+                                    );
+                                  }
+                                });
+                              },
+                            ),
 
-        ],
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: Text('Delete Album'))
+            ),
+              Text('Album Id: $albumId'),
+              Text('Album name: '),
+            ],))
+          ],
+        ),
       ),
     );
   }
