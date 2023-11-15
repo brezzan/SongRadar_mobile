@@ -84,6 +84,39 @@ class AuthService {
     }
   }
 
+  Future<Map<String, dynamic>> getUserbyID(int userId) async {    // works but depends on userid argument that comes with widget build so it takes time and requires future build
+    final String getUserUrl = '$baseUrl/debug/users/$userId';
+
+    final Map<String, String> headers = {
+      'accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      final http.Response response = await http.get(
+        Uri.parse(getUserUrl),
+        headers: headers,
+      );
+
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        // Successful user retrieval
+        final Map<String, dynamic> userData = jsonDecode(response.body);
+        print(userData);
+        return userData;
+      } else {
+        // Handle error
+        final Map<String, dynamic> errorData = jsonDecode(response.body);
+        return {'error': errorData['detail']};
+      }
+    } catch (error) {
+      // Handle network or unexpected errors
+      print('Error: $error');
+      return {'error': 'An unexpected error occurred.'};
+    }
+  }
+
   Future<Map<String, dynamic>> signUpUser(String username, String email,
       String password) async {
     final String signUpUrl = '$baseUrl/auth/sign_up';
@@ -189,7 +222,7 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> deleteAlbum(int album_id) async {
+  Future<Map<String, dynamic>> deleteAlbum(int album_id) async {   // did not test it yet
     final String url = '$baseUrl/debug/album/$album_id';
 
     final Map<String, String> headers = {

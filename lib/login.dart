@@ -82,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                       print(userResult);
                       if(!userResult.containsKey('error')){
 
-                        Navigator.pushReplacementNamed(context, '/mainAppPage', arguments: {'username': userResult['username']});
+                        Navigator.pushReplacementNamed(context, '/mainAppPage', arguments: {'userid': userResult['id'],'username':userResult['username']});
                         // successful loginnn
 
                       } else {

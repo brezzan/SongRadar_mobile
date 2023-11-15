@@ -9,16 +9,18 @@ import 'package:songradar/signup.dart';
 import 'package:songradar/mainAppPage.dart';
 
 class addNewAlbum extends StatefulWidget {
+  final int userid;
   final String username;
-  const addNewAlbum({required this.username, Key? key}) : super(key: key);
+  const addNewAlbum({required this.userid, required this.username, Key? key})
+      : super(key: key);
 
   @override
   State<addNewAlbum> createState() => _addNewAlbumState();
 }
 
 class _addNewAlbumState extends State<addNewAlbum> {
+  late int userid;
   late String username;
-
   TextEditingController performers = TextEditingController();
   String year = '0';
   TextEditingController genre = TextEditingController();
@@ -32,6 +34,7 @@ class _addNewAlbumState extends State<addNewAlbum> {
   Widget build(BuildContext context) {
     final arguments =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    userid = int.parse('${arguments?['userid']}');
     username = '${arguments?['username']}';
 
     return Scaffold(
@@ -51,7 +54,7 @@ class _addNewAlbumState extends State<addNewAlbum> {
               ),
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/mainAppPage',
-                    arguments: {'username': username});
+                    arguments: {'userid': userid,'username':username});
               },
             ),
           ],
@@ -60,39 +63,38 @@ class _addNewAlbumState extends State<addNewAlbum> {
       body: Center(
         child: Column(
           children: <Widget>[
-            Flexible (
+            Flexible(
               child: Row(children: [
                 Expanded(
                   child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                          shape: BeveledRectangleBorder()
-                      ),
-
+                          backgroundColor: Colors.transparent,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 15),
+                          shape: BeveledRectangleBorder()),
                       onPressed: () {
                         Navigator.pushReplacementNamed(context, '/addNewSong',
-                            arguments: {'username': username});
+                            arguments: {'userid': userid,'username':username});
                       },
                       child: Text('Add Song')),
                 ),
                 Expanded(
                   child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                          shape: BeveledRectangleBorder()
-                      ),
+                          backgroundColor: Colors.orange,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 15),
+                          shape: BeveledRectangleBorder()),
                       onPressed: () {
                         Navigator.pushReplacementNamed(context, '/addNewAlbum',
-                            arguments: {'username': username});
+                            arguments: {'userid': userid,'username':username});
                       },
                       child: Text('Add Album')),
                 ),
               ]),
             ),
             SizedBox(height: 15),
-            Flexible (
+            Flexible(
               child: TextField(
                 controller: album,
                 decoration: InputDecoration(
@@ -102,7 +104,7 @@ class _addNewAlbumState extends State<addNewAlbum> {
               ),
             ),
             SizedBox(height: 15),
-            Flexible (
+            Flexible(
               child: TextField(
                 controller: performers,
                 decoration: InputDecoration(
@@ -112,7 +114,7 @@ class _addNewAlbumState extends State<addNewAlbum> {
               ),
             ),
             SizedBox(height: 15),
-            Flexible (
+            Flexible(
               child: TextFormField(
                 // Set the controller
                 onChanged: (value) {
@@ -132,7 +134,7 @@ class _addNewAlbumState extends State<addNewAlbum> {
               ),
             ),
             SizedBox(height: 15),
-            Flexible (
+            Flexible(
               child: TextField(
                 controller: genre,
                 decoration: InputDecoration(
@@ -142,56 +144,59 @@ class _addNewAlbumState extends State<addNewAlbum> {
               ),
             ),
             SizedBox(height: 15),
-            Flexible (
+            Flexible(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    shape: BeveledRectangleBorder()
-                ),
-                onPressed: () async {  // add a new album
+                    shape: BeveledRectangleBorder()),
+                onPressed: () async {
+                  // add a new album
 
-                    final Map<String, dynamic> newlyAddedAlbum= await AuthService().createAlbum(album.text, performers.text,int.parse(year), genre.text) ;
-                    if (!newlyAddedAlbum.containsKey('error')) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            content: Text(
-                              'Album added to system',
+                  final Map<String, dynamic> newlyAddedAlbum =
+                      await AuthService().createAlbum(album.text,
+                          performers.text, int.parse(year), genre.text);
+                  if (!newlyAddedAlbum.containsKey('error')) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: Text(
+                            'Album added to system',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushReplacementNamed(context, '/mainAppPage',
+                                    arguments: {'userid': userid,'username':username});
+                              },
+                              child: Text('OK'),
                             ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text('OK'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    }
-                    else{
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Could not add the album'),
-                            content: Text( '${newlyAddedAlbum['detail']}', ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text('OK'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-
-                    }
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Could not add the album'),
+                          content: Text(
+                            '${newlyAddedAlbum['detail']}',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 },
                 child: Text('Add Album'),
               ),

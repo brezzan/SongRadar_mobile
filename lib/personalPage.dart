@@ -8,26 +8,23 @@ import 'package:songradar/login.dart';
 import 'package:songradar/mainAppPage.dart';
 
 class personalPage extends StatefulWidget {
-
+  final int userid;
   final String username;
-  const personalPage({required this.username, Key? key}) : super(key: key);
-
+  const personalPage({required this.userid, required this.username,Key? key}) : super(key: key);
 
   @override
   State<personalPage> createState() => _personalPageState();
 }
 
 class _personalPageState extends State<personalPage> {
+  late int userid;
   late String username;
 
   @override
-
   Widget build(BuildContext context) {
     final arguments =
-    ModalRoute
-        .of(context)
-        ?.settings
-        .arguments as Map<String, dynamic>?;
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    userid = int.parse('${arguments?['userid']}');
     username = '${arguments?['username']}';
 
     return Scaffold(
@@ -35,10 +32,25 @@ class _personalPageState extends State<personalPage> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.deepOrange,
         title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Welcome, $username'),
-            SizedBox(
-              width: 170,
+            IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                size: 40,
+              ),
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/mainAppPage',
+                    arguments: {'userid': userid,'username':username});
+              },
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Center(
+                  child: Text('$username\'s Page'),
+                ),
+              ),
             ),
             IconButton(
               icon: Icon(
@@ -57,7 +69,8 @@ class _personalPageState extends State<personalPage> {
                       actions: [
                         TextButton(
                           onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/login', arguments: {});
+                            Navigator.pushReplacementNamed(context, '/login',
+                                arguments: {});
                           },
                           child: Text('Yes'),
                         ),
@@ -73,6 +86,17 @@ class _personalPageState extends State<personalPage> {
                 );
               },
             ),
+          ],
+        ),
+      ),
+      body:Center(
+        child: Column(
+          children: [
+
+            SizedBox(height: 100),
+
+            Text('NOT IMPLEMENTED YET'),
+
           ],
         ),
       ),

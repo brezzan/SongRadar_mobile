@@ -9,14 +9,16 @@ import 'package:songradar/signup.dart';
 import 'package:songradar/mainAppPage.dart';
 
 class addNewSong extends StatefulWidget {
+  final int userid;
   final String username;
-  const addNewSong({required this.username, Key? key}) : super(key: key);
+  const addNewSong({required this.userid,required this.username, Key? key}) : super(key: key);
 
   @override
   State<addNewSong> createState() => _addNewSongState();
 }
 
 class _addNewSongState extends State<addNewSong> {
+  late int userid;
   late String username;
 
   TextEditingController title = TextEditingController();
@@ -34,6 +36,7 @@ class _addNewSongState extends State<addNewSong> {
   Widget build(BuildContext context) {
     final arguments =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    userid = int.parse('${arguments?['userid']}');
     username = '${arguments?['username']}';
 
     return Scaffold(
@@ -53,7 +56,7 @@ class _addNewSongState extends State<addNewSong> {
               ),
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/mainAppPage',
-                    arguments: {'username': username});
+                    arguments: {'userid': userid, 'username':username});
               },
             ),
           ],
@@ -73,7 +76,7 @@ class _addNewSongState extends State<addNewSong> {
                           shape: BeveledRectangleBorder()),
                       onPressed: () {
                         Navigator.pushReplacementNamed(context, '/addNewSong',
-                            arguments: {'username': username});
+                            arguments: {'userid': userid, 'username':username});
                       },
                       child: Text('Add Song')),
                 ),
@@ -86,7 +89,7 @@ class _addNewSongState extends State<addNewSong> {
                           shape: BeveledRectangleBorder()),
                       onPressed: () {
                         Navigator.pushReplacementNamed(context, '/addNewAlbum',
-                            arguments: {'username': username});
+                            arguments: {'userid': userid, 'username':username});
                       },
                       child: Text('Add Album')),
                 ),

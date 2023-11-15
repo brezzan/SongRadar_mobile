@@ -10,7 +10,8 @@ import 'dart:convert';
 import 'package:songradar/login.dart';
 import 'package:songradar/signup.dart';
 import 'package:songradar/mainAppPage.dart';
-import 'package:flutter_bcrypt/flutter_bcrypt.dart';
+import 'package:songradar/albumPage.dart';
+import 'package:songradar/songPage.dart';
 
 void main() async {
 
@@ -32,10 +33,12 @@ class SongRadar extends StatelessWidget {
         routes: <String, WidgetBuilder>{
           '/login': (BuildContext context) => LoginPage(),
           '/signup': (BuildContext context) => SignUpPage(),
-          '/mainAppPage':(BuildContext context) => mainAppPage(username: ''),
-          '/addNewSong':(BuildContext context) => addNewSong(username: ''),
-          '/addNewAlbum':(BuildContext context) => addNewAlbum(username: ''),
-          '/personalPage':(BuildContext context) => personalPage(username: ''),
+          '/mainAppPage':(BuildContext context) => mainAppPage(userid: 0,username:''),
+          '/addNewSong':(BuildContext context) => addNewSong(userid: 0,username:''),
+          '/addNewAlbum':(BuildContext context) => addNewAlbum(userid: 0,username:''),
+          '/personalPage':(BuildContext context) => personalPage(userid:0,username:''),
+          '/albumPage':(BuildContext context) => albumPage(albumId: 0, userid:0,username:''),
+          '/songPage':(BuildContext context) => songPage(songId: 0 ,userid:0,username:'' ),
         },
     );
   }
