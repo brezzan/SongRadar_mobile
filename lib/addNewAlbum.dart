@@ -61,8 +61,8 @@ class _addNewAlbumState extends State<addNewAlbum> {
         ),
       ),
       body: Center(
-        child: Column(
-          children: <Widget>[
+        child:
+        Column(children: <Widget>[
             Flexible(
               child: Row(children: [
                 Expanded(
@@ -199,6 +199,33 @@ class _addNewAlbumState extends State<addNewAlbum> {
                   }
                 },
                 child: Text('Add Album'),
+              ),
+            ),
+            SizedBox(height: 30),
+
+            Flexible (
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  shape: BeveledRectangleBorder(),
+                ),
+                onPressed: () async { }, //
+
+                child: Text('Add From A File'),
+              ),
+            ),
+            SizedBox(height: 30),
+            Flexible (
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  shape: BeveledRectangleBorder(),
+                ),
+                onPressed: () async { }, //
+
+                child: Text('Add From Other Apps'),
               ),
             ),
           ],

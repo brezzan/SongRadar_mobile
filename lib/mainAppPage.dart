@@ -85,7 +85,8 @@ class _mainAppPageState extends State<mainAppPage> {
         ),
       ),
       body: SingleChildScrollView(
-        child: Column(children: <Widget>[
+        child:
+        Column(children: <Widget>[
           SizedBox(height: 40),
           Text(
             'Recently Favorited -NOT IMPLEMENTED',

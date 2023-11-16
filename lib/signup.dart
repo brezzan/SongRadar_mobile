@@ -32,7 +32,7 @@ class _SignUpPageState extends State<SignUpPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.deepOrange,
-        title: Text('Sound Radar Sign Up'),
+        title: Text('Song Radar Sign Up'),
       ),
       body: Center(
         child: Column(

@@ -415,6 +415,31 @@ class _addNewSongState extends State<addNewSong> {
                 child: Text('Add Song'),
               ),
             ),
+            SizedBox(height: 15),
+            Flexible (
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  shape: BeveledRectangleBorder(),
+                ),
+                onPressed: () async { }, //
+                child: Text('Add From A File'),
+              ),
+            ),
+            SizedBox(height: 15),
+            Flexible (
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  shape: BeveledRectangleBorder(),
+                ),
+                onPressed: () async { }, //
+
+                child: Text('Add From Other Apps'),
+              ),
+            ),
           ],
         ),
       ),

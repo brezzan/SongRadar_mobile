@@ -29,11 +29,10 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.deepOrange,
-        title: Text('Sound Radar Login'),
+        title: Text('Song Radar Login'),
       ),
       body: Center(
-        child: Column(
-          children: <Widget>[
+        child: Column(children: <Widget>[
             SizedBox(height: 20),
             Flexible (
               child: TextField(
