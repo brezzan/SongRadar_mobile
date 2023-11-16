@@ -87,7 +87,7 @@ class _addNewSongState extends State<addNewSong> {
                           padding:
                               EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                           shape: BeveledRectangleBorder()),
-                      onPressed: () {
+                      onPressed: ()  {
                         Navigator.pushReplacementNamed(context, '/addNewAlbum',
                             arguments: {'userid': userid, 'username':username});
                       },

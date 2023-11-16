@@ -222,36 +222,35 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> deleteAlbum(int album_id) async {   // did not test it yet
-    final String url = '$baseUrl/debug/album/$album_id';
+  Future<Map<String, dynamic>> deleteAlbum(int album_id) async {
+    final String url = '$baseUrl/debug/album?album_id=$album_id';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'accept': 'application/json',
     };
 
-    final response = await http.delete(
-      Uri.parse(url),
-      headers: headers,
-    );
+    final Map<String, dynamic> body = {
+      'album_id': album_id,
+    };
 
     try {
-      final response = await http.post(
+      final response = await http.delete(
         Uri.parse(url),
         headers: headers,
+        body: jsonEncode(body),
       );
 
       if (response.statusCode == 200) {
-        // Successful signup
+        // Successful delete
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         return responseData;
       } else {
-        // Handle signup error
+        // Handle delete error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return {'error': response.body};
+        return {'error': errorData['detail']};
       }
-
-    }
-    catch (error) {
+    } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
       return {'error': 'An unexpected error occurred.'};
