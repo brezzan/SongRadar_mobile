@@ -90,7 +90,7 @@ class _albumPageState extends State<albumPage> {
               Expanded(
               child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
+                      backgroundColor: Colors.red,
                       padding: EdgeInsets.symmetric(
                           horizontal: 30, vertical: 15),
                       shape: BeveledRectangleBorder()),
@@ -147,8 +147,8 @@ class _albumPageState extends State<albumPage> {
                   },
                   child: Text('Delete Album'))
             ),
-              Text('Album Id: $albumId'),
-              Text('Album name: '),
+              Expanded(child: Text('Album Id :$albumId')),
+              Expanded(child: Text('Album name: ')),
             ],))
           ],
         ),
