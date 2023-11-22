@@ -218,6 +218,24 @@ Widget build(BuildContext context) {
             ],
           ),
         ),
+        Row(
+          children: [
+            Text(
+              'Go to album page:',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.album_rounded,
+                size: 30,
+              ),
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/albumPage',
+                    arguments: {'albumId': songAlbum, 'userid': userid,'username':username});
+              },
+            ),
+          ],
+        )
        ],
       ),
      ],
