@@ -5,8 +5,11 @@ import 'package:path/path.dart';
 import 'package:songradar/api.dart';
 import 'dart:core';
 import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
+
 import 'package:songradar/signup.dart';
 import 'package:songradar/mainAppPage.dart';
+import 'dart:io';
 
 class addNewSong extends StatefulWidget {
   final int userid;
@@ -26,6 +29,56 @@ class _addNewSongState extends State<addNewSong> {
   String year = '';
   TextEditingController genre = TextEditingController();
   TextEditingController album = TextEditingController();
+
+  Future<void> pickAndReadFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+      /* i tried json bu it does not open file selector ,
+       i tried csv but due to no null-support it does not even compile
+       idk
+
+       suan any file diyip json bir dosya seçmek lazım
+       öyle olunca aşağıdaki kod okuyor
+      */
+    );
+
+    if (result != null) {
+      PlatformFile file = result.files.first;
+
+      if (Platform.isIOS || Platform.isAndroid) {
+        File pickedFile = File(file.path!);
+
+        String fileContent = await pickedFile.readAsString();
+
+        try {
+          List<dynamic> jsonData = jsonDecode(fileContent);
+
+          print(jsonData);
+
+          /* burada bir for loop dönüp aşağıdaki gibi song ve album
+          ekleme yapabilirz diye düşündüm. ama burada json dosyasının
+          içeriği de önemli
+          --albums : .id ,title , ..., songs:[empty or songs_exist here]  tipindeyse ekstra bir check etmek gerekebilir
+          --sadece song
+          --sadece album
+           bunu düşünelim
+
+           herhangi bir file eklemek iöin emulatör içine:
+             sağdan device file explorer aç
+             storage-> emulated->0->Download  kısmına direk file sürükleyip bırakınca ekliyor
+
+
+          */
+        } catch (e) {
+          print('Error decoding JSON: $e');
+        }
+      } else {
+        print('File picking and dart:io not supported on this platform.');
+      }
+    } else {
+      // User canceled file picking
+    }
+  }
 
 
   @override
@@ -416,14 +469,14 @@ class _addNewSongState extends State<addNewSong> {
               ),
             ),
             SizedBox(height: 15),
-            Flexible (
+            Flexible(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   shape: BeveledRectangleBorder(),
                 ),
-                onPressed: () async { }, //
+                onPressed: pickAndReadFile ,
                 child: Text('Add From A File'),
               ),
             ),
@@ -446,94 +499,3 @@ class _addNewSongState extends State<addNewSong> {
     );
   }
 }
-
-
-
-/*
-onPressed: () async {  // once 200 sonra 422 veriyor post fonskiyonunu daha iyi incele
-                  try {
-                    List<Map<String, dynamic>> albums = await AuthService().getAlbums();
-
-                    int album_id_to_add_to = 0;
-                    bool album_exists = false;
-
-                    // Check if the album exists
-                    for (var albumLine in albums) {
-                      if (albumLine['title'] == album.text &&
-                          albumLine['performers'] == performers.text &&
-                          albumLine['year'] == int.parse(year) &&
-                          albumLine['genre'] == genre.text) {
-                        album_id_to_add_to = albumLine['id'];
-                        album_exists = true;
-                      }
-                    }
-
-                    if (!album_exists) {
-                      // Add the album first
-                      final Map<String, dynamic> newlyAddedAlbum = await AuthService().createAlbum(
-                        album.text,
-                        performers.text,
-                        int.parse(year),
-                        genre.text,
-                      );
-
-                      // Get the ID of the newly added album
-                      album_id_to_add_to = newlyAddedAlbum['id'];
-                    }
-
-                    // Now that we have the correct album ID, add the song
-                    final Map<String, dynamic> newlyAddedSong = await AuthService().createSong(
-                      title.text,
-                      performers.text,
-                      int.parse(year),
-                      genre.text,
-                      album_id_to_add_to,
-                    );
-
-                    if (!newlyAddedSong.containsKey('error')) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            content: Text(
-                              'Song added to system',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text('OK'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    }
-                    else{
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Could not add the song'),
-                            content: Text( '${newlyAddedSong['detail']}', ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text('OK'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-
-                    }
-
-                  } catch (e) {
-                    print("Error: $e");
-                    // Handle the error as needed
-                  }
-                },
- */
