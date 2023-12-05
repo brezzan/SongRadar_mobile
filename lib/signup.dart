@@ -7,6 +7,7 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:convert';
 import 'package:songradar/login.dart';
 import 'package:songradar/signup.dart';
+import 'package:flutter/services.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -21,10 +22,7 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController password = TextEditingController();
   TextEditingController mail = TextEditingController();
   bool _passwordVisible = false;
-
-
-
-
+  
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
@@ -39,30 +37,43 @@ class _SignUpPageState extends State<SignUpPage> {
           children: <Widget>[
             SizedBox(height: 20),
             Flexible (
-              child: TextField(
-                controller: username,
-                decoration: InputDecoration(
-                  icon: Icon(Icons.person),
-                  hintText: 'Username',
+              child: Row(
+                children: [
+                  Expanded(child: TextField(
+                  controller: username,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.person),
+                    hintText: 'Username',
+                  ),
+                 ),
                 ),
-              ),
+              IconButton(
+                  icon: Icon(Icons.help),
+                  onPressed: () {
+                    showInfoDialog(context, 'Username must have 6-18 characters. It must start with a letter and can have numbers and letters.');
+                  },
+                ),
+              ],
             ),
-            SizedBox(height: 20),
-            Flexible (
-              child: TextField(
+          ),
+           SizedBox(height: 20),
+           Flexible (
+             child: TextField(
                 controller: mail,
                 decoration: InputDecoration(
-                  icon: Icon(Icons.mail_outline),
-                  hintText: 'Mail',
+                   icon: Icon(Icons.mail_outline),
+                   hintText: 'Mail',
                 ),
               ),
             ),
-            SizedBox(height: 20),
-            Flexible (
-              child: TextField(
-                controller: password,
-                obscureText: !_passwordVisible, // Obscure text if _passwordVisible is false
-                decoration: InputDecoration(
+           SizedBox(height: 20),
+           Flexible (
+             child: Row(
+               children: [
+                 Expanded(child: TextField(
+                 controller: password,
+                 obscureText: !_passwordVisible, // Obscure text if _passwordVisible is false
+                 decoration: InputDecoration(
                   icon: Icon(Icons.vpn_key),
                   hintText: 'Password',
                   suffixIcon: IconButton(
@@ -73,11 +84,20 @@ class _SignUpPageState extends State<SignUpPage> {
                       setState(() {
                         _passwordVisible = !_passwordVisible;
                       });
-                    },
+                      },
                   ),
+                 ),
                 ),
-              ),
-            ),
+               ),
+             IconButton(
+               icon: Icon(Icons.help),
+               onPressed: () {
+                 showInfoDialog(context, 'Your password must consist of at least 8 characters. Must have uppercase letter, lowercase letter, numeric digit, and special letter and no whitespace.');
+                 },
+             ),
+             ],
+             ),
+           ),
             SizedBox(height: 20),
             Flexible (
               child: ElevatedButton(
@@ -151,3 +171,40 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 }
+void showInfoDialog(BuildContext context, String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        backgroundColor: Colors.deepOrangeAccent.withOpacity(0.5), // Set background color to transparent
+        content: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.5), // Set content background color
+            borderRadius: BorderRadius.circular(0.5),
+          ),
+          padding: EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Information'),
+                  IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height: 15),
+              Text(message),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
