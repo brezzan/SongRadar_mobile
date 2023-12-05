@@ -228,7 +228,7 @@ class AlbumCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Navigator.pushReplacementNamed(context, '/albumPage',
-            arguments: {'albumId': albumId, 'userid': userid,'username':username});
+            arguments: {'albumId': albumId, 'albumTitle':albumName,'userid': userid,'username':username});
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,

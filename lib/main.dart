@@ -37,7 +37,7 @@ class SongRadar extends StatelessWidget {
           '/addNewSong':(BuildContext context) => addNewSong(userid: 0,username:''),
           '/addNewAlbum':(BuildContext context) => addNewAlbum(userid: 0,username:''),
           '/personalPage':(BuildContext context) => personalPage(userid:0,username:''),
-          '/albumPage':(BuildContext context) => albumPage(albumId: 0, userid:0,username:''),
+          '/albumPage':(BuildContext context) => albumPage(albumId: 0, userid:0,username:'',albumTitle: '',),
           '/songPage':(BuildContext context) => songPage(songId: 0 ,userid:0,username:'' ),
         },
     );

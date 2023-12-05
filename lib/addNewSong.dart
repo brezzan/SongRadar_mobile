@@ -30,16 +30,164 @@ class _addNewSongState extends State<addNewSong> {
   TextEditingController genre = TextEditingController();
   TextEditingController album = TextEditingController();
 
-  Future<void> pickAndReadFile() async {
+
+  Future<void> addAlbumFromFile(Map<String, dynamic> albumData, int songs_count,int album_count) async {
+    String albumTitle = albumData['title'];
+    int albumYear = albumData['year'];
+    String albumGenre = albumData['genre'];
+    String albumPerformers = albumData['performers'];
+
+    List<Map<String, dynamic>> songsData = List<Map<String, dynamic>>.from(albumData['songs']);
+
+    //List<Map<String, dynamic>> albums = await AuthService().getAlbums(); // eklemeden önce album var mı yok mu
+    List<Map<String, dynamic>> albums = (await AuthService().getAlbums()) as List<Map<String, dynamic>>;
+
+    bool album_exists = false;
+    int album_id_to_add_to = 0;
+    List<Map<String, dynamic>> songs_in_that_album = [];
+
+    for (var albumLine in albums) {
+      if (albumLine['title'] == albumTitle &&
+          albumLine['performers'] == albumPerformers &&
+          albumLine['year'] == albumYear &&
+          albumLine['genre'] == albumGenre) {
+
+        album_exists = true;
+        album_id_to_add_to = albumLine['id'];
+        songs_in_that_album = albumLine['songs'] as List<Map<String, dynamic>> ;
+      }
+    }
+
+    if (!album_exists) {
+      final Map<String, dynamic> newlyAddedAlbum = await AuthService().createAlbum(albumTitle, albumPerformers, albumYear,
+          albumGenre);
+
+      if (!newlyAddedAlbum.containsKey('error')) {
+        print("SUCCESFULLY ADDDED ALBUM");
+        album_count ++ ;
+        album_id_to_add_to = newlyAddedAlbum['id'];
+        songs_in_that_album =  newlyAddedAlbum['songs'];  // album içine aynı şarkıyı eklememk için check etmek için tut
+
+      } else {
+        print("CANNOT ADD ALBUM ");
+
+      }
+    }
+    // album db de yoksa bile artık var
+
+    if (songsData.isNotEmpty) { // album içinde eklenecek şarkı var
+
+      for (var songData in songsData) {
+        bool songexists = false;
+        String songTitle = songData['title'];   // album ile icindeki song zaten aynı genre year ve performersa sahip, sadece song itle al
+        for (var existingsongs in songs_in_that_album) {
+          if (existingsongs['title'] ==songTitle && existingsongs['year'] ==albumYear &&
+              existingsongs['genre'] ==albumGenre && existingsongs['performers'] ==albumPerformers) {
+            songexists = true;
+          }
+        }
+
+        if(!songexists){
+          final Map<String, dynamic> newlyAddedSong = await AuthService().createSong(songTitle, albumPerformers, albumYear, albumGenre,
+            album_id_to_add_to,);
+          songs_count ++;
+
+          // update songs_in_that_album
+
+        }
+      }
+    }
+  }
+
+
+  Future<void> addSongFromFile(Map<String, dynamic> songData ,int songs_count,int album_count) async {
+    String songTitle = songData['title'];
+    int songYear = songData['year'];
+    String songGenre = songData['genre'];
+    String songPerformers = songData['performers'];
+
+    bool songexists = false;
+
+    if (songData.containsKey('album')) { // bu şarkı bir albüme eklenmeli önce albüm var mı check et , yoksa yarat
+      print("songData.containsKey('album'): ${songData.containsKey('album')}");
+      String albumTitle = songData['album'];
+
+      //List<Map<String, dynamic>> albums = await AuthService().getAlbums(); // eklemeden önce album var mı yok mu
+      List<Map<String, dynamic>> albums = (await AuthService().getAlbums()) as List<Map<String, dynamic>>;
+
+      bool album_exists = false;
+      int album_id_to_add_to = 0;
+      List<Map<String, dynamic>> songs_in_that_album = [];
+
+
+      for (var albumLine in albums) {
+        if (albumLine['title'] == albumTitle &&
+            albumLine['performers'] == songPerformers &&
+            albumLine['year'] == songYear &&
+            albumLine['genre'] == songGenre) {
+          album_exists = true;
+          album_id_to_add_to = albumLine['id'];
+          songs_in_that_album = albumLine['songs'];
+
+        }
+      }
+
+      if (!album_exists) {
+        final Map<String, dynamic> newlyAddedAlbum = await AuthService().createAlbum(albumTitle, songPerformers, songYear,
+            songGenre); // album var mı yok mu check ediyor mu hatırlamıyorum
+
+        if (!newlyAddedAlbum.containsKey('error')) {
+          print("SUCCESFULLY ADDDED ALBUM");
+          album_count ++;
+          album_id_to_add_to = newlyAddedAlbum['id'];
+          songs_in_that_album =  newlyAddedAlbum['songs'] ; // album içine aynı şarkıyı eklememk için check etmek için tut
+
+        } else {
+          print("CANNOT ADD ALBUM ");
+        }
+      }
+
+      for (var existingsongs in songs_in_that_album) {
+        if (existingsongs['title'] == songTitle &&
+            existingsongs['year'] == songYear && existingsongs['genre'] == songGenre &&
+            existingsongs['performers'] == songPerformers) {
+          songexists = true;
+        }
+      }
+
+      if (!songexists) {
+        final Map<String, dynamic> newlyAddedSong = await AuthService().createSong(songTitle, songPerformers,  songYear , songGenre,
+          album_id_to_add_to,);
+        songs_count ++;
+      }
+
+
+    } else { // album title olmadan ekle
+      //List<Map<String, dynamic>> songs = await AuthService().getSongs();
+      List<Map<String, dynamic>> songs = (await AuthService().getSongs()) as List<Map<String, dynamic>>;
+      bool song_exists = false;
+
+      for (var songLine in songs) {
+        if (songLine['title'] == songTitle &&
+            songLine['performers'] == songPerformers &&
+            songLine['year'] == songYear &&
+            songLine['genre'] == songGenre) {
+          song_exists = true;
+        }
+      }
+
+      if (!song_exists) {
+        int place_holder = 0; // albumsuz olduğu için şuan album_id 0 olacak sekilde kaydet
+        final Map<String, dynamic> newlyAddedSong = await AuthService().createSong(
+            songTitle, songPerformers, songYear, songGenre, place_holder);
+        songs_count ++;
+      }
+    }
+  }
+
+  Future<void> pickAndReadFile(BuildContext context ) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.any,
-      /* i tried json bu it does not open file selector ,
-       i tried csv but due to no null-support it does not even compile
-       idk
-
-       suan any file diyip json bir dosya seçmek lazım
-       öyle olunca aşağıdaki kod okuyor
-      */
     );
 
     if (result != null) {
@@ -51,24 +199,36 @@ class _addNewSongState extends State<addNewSong> {
         String fileContent = await pickedFile.readAsString();
 
         try {
+          int songs_count = 0;
+          int albums_count = 0;
           List<dynamic> jsonData = jsonDecode(fileContent);
 
-          print(jsonData);
+          for (var element in jsonData) {
+            if (element.containsKey('songs')) {  // element to be added is an album
+              addAlbumFromFile(element,songs_count,albums_count);
+            } else {  // It's a song          // element to be added is a song
+              addSongFromFile(element,songs_count,albums_count);
+            }
+          }
+          showDialog(
+           context: context ,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                content: Text(
+                  '$albums_count albums and $songs_count songs have been added succesfully ',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
 
-          /* burada bir for loop dönüp aşağıdaki gibi song ve album
-          ekleme yapabilirz diye düşündüm. ama burada json dosyasının
-          içeriği de önemli
-          --albums : .id ,title , ..., songs:[empty or songs_exist here]  tipindeyse ekstra bir check etmek gerekebilir
-          --sadece song
-          --sadece album
-           bunu düşünelim
-
-           herhangi bir file eklemek iöin emulatör içine:
-             sağdan device file explorer aç
-             storage-> emulated->0->Download  kısmına direk file sürükleyip bırakınca ekliyor
-
-
-          */
         } catch (e) {
           print('Error decoding JSON: $e');
         }
@@ -237,9 +397,7 @@ class _addNewSongState extends State<addNewSong> {
 
                       if (!album_exists) {
                         // Add the album first
-                        final Map<String,
-                            dynamic> newlyAddedAlbum = await AuthService()
-                            .createAlbum(
+                        final Map<String, dynamic> newlyAddedAlbum = await AuthService().createAlbum(
                           album.text,
                           performers.text,
                           int.parse(year),
@@ -248,8 +406,7 @@ class _addNewSongState extends State<addNewSong> {
 
                         // Get the ID of the newly added album
                         album_id_to_add_to = newlyAddedAlbum['id'];
-                        print(
-                            'Song will be added to this album id= $album_id_to_add_to');
+                        print('Song will be added to this album id= $album_id_to_add_to');
 
                         final Map<String,
                             dynamic> newlyAddedSong = await AuthService()
@@ -390,7 +547,8 @@ class _addNewSongState extends State<addNewSong> {
                         }
                       }
                     }
-                    else{    // empty album text a
+                    else{    // empty album text , burada elbum id 0 olarak kayıt ediliyor
+                            // ileride single olacak şekile aynı adda bir albüm yaratıp onun içibe eklemek gerekebilir
                       List<Map<String, dynamic>> songs = await AuthService()
                           .getSongs();
                       bool song_exists = false;
@@ -476,7 +634,7 @@ class _addNewSongState extends State<addNewSong> {
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   shape: BeveledRectangleBorder(),
                 ),
-                onPressed: pickAndReadFile ,
+                onPressed: () => pickAndReadFile(context),
                 child: Text('Add From A File'),
               ),
             ),
