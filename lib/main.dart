@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:songradar/addNewAlbum.dart';
 import 'package:songradar/addNewSong.dart';
+import 'package:songradar/performerPage.dart';
 import 'package:songradar/personalPage.dart';
 import 'dart:core';
 import 'package:sqflite/sqflite.dart';
@@ -38,7 +39,8 @@ class SongRadar extends StatelessWidget {
           '/addNewAlbum':(BuildContext context) => addNewAlbum(userid: 0,username:''),
           '/personalPage':(BuildContext context) => personalPage(userid:0,username:''),
           '/albumPage':(BuildContext context) => albumPage(albumId: 0, userid:0,username:'',albumTitle: '',),
-          '/songPage':(BuildContext context) => songPage(songId: 0 ,userid:0,username:'' ),
+          '/songPage':(BuildContext context) => songPage(songId: 0 ,userid:0,username:'',albumName: '',albumId: 0,genre: '',performers: '',songName: '',year: 0 ),
+          '/performerPage':(BuildContext context) => performerPage(userid:0,username:'',performers: '',),
         },
     );
   }

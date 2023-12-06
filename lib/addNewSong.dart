@@ -37,10 +37,15 @@ class _addNewSongState extends State<addNewSong> {
     String albumGenre = albumData['genre'];
     String albumPerformers = albumData['performers'];
 
-    List<Map<String, dynamic>> songsData = List<Map<String, dynamic>>.from(albumData['songs']);
+    List<dynamic>songsData = albumData['songs'];
+    print(albumTitle);
+    print(albumYear);
+    print(albumGenre);
+    print(albumPerformers);
+    print(songsData);
 
     //List<Map<String, dynamic>> albums = await AuthService().getAlbums(); // eklemeden önce album var mı yok mu
-    List<Map<String, dynamic>> albums = (await AuthService().getAlbums()) as List<Map<String, dynamic>>;
+    List<Map<String, dynamic>> albums = await AuthService().getAlbums();
 
     bool album_exists = false;
     int album_id_to_add_to = 0;
@@ -54,23 +59,21 @@ class _addNewSongState extends State<addNewSong> {
 
         album_exists = true;
         album_id_to_add_to = albumLine['id'];
-        songs_in_that_album = albumLine['songs'] as List<Map<String, dynamic>> ;
+        songs_in_that_album = albumLine['songs'] ;
       }
     }
+    print(album_exists);
 
     if (!album_exists) {
-      final Map<String, dynamic> newlyAddedAlbum = await AuthService().createAlbum(albumTitle, albumPerformers, albumYear,
-          albumGenre);
+      final Map<String, dynamic> newlyAddedAlbumFromFile = await AuthService().createAlbum(albumTitle, albumPerformers, albumYear, albumGenre);
 
-      if (!newlyAddedAlbum.containsKey('error')) {
-        print("SUCCESFULLY ADDDED ALBUM");
-        album_count ++ ;
-        album_id_to_add_to = newlyAddedAlbum['id'];
-        songs_in_that_album =  newlyAddedAlbum['songs'];  // album içine aynı şarkıyı eklememk için check etmek için tut
-
+      if (newlyAddedAlbumFromFile.containsKey('id')) {
+        print("SUCCESFULLY ADDED ALBUM");
+        album_count++;
+        album_id_to_add_to = newlyAddedAlbumFromFile['id'];
+        songs_in_that_album = List<Map<String, dynamic>>.from(newlyAddedAlbumFromFile['songs']);
       } else {
-        print("CANNOT ADD ALBUM ");
-
+        print("CANNOT ADD ALBUM - ${newlyAddedAlbumFromFile['error']}");
       }
     }
     // album db de yoksa bile artık var
@@ -90,7 +93,7 @@ class _addNewSongState extends State<addNewSong> {
         if(!songexists){
           final Map<String, dynamic> newlyAddedSong = await AuthService().createSong(songTitle, albumPerformers, albumYear, albumGenre,
             album_id_to_add_to,);
-          songs_count ++;
+          songs_count  = songs_count + 1;
 
           // update songs_in_that_album
 
@@ -113,7 +116,7 @@ class _addNewSongState extends State<addNewSong> {
       String albumTitle = songData['album'];
 
       //List<Map<String, dynamic>> albums = await AuthService().getAlbums(); // eklemeden önce album var mı yok mu
-      List<Map<String, dynamic>> albums = (await AuthService().getAlbums()) as List<Map<String, dynamic>>;
+      List<Map<String, dynamic>> albums = await AuthService().getAlbums();
 
       bool album_exists = false;
       int album_id_to_add_to = 0;
@@ -138,7 +141,7 @@ class _addNewSongState extends State<addNewSong> {
 
         if (!newlyAddedAlbum.containsKey('error')) {
           print("SUCCESFULLY ADDDED ALBUM");
-          album_count ++;
+          album_count  = album_count +1 ;
           album_id_to_add_to = newlyAddedAlbum['id'];
           songs_in_that_album =  newlyAddedAlbum['songs'] ; // album içine aynı şarkıyı eklememk için check etmek için tut
 
@@ -158,7 +161,7 @@ class _addNewSongState extends State<addNewSong> {
       if (!songexists) {
         final Map<String, dynamic> newlyAddedSong = await AuthService().createSong(songTitle, songPerformers,  songYear , songGenre,
           album_id_to_add_to,);
-        songs_count ++;
+        songs_count  = songs_count + 1;
       }
 
 
@@ -180,7 +183,7 @@ class _addNewSongState extends State<addNewSong> {
         int place_holder = 0; // albumsuz olduğu için şuan album_id 0 olacak sekilde kaydet
         final Map<String, dynamic> newlyAddedSong = await AuthService().createSong(
             songTitle, songPerformers, songYear, songGenre, place_holder);
-        songs_count ++;
+        songs_count  = songs_count + 1;
       }
     }
   }

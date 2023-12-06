@@ -8,44 +8,33 @@ import 'package:songradar/login.dart';
 import 'package:songradar/signup.dart';
 import 'package:songradar/albumPage.dart';
 
-/*
-song info
-
-delete_song function will be here
-
-func not ready
- */
-
 class songPage extends StatefulWidget {
-  final int songId, userid;
-  final String username;
-  const songPage({required this.songId, required this.userid, required this.username, Key? key}) : super(key: key);
+  final int songId, albumId, userid, year;
+  final String username, songName, albumName, performers, genre;
+  const songPage(
+      {required this.songId,
+      required this.albumName,
+      required this.userid,
+      required this.songName,
+      required this.albumId,
+      required this.year,
+      required this.genre,
+      required this.performers,
+      required this.username,
+      Key? key})
+      : super(key: key);
 
   @override
   State<songPage> createState() => _songPageState();
 }
+
 class _songPageState extends State<songPage> {
-  late String username;
-  late int userid; // Corrected variable name to userId
-  late int songId;
-
-  List<Map<String, dynamic>> to_print_songs = [];
-  late Future<List<Map<String, dynamic>>> songs;
-  late Future<Map<String, dynamic>> currentUser ;
-
-  Future<void> fetchSongs() async {
-    songs = AuthService().getSongs(); // future widget build to see song cards
-
-    to_print_songs = await AuthService().getSongs();
-    print("all songs printed:   ");
-    print(to_print_songs);
-    print("----");
-  }
+  late String username, songName, albumName, performers, genre;
+  late int userid, songId, year, albumId; // Corrected variable name to userId
 
   @override
   void initState() {
     super.initState();
-    fetchSongs();
   }
 
   @override
@@ -54,16 +43,22 @@ class _songPageState extends State<songPage> {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     userid = int.parse('${arguments?['userid']}');
     songId = int.parse('${arguments?['songId']}');
+    year = int.parse('${arguments?['year']}');
     username = '${arguments?['username']}';
+    albumName = '${arguments?['albumName']}';
+    songName = '${arguments?['songName']}';
+    performers = '${arguments?['performers']}';
+    genre = '${arguments?['genre']}';
+    albumId = int.parse('${arguments?['albumId']}');
 
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.deepOrange,
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround ,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Text('Song Page'),
+            Text('$albumName-$songName'),
             Flexible(
               child: SizedBox(width: 200),
             ),
@@ -83,76 +78,244 @@ class _songPageState extends State<songPage> {
                 size: 30,
               ),
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/personalPage', arguments: {'userid': userid,'username':username});
+                Navigator.pushReplacementNamed(context, '/personalPage',
+                    arguments: {'userid': userid, 'username': username});
               },
             ),
           ],
         ),
       ),
       body: SingleChildScrollView(
-        child:
-        Column(children: <Widget>[
-          SizedBox(height: 40),
-          Text(
-            'Song Details',
-            textAlign: TextAlign.center,
-          ),
-          FutureBuilder(
-            future: songs,
-            builder:
-                (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                // While data is being fetched, you can show a loading indicator
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                // If an error occurs during data fetching
-                return Text('Error loading songs');
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                // If no albums are available
-                return Text('No songs found');
-              } else {
-                // Data has been successfully fetched, build the list of AlbumCards
-                List<Map<String, dynamic>> songs = snapshot.data!;
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (var song in songs)
-                        if (song['id'] == songId)
-                          SongCard(
-                              songName: song['title'].toString(),
-                              songPerformers: song['performers'].toString(),
-                              songYear: song['year'].toString(),
-                              songId: song['id'],
-                              songAlbum: song['album_id'],
-                              userid: userid,
-                              username: username,
-                              genre: song['genre']),
-                    ],
+        child: Column(
+          children: <Widget>[
+            SizedBox(height: 40),
+            Text(
+              'Song Details',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 25),
+            ),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Performers:',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 20),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushReplacementNamed(context, '/performerPage',
+                        arguments: {'userid': userid, 'username': username,'performers':performers});
+                  },
+                  child: Text(
+                    '$performers',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal, decoration: TextDecoration.underline),
                   ),
-                );
-              }
-            },
-          ),
-        ],),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Year: $year',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Genre: $genre ',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
+            ),
+            SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Go to the Album:',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.album_rounded,
+                    size: 30,
+                  ),
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/albumPage',
+                        arguments: {
+                          'albumId': albumId,
+                          'userid': userid,
+                          'username': username,
+                          'albumTitle':albumName
+                        });
+                  },
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+
+            Row(
+              children: [
+                Flexible(
+                  child: Divider(
+                    height: 5, // Set the height of the divider
+                    thickness: 1, // Set the thickness of the divider
+                    color: Colors.black, // Set the color of the divider
+                  ),
+                ),
+              ],
+            ),
+            SongCard(
+              songName: songName,
+              albumId: albumId,
+              genre: genre,
+              songId: songId,
+              songPerformers: performers,
+              songYear: year.toString(),
+              userid: userid,
+              username: username,
+            )
+          ],
+        ),
       ),
-      bottomNavigationBar: Row(
+    );
+  }
+}
+/*
+
+bottomNavigationBar: Row(
         children: [
-          Expanded(child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 30, vertical: 15),
-                  shape: BeveledRectangleBorder()),
-              onPressed: () {},
-              child: Text('Delete Song (Not Implemented Yet)')
-          ),
+          Expanded(
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    shape: BeveledRectangleBorder()),
+                onPressed: () {},
+                child: Text('Delete Song (Not Implemented Yet)')),
           ),
         ],
       ),
-     );
+ */
+
+class SongCard extends StatelessWidget {
+  final String songName, songPerformers, songYear, username, genre;
+  final int songId, userid, albumId;
+
+  SongCard(
+      {required this.userid,
+      required this.songName,
+      required this.songPerformers,
+      required this.songYear,
+      required this.albumId,
+      required this.songId,
+      required this.username,
+      required this.genre});
+
+  void _onStarClicked(int starCount) {}
+  int rating = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushReplacementNamed(context, '/songPage', arguments: {
+          'songId': songId,
+          'userid': userid,
+          'username': username
+        });
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start, // Set to spaceBetween
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(width: 20),
+          SizedBox(
+            height: 90,
+            width: 90,
+            child: Container(
+              margin: EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Center(
+                child: Text(
+                  'Song Image',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 4.0),
+          Flexible(
+            child: Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 45),
+                    Text(
+                      songName,
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      songPerformers,
+                      style: TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.normal),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            width: 200,
+          ),
+          Column(
+            children: [
+              SizedBox(height: 35),
+              IconButton(
+                icon: Icon(
+                    Icons.delete_forever_outlined),
+                color: Colors.grey,
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Confirm Delete'),
+                        content: Text(
+                            'Are you sure you want to delete this song? \n NOT IMPLEMENTED YET'),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text('Cancel'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          TextButton(
+                            child: Text('Delete'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          )
+        ],
+      ),
+    );
   }
 }
+
+/*
 class SongCard extends StatelessWidget {
   final String songName, songPerformers, songYear, username, genre;
   final int songId, userid, songAlbum;
@@ -167,78 +330,83 @@ class SongCard extends StatelessWidget {
     required this.username,
     required this.genre,
   });
-@override
+  @override
 
 
-Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
   return Column(
     children: <Widget>[
-    Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          margin: EdgeInsets.all(10.0),
-          padding: EdgeInsets.all(30.0),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.black),
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          child: Center(
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            margin: EdgeInsets.all(10.0),
+            padding: EdgeInsets.all(30.0),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.black),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Center(
               child: Text(
-                'Song Image', // You can replace this with actual album cover widget
+                'Song Image',
+                // You can replace this with actual album cover widget
                 style: TextStyle(fontSize: 12), // Set the desired font size
               ),
             ),
           ),
-        SizedBox(
-            height: 4.0), // Adjust the spacing between the box and the text
-        Flexible(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          SizedBox(
+              height: 4.0), // Adjust the spacing between the box and the text
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Song Name :' + songName,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  'Performers :' + songPerformers,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                ),
+                Text(
+                  'Year :' + songYear,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                ),
+                Text(
+                  'Genre :' + genre,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                ),
+              ],
+            ),
+          ),
+          Row(
             children: [
               Text(
-                'Song Name :' + songName,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                'Performers :' + songPerformers,
+                'Go to album page:',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
               ),
-              Text(
-                'Year :' + songYear,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-              ),
-              Text(
-                'Genre :' + genre,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+              IconButton(
+                icon: Icon(
+                  Icons.album_rounded,
+                  size: 30,
+                ),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/albumPage',
+                      arguments: {
+                        'albumId': songAlbum,
+                        'userid': userid,
+                        'username': username
+                      });
+                },
               ),
             ],
-          ),
-        ),
-        Row(
-          children: [
-            Text(
-              'Go to album page:',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.album_rounded,
-                size: 30,
-              ),
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/albumPage',
-                    arguments: {'albumId': songAlbum, 'userid': userid,'username':username});
-              },
-            ),
-          ],
-        )
-       ],
+          )
+        ],
       ),
-     ],
-    );
-}
-}
+    ],
+  );
+  }
+ */
