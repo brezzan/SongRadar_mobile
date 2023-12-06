@@ -6,7 +6,6 @@ import 'package:songradar/api.dart';
 import 'dart:core';
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
-
 import 'package:songradar/signup.dart';
 import 'package:songradar/mainAppPage.dart';
 import 'dart:io';
@@ -65,6 +64,7 @@ class _addNewSongState extends State<addNewSong> {
     print(album_exists);
 
     if (!album_exists) {
+      print('will add the $albumTitle - $albumYear - $albumGenre - $albumPerformers to albums');
       final Map<String, dynamic> newlyAddedAlbumFromFile = await AuthService().createAlbum(albumTitle, albumPerformers, albumYear, albumGenre);
 
       if (newlyAddedAlbumFromFile.containsKey('id')) {
@@ -74,6 +74,7 @@ class _addNewSongState extends State<addNewSong> {
         songs_in_that_album = List<Map<String, dynamic>>.from(newlyAddedAlbumFromFile['songs']);
       } else {
         print("CANNOT ADD ALBUM - ${newlyAddedAlbumFromFile['error']}");
+        // works - album without songs can be added successfully
       }
     }
     // album db de yoksa bile artık var
@@ -81,6 +82,7 @@ class _addNewSongState extends State<addNewSong> {
     if (songsData.isNotEmpty) { // album içinde eklenecek şarkı var
 
       for (var songData in songsData) {
+        print(songData);
         bool songexists = false;
         String songTitle = songData['title'];   // album ile icindeki song zaten aynı genre year ve performersa sahip, sadece song itle al
         for (var existingsongs in songs_in_that_album) {
@@ -120,7 +122,7 @@ class _addNewSongState extends State<addNewSong> {
 
       bool album_exists = false;
       int album_id_to_add_to = 0;
-      List<Map<String, dynamic>> songs_in_that_album = [];
+      List<dynamic> songs_in_that_album = [];
 
 
       for (var albumLine in albums) {
@@ -189,6 +191,8 @@ class _addNewSongState extends State<addNewSong> {
   }
 
   Future<void> pickAndReadFile(BuildContext context ) async {
+    int songs_count = 0;
+    int albums_count = 0;
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.any,
     );
@@ -202,8 +206,6 @@ class _addNewSongState extends State<addNewSong> {
         String fileContent = await pickedFile.readAsString();
 
         try {
-          int songs_count = 0;
-          int albums_count = 0;
           List<dynamic> jsonData = jsonDecode(fileContent);
 
           for (var element in jsonData) {
@@ -213,6 +215,7 @@ class _addNewSongState extends State<addNewSong> {
               addSongFromFile(element,songs_count,albums_count);
             }
           }
+
           showDialog(
            context: context ,
             builder: (BuildContext context) {
@@ -637,7 +640,8 @@ class _addNewSongState extends State<addNewSong> {
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   shape: BeveledRectangleBorder(),
                 ),
-                onPressed: () => pickAndReadFile(context),
+                onPressed: () async => pickAndReadFile(context),
+               //onPressed: () async { }, //
                 child: Text('Add From A File'),
               ),
             ),
