@@ -1,16 +1,28 @@
-# songradar
+# Songradar Mobile Application
 
-cs308 2023-34 project
+1-) Dowload Android Studio ( flutter: dart sdk >= 2.0 ) 
 
-## Getting Started
+- clone the repository 
 
-This project is a starting point for a Flutter application.
+2-) git clone https://github.com/brezzan/SongRadar_mobile
 
-A few resources to get you started if this is your first Flutter project:
+3-) Open the folder using Android Studio 
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+4-) Create a virtual mobile device from the SDK Manager ( Android version 9.0 Pie and above)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+5-)Open a terminal and run the code to get the dependencies from pubspec.yaml file 
+
+- flutter pub get
+
+6-)Create the virtual environemnt for api to run : check the backend side 
+  https://github.com/ilhaniskurt/songradar-backend
+
+7-) Activate the virtual device and run the App
+
+# Features
+
+In this app, you can 
+- Login/ Sign Up with authorization
+- Add songs and albums ( via file selection, data reading from another database and manual info typing)
+- See album / song / performer info
+- Delete album 
