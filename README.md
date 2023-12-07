@@ -1,12 +1,11 @@
 # Songradar Mobile Application
 
-1-) Dowload Android Studio ( flutter: dart sdk >= 2.0 ) 
+1-) Dowload Android Studio ( flutter sdk: '>=2.19.6 <3.0.0' ) 
 
-- clone the repository 
+2-) Create a flutter application and open the application folder in Android studio  
 
-2-) git clone https://github.com/brezzan/SongRadar_mobile
-
-3-) Open the folder using Android Studio 
+3-) In terminal:
+    git clone https://github.com/brezzan/SongRadar_mobile
 
 4-) Create a virtual mobile device from the SDK Manager ( Android version 9.0 Pie and above)
 
@@ -14,7 +13,8 @@
 
 - flutter pub get
 
-6-)Create the virtual environemnt for api to run : check the backend side 
+6-)Create the virtual environemnt for api to run. Check the backend side 
+
   https://github.com/ilhaniskurt/songradar-backend
 
 7-) Activate the virtual device and run the App
