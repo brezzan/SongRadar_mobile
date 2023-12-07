@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:songradar/signup.dart';
 import 'package:songradar/mainAppPage.dart';
+import 'package:songradar/variables.dart';
 import 'dart:io';
 
 class addNewSong extends StatefulWidget {
@@ -31,6 +32,98 @@ class _addNewSongState extends State<addNewSong> {
   int songs_count = 0;
   int albums_count = 0;
 
+  Future<void> readAlbumsFromMySQL() async {
+    final response = await http.get(Uri.parse("http://"+connection+"/songradar_sql/get_albums.php"));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> albumDataList = jsonDecode(response.body);
+
+      for (final albumData in albumDataList) {
+        if (albumData is Map<String, dynamic>) {
+          // Ensure 'songs' key is present, even if it's an empty list
+          if (!albumData.containsKey('songs')) {
+            albumData['songs'] = [];
+          }
+
+          await addAlbumFromFile(albumData);  // from file fonsksiyonu kullanabilmek icin
+        }
+      }
+    } else {
+      print('Failed to load albums from MySQL. Status code: ${response.statusCode}');
+    }
+  }
+  Future<void> readSongsFromMySQL() async {
+    final response = await http.get(Uri.parse("http://"+connection+"/songradar_sql/get_songs.php"));
+    if (response.statusCode == 200) {
+      final List<dynamic> songDataList = jsonDecode(response.body);
+
+      for (final songData in songDataList) {
+        if (songData is Map<String, dynamic>) {
+          print(songData);
+
+          if (songData['album_id'] == 0 || songData['album_id'] == null)
+            songData.remove('album_id');
+            if (!songData.containsKey('album')) {
+              songData.remove('album');
+            }
+            await addSongFromFile(songData);
+
+        }
+        else{
+          int album_id = songData['album_id'];
+          List<Map<String, dynamic>> albums = await AuthService().getAlbums();
+
+          bool album_exists = false;
+
+          String album_name = '';
+
+          for (var albumLine in albums) {
+            if (albumLine['id'] == album_id ){
+              album_exists = true;
+              album_name = albumLine['title'];
+
+            }
+          }
+          songData.remove('album_id');
+          if (!songData.containsKey('album')) {
+            songData['album'] = album_name ;
+          }
+          await addSongFromFile(songData);
+        }
+      }
+    } else {
+      print('Failed to load songs from MySQL. Status code: ${response.statusCode}');
+    }
+  }
+
+  Future<void> readFromExternal(BuildContext context) async {
+    try {
+      await readAlbumsFromMySQL();
+
+      await readSongsFromMySQL();
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text(
+              '$albums_count albums and $songs_count songs have been added successfully ',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
 
   Future<void> addAlbumFromFile(Map<String, dynamic> albumData) async {
     String albumTitle = albumData['title'];
@@ -106,8 +199,8 @@ class _addNewSongState extends State<addNewSong> {
     }
   }
 
-
   Future<void> addSongFromFile(Map<String, dynamic> songData ) async {
+    //{id: 2, title: TEST SONG, performers: Harry, year: 0, genre: POP, album_id: null}
     String songTitle = songData['title'];
     int songYear = songData['year'];
     String songGenre = songData['genre'];
@@ -119,13 +212,12 @@ class _addNewSongState extends State<addNewSong> {
       print("songData.containsKey('album'): ${songData.containsKey('album')}");
       String albumTitle = songData['album'];
 
-      //List<Map<String, dynamic>> albums = await AuthService().getAlbums(); // eklemeden önce album var mı yok mu
+      //List<Map<String, dynamic>> albums = await AuthService().getAlbums(); // eklemeden once album var mı yok mu
       List<Map<String, dynamic>> albums = await AuthService().getAlbums();
 
       bool album_exists = false;
       int album_id_to_add_to = 0;
       List<dynamic> songs_in_that_album = [];
-
 
       for (var albumLine in albums) {
         if (albumLine['title'] == albumTitle &&
@@ -665,7 +757,7 @@ class _addNewSongState extends State<addNewSong> {
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   shape: BeveledRectangleBorder(),
                 ),
-                onPressed: () async { }, //
+                onPressed: () async => readFromExternal(context),
 
                 child: Text('Add From Other Apps'),
               ),
