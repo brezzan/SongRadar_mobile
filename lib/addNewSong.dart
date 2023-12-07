@@ -28,9 +28,11 @@ class _addNewSongState extends State<addNewSong> {
   String year = '';
   TextEditingController genre = TextEditingController();
   TextEditingController album = TextEditingController();
+  int songs_count = 0;
+  int albums_count = 0;
 
 
-  Future<void> addAlbumFromFile(Map<String, dynamic> albumData, int songs_count,int album_count) async {
+  Future<void> addAlbumFromFile(Map<String, dynamic> albumData) async {
     String albumTitle = albumData['title'];
     int albumYear = albumData['year'];
     String albumGenre = albumData['genre'];
@@ -48,7 +50,7 @@ class _addNewSongState extends State<addNewSong> {
 
     bool album_exists = false;
     int album_id_to_add_to = 0;
-    List<Map<String, dynamic>> songs_in_that_album = [];
+    List<dynamic> songs_in_that_album = [];
 
     for (var albumLine in albums) {
       if (albumLine['title'] == albumTitle &&
@@ -69,7 +71,7 @@ class _addNewSongState extends State<addNewSong> {
 
       if (newlyAddedAlbumFromFile.containsKey('id')) {
         print("SUCCESFULLY ADDED ALBUM");
-        album_count++;
+        albums_count = albums_count+ 1;
         album_id_to_add_to = newlyAddedAlbumFromFile['id'];
         songs_in_that_album = List<Map<String, dynamic>>.from(newlyAddedAlbumFromFile['songs']);
       } else {
@@ -105,7 +107,7 @@ class _addNewSongState extends State<addNewSong> {
   }
 
 
-  Future<void> addSongFromFile(Map<String, dynamic> songData ,int songs_count,int album_count) async {
+  Future<void> addSongFromFile(Map<String, dynamic> songData ) async {
     String songTitle = songData['title'];
     int songYear = songData['year'];
     String songGenre = songData['genre'];
@@ -143,7 +145,7 @@ class _addNewSongState extends State<addNewSong> {
 
         if (!newlyAddedAlbum.containsKey('error')) {
           print("SUCCESFULLY ADDDED ALBUM");
-          album_count  = album_count +1 ;
+          albums_count  = albums_count +1 ;
           album_id_to_add_to = newlyAddedAlbum['id'];
           songs_in_that_album =  newlyAddedAlbum['songs'] ; // album içine aynı şarkıyı eklememk için check etmek için tut
 
@@ -163,6 +165,7 @@ class _addNewSongState extends State<addNewSong> {
       if (!songexists) {
         final Map<String, dynamic> newlyAddedSong = await AuthService().createSong(songTitle, songPerformers,  songYear , songGenre,
           album_id_to_add_to,);
+        print('SUCCESSFULY ADDED THE SONG $newlyAddedSong');
         songs_count  = songs_count + 1;
       }
 
@@ -183,16 +186,15 @@ class _addNewSongState extends State<addNewSong> {
 
       if (!song_exists) {
         int place_holder = 0; // albumsuz olduğu için şuan album_id 0 olacak sekilde kaydet
-        final Map<String, dynamic> newlyAddedSong = await AuthService().createSong(
-            songTitle, songPerformers, songYear, songGenre, place_holder);
+        final Map<String, dynamic> newlyAddedSong = await AuthService().createSong(songTitle, songPerformers, songYear,
+            songGenre, place_holder);
+        print('SUCCESSFULY ADDED THE SONG $newlyAddedSong');
         songs_count  = songs_count + 1;
       }
     }
   }
 
-  Future<void> pickAndReadFile(BuildContext context ) async {
-    int songs_count = 0;
-    int albums_count = 0;
+  Future<void> pickAndReadFile(BuildContext context) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.any,
     );
@@ -203,25 +205,36 @@ class _addNewSongState extends State<addNewSong> {
       if (Platform.isIOS || Platform.isAndroid) {
         File pickedFile = File(file.path!);
 
-        String fileContent = await pickedFile.readAsString();
-
         try {
-          List<dynamic> jsonData = jsonDecode(fileContent);
 
-          for (var element in jsonData) {
-            if (element.containsKey('songs')) {  // element to be added is an album
-              addAlbumFromFile(element,songs_count,albums_count);
-            } else {  // It's a song          // element to be added is a song
-              addSongFromFile(element,songs_count,albums_count);
+          List<dynamic> jsonData =await jsonDecode(await pickedFile.readAsStringSync());
+          print(jsonData);
+
+          await Future.forEach(jsonData, (element) async {
+            print(element);
+
+            if (element is Map<String, dynamic>) {
+              if (element.containsKey('songs')) {
+                // It's an album
+                await addAlbumFromFile(element);
+                print("added $element - album");
+              } else {
+                // It's a song
+                await addSongFromFile(element);
+                print("added $element - song");
+              }
+            } else {
+              print('Invalid data structure: $element');
             }
-          }
+
+          });
 
           showDialog(
-           context: context ,
+            context: context,
             builder: (BuildContext context) {
               return AlertDialog(
                 content: Text(
-                  '$albums_count albums and $songs_count songs have been added succesfully ',
+                  '$albums_count albums and $songs_count songs have been added successfully ',
                 ),
                 actions: [
                   TextButton(
@@ -234,7 +247,6 @@ class _addNewSongState extends State<addNewSong> {
               );
             },
           );
-
         } catch (e) {
           print('Error decoding JSON: $e');
         }
