@@ -53,29 +53,6 @@ class _addNewSongState extends State<addNewSong> {
     }
   }
 
-  /*
-  * else{
-          int album_id = songData['album_id'];
-          List<Map<String, dynamic>> albums = await AuthService().getAlbums();
-
-          bool album_exists = false;
-          String album_name = '';
-
-          for (var albumLine in albums) {
-            if (albumLine['id'] == album_id ){
-              album_exists = true;
-              album_name = albumLine['title'];
-
-            }
-          }
-          songData.remove('album_id');
-          if (!songData.containsKey('album')) {
-            songData['album'] = album_name ;
-          }
-          print(songData);
-          await addSongFromFile(songData);
-        }
-        **/
   Future<void> readSongsFromMySQL() async {
     final response = await http.get(Uri.parse("http://"+connection+"/songradar_sql/get_songs.php"));
     if (response.statusCode == 200) {
@@ -786,7 +763,7 @@ class _addNewSongState extends State<addNewSong> {
                 ),
                 onPressed: () async => readFromExternal(context),
 
-                child: Text('Add From Other Apps'),
+                child: Text('Add From Another Database'),
               ),
             ),
           ],

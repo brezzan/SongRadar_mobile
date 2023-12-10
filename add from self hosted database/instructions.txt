@@ -1,0 +1,11 @@
+In order to perform successful data transfer from local db , you have to do the following:
+- In your xampp/htdocs files
+    open the zipped file in your computer htdocs directory ( songradar_sql file with 2 php files within should be present )
+    open xampp to activate Apache and Mysql
+    create a database called ext_db_songradar in localhost/phpmyadmin
+    check the variables in mysql connection string within the php files and you config.inc.php (they should match)
+    import the sql file to your ext_db_songradar db
+- In Android Studio:
+  change connection string to the ipv4 address of your active internet connection in variables.dart
+
+To activate desired function, find the 'Add From Another Database' button and click

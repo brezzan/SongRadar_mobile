@@ -548,7 +548,7 @@ class _addNewAlbumState extends State<addNewAlbum> {
               ),
               onPressed: () async => readFromExternal(context),
 
-              child: Text('Add From Other Apps'),
+              child: Text('Add From Another Database'),
             ),
           ),
           ],

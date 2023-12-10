@@ -14,7 +14,7 @@
 
 - flutter pub get
 
-6-)Create the virtual environemnt for api to run. Check the backend side 
+6-)Create the virtual environment for api to run. Check the backend side 
 
   https://github.com/ilhaniskurt/songradar-backend
 
