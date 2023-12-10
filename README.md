@@ -4,8 +4,9 @@
 
 2-) Create a flutter application and open the application folder in Android studio  
 
-3-) In terminal:
-    git clone https://github.com/brezzan/SongRadar_mobile
+3-) In terminal
+
+- git clone https://github.com/brezzan/SongRadar_mobile
 
 4-) Create a virtual mobile device from the SDK Manager ( Android version 9.0 Pie and above)
 
