@@ -247,7 +247,7 @@ class SongCard extends StatelessWidget {
             ),
           ),
           SizedBox(width: 4.0),
-          Flexible(
+          Expanded(
             child: Row(
               children: [
                 Column(
@@ -270,8 +270,10 @@ class SongCard extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(
-            width: 200,
+          Flexible(
+            child: SizedBox(
+              width: 200,
+            ),
           ),
           Column(
             children: [

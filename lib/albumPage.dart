@@ -151,6 +151,8 @@ class _albumPageState extends State<albumPage> {
                                           album['performers'].toString(),
                                       genre: album['genre'].toString(),
                                       year: album['year'].toString(),
+                                      username: username,
+                                      userid: userid,
                                     )
                               ],
                             ),
@@ -340,6 +342,7 @@ class SongCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start, // Set to spaceBetween
         crossAxisAlignment: CrossAxisAlignment.start,
+        
         children: [
           SizedBox(width: 20),
           SizedBox(
@@ -361,7 +364,7 @@ class SongCard extends StatelessWidget {
             ),
           ),
           SizedBox(width: 4.0),
-          Flexible(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -378,8 +381,10 @@ class SongCard extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(
-            width: 200,
+          Flexible(
+            child: SizedBox(
+              width: 200,
+            ),
           ),
           Column(
             children: [
@@ -399,13 +404,16 @@ class SongCard extends StatelessWidget {
 }
 
 class albumInfo extends StatelessWidget {
-  final String albumName, performers, genre, year;
+  final String albumName, performers, genre, year, username;
+  final int userid;
   //final int rating;
   const albumInfo({
     required this.albumName,
     required this.performers,
     required this.genre,
     required this.year,
+    required this.username,
+    required this.userid
   });
 
   @override
@@ -419,7 +427,25 @@ class albumInfo extends StatelessWidget {
         SizedBox(height: 15),
         Text('Album Name: $albumName'),
         SizedBox(height: 15),
-        Text('Artist: $performers'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Performers: ',
+              textAlign: TextAlign.center,
+            ),
+            InkWell(
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/performerPage',
+                    arguments: {'userid': userid, 'username': username,'performers':performers});
+              },
+              child: Text(
+                '$performers',
+                style: TextStyle(fontWeight: FontWeight.normal, decoration: TextDecoration.underline),
+              ),
+            ),
+          ],
+        ),
         SizedBox(height: 15),
         Text('Genre: $genre'),
         SizedBox(height: 15),

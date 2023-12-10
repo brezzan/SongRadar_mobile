@@ -204,7 +204,9 @@ class _mainAppPageState extends State<mainAppPage> {
               }
             },
           ),
-        ]),
+          SizedBox(height: 80),
+        ],
+        ),
       ),
     );
   }

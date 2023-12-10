@@ -175,9 +175,11 @@ class _performerPageState extends State<performerPage> {
                                         color: Colors.black,
                                       ),
                                     ),
-                                    Text(
-                                      year,
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    Center(
+                                      child: Text(
+                                        year,
+                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                      ),
                                     ),
                                     Flexible(
                                       child: Divider(

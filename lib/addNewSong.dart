@@ -52,29 +52,13 @@ class _addNewSongState extends State<addNewSong> {
       print('Failed to load albums from MySQL. Status code: ${response.statusCode}');
     }
   }
-  Future<void> readSongsFromMySQL() async {
-    final response = await http.get(Uri.parse("http://"+connection+"/songradar_sql/get_songs.php"));
-    if (response.statusCode == 200) {
-      final List<dynamic> songDataList = jsonDecode(response.body);
 
-      for (final songData in songDataList) {
-        if (songData is Map<String, dynamic>) {
-          print(songData);
-
-          if (songData['album_id'] == 0 || songData['album_id'] == null)
-            songData.remove('album_id');
-            if (!songData.containsKey('album')) {
-              songData.remove('album');
-            }
-            await addSongFromFile(songData);
-
-        }
-        else{
+  /*
+  * else{
           int album_id = songData['album_id'];
           List<Map<String, dynamic>> albums = await AuthService().getAlbums();
 
           bool album_exists = false;
-
           String album_name = '';
 
           for (var albumLine in albums) {
@@ -88,7 +72,50 @@ class _addNewSongState extends State<addNewSong> {
           if (!songData.containsKey('album')) {
             songData['album'] = album_name ;
           }
+          print(songData);
           await addSongFromFile(songData);
+        }
+        **/
+  Future<void> readSongsFromMySQL() async {
+    final response = await http.get(Uri.parse("http://"+connection+"/songradar_sql/get_songs.php"));
+    if (response.statusCode == 200) {
+      final List<dynamic> songDataList = jsonDecode(response.body);
+
+      for (final songData in songDataList) {
+        if (songData is Map<String, dynamic>) {
+          print(songData);
+
+          if (songData['album_id'] == 0 || songData['album_id'] == null) {
+            songData.remove('album_id');
+            if (!songData.containsKey('album')) {
+              songData.remove('album');
+            }
+            await addSongFromFile(songData);
+          }
+          else{
+            int album_id = songData['album_id'];
+            List<Map<String, dynamic>> albums = await AuthService().getAlbums();
+
+            bool album_exists = false;
+            String album_name = '';
+
+            for (var albumLine in albums) {
+              if (albumLine['id'] == album_id ){
+                album_exists = true;
+                album_name = albumLine['title'];
+
+              }
+            }
+            songData.remove('album_id');
+            if (!songData.containsKey('album')) {
+              songData['album'] = album_name ;
+            }
+            print(songData);
+            await addSongFromFile(songData);
+          }
+        }
+        else {
+          print('Wrong data structure: ${response.statusCode}');
         }
       }
     } else {
