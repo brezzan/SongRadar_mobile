@@ -23,7 +23,9 @@
 # Features
 
 In this app, you can 
-- Login/ Sign Up with authorization
-- Add songs and albums ( via file selection, data reading from another database and manual info typing)
+- Login/ Sign Up with Tokens for security (Extra - Authentication)
 - See album / song / performer info
-- Delete album 
+- Add songs and albums via manual user input (MVP - Data Collection 1)
+- Add songs and albums via file selection (MVP - Data Collection 2)
+- Add songs and albums via data reading from another local database (MVP - Data Collection 3)
+- Delete album and all songs within that album (MVP - Data Collection 5)
