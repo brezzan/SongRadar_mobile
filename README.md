@@ -1,79 +1,72 @@
-Songradar Mobile Application
-Step 1: Download Android Studio (Flutter SDK: '>=2.19.6 <3.0.0').
+# Songradar Mobile Application
 
-Step 2: Create a Flutter application and open the application folder in Android Studio.
+1-) Dowload Android Studio ( flutter sdk: '>=2.19.6 <3.0.0' ) 
 
-Step 3: In the terminal, execute the following command:
+2-) Create a flutter application and open the application folder in Android studio  
 
-bash
-Copy code
-git clone https://github.com/brezzan/SongRadar_mobile
-Step 4: Create a virtual mobile device from the SDK Manager (Android version 9.0 Pie and above).
+3-) In terminal
 
-Step 5: Open a terminal and run the code to get the dependencies from the pubspec.yaml file:
+- git clone https://github.com/brezzan/SongRadar_mobile
 
-bash
-Copy code
-flutter pub get
-Step 6: Create the virtual environment for the API to run. Check the backend side at Songradar Backend.
+4-) Create a virtual mobile device from the SDK Manager ( Android version 9.0 Pie and above)
 
-Step 7: Activate the virtual device and run the app.
+5-)Open a terminal and run the code to get the dependencies from pubspec.yaml file 
 
-Features
-In this app, you can:
+- flutter pub get
 
-Login/Sign Up with Tokens for security (Extra - Authentication).
+6-)Create the virtual environment for api to run. Check the backend side 
 
-View album/song/performer info.
+  https://github.com/ilhaniskurt/songradar-backend
 
-Add songs and albums via manual user input (MVP - Data Collection 1).
+7-) Activate the virtual device and run the App
 
-Add songs and albums via file selection (MVP - Data Collection 2).
+# Features
 
-Can read and add JSON/text files with the following structure:
-Albums full of songs:
-json
-Copy code
-[{"title": string,
-"year": int,
-"genre": string,
-"performers": string,
-"songs": [
-{
-"title": string,
-"year": int,
-"genre": string,
-"performers": string
-}]]}
-Songless albums:
-json
-Copy code
-[{
-"title": string,
-"year": int,
-"genre": string,
-"performers": string
-}]
-Albumless songs:
-json
-Copy code
-[{
-"title": string,
-"year": int,
-"genre": string,
-"performers": string
-}]
-Songs to already existing albums:
-json
-Copy code
-[{
-"title": string,
-"year": int,
-"genre": string,
-"performers": string,
-"album": string
-}]
+In this app, you can 
+- Login/ Sign Up with Tokens for security (Extra - Authentication)
 
-Add songs and albums via data reading from another local database (MVP - Data Collection 3).
+- See album / song / performer info
 
-Delete an album and all songs within that album (MVP - Data Collection 5).
+- Add songs and albums via manual user input (MVP - Data Collection 1)
+
+- Add songs and albums via file selection (MVP - Data Collection 2)
+  can read and add json/text files that has the following structure :
+  1-) albums full of songs 
+  [{"title": string ,
+  "year": int ,
+  "genre": string,
+  "performers": string ,
+  "songs": [
+  {
+  "title": string ,
+  "year": int ,
+  "genre": string,
+  "performers": string 
+  }]]
+  
+  2-) songless albums [
+  {
+  "title": string ,
+  "year": int ,
+  "genre": string,
+  "performers": string 
+  },]
+  3-) albumless songs 
+  [{
+  "title": string ,
+  "year": int ,
+  "genre": string,
+  "performers": string
+  },]
+  4-) songs to already existing albums
+  [{
+  "title": string ,
+  "year": int ,
+  "genre": string,
+  "performers": string
+  "album":string 
+  },]
+
+- Add songs and albums via data reading from another local database (MVP - Data Collection 3)
+
+- Delete album and all songs within that album (MVP - Data Collection 5)
