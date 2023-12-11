@@ -39,48 +39,48 @@ In this app, you can
 
 -1-) albums full of songs 
 ```json
-  [{"title": string ,
-  "year": int ,
-  "genre": string,
-  "performers": string ,
+  [{"title": "" ,
+  "year": 0 ,
+  "genre": "",
+  "performers": 0 ,
   "songs": [
   {
-  "title": string ,
-  "year": int ,
-  "genre": string,
-  "performers": string 
-  }]},...
+    "title": "" ,
+    "year": 0 ,
+    "genre": "",
+    "performers": 0 
+  }]}
   ]
 ```
 
 2-) songless albums 
 ```json
 [ {
-  "title": string ,
-  "year": int ,
-  "genre": string,
-  "performers": string 
-  },...]
+  "title": "" ,
+  "year": 0 ,
+  "genre": "",
+  "performers": 0 
+  }]
 ```
 -3-) albumless songs
 ```json  
   [{
-  "title": string ,
-  "year": int ,
-  "genre": string,
-  "performers": string
-  },...]
+  "title": "" ,
+  "year": 0 ,
+  "genre": "",
+  "performers": 0 ,
+  }]
 ```
 
 -4-) songs to already existing albums
 ```json
   [{
-  "title": string ,
-  "year": int ,
-  "genre": string,
-  "performers": string
-  "album":string 
-  },...]
+  "title": "" ,
+  "year": 0 ,
+  "genre": "",
+  "performers": 0 ,
+  "album":"" 
+  }]
 ```
 - Add songs and albums via data reading from another local database (MVP - Data Collection 3)
 
