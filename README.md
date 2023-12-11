@@ -31,7 +31,7 @@ In this app, you can
 
 - Add songs and albums via file selection (MVP - Data Collection 2)
   can read and add json/text files that has the following structure :
-  1-) albums full of songs 
+-1-) albums full of songs 
   [{"title": string ,
   "year": int ,
   "genre": string,
@@ -43,22 +43,21 @@ In this app, you can
   "genre": string,
   "performers": string 
   }]]
-  
-  2-) songless albums [
+-2-) songless albums [
   {
   "title": string ,
   "year": int ,
   "genre": string,
   "performers": string 
   },]
-  3-) albumless songs 
+-3-) albumless songs 
   [{
   "title": string ,
   "year": int ,
   "genre": string,
   "performers": string
   },]
-  4-) songs to already existing albums
+-4-) songs to already existing albums
   [{
   "title": string ,
   "year": int ,
