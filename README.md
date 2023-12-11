@@ -37,7 +37,7 @@ In this app, you can
   can read and add json/text files that has the following structure :
 
 
--1-) albums full of songs 
+1-) albums full of songs 
 ```json
   [{"title": "" ,
   "year": 0 ,
@@ -62,7 +62,7 @@ In this app, you can
   "performers": 0 
   }]
 ```
--3-) albumless songs
+3-) albumless songs
 ```json  
   [{
   "title": "" ,
@@ -72,7 +72,7 @@ In this app, you can
   }]
 ```
 
--4-) songs to already existing albums
+4-) songs to already existing albums
 ```json
   [{
   "title": "" ,
