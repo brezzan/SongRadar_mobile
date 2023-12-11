@@ -43,6 +43,7 @@ In this app, you can
   "genre": string,
   "performers": string 
   }]]
+
 -2-) songless albums [
   {
   "title": string ,
@@ -50,6 +51,7 @@ In this app, you can
   "genre": string,
   "performers": string 
   },]
+
 -3-) albumless songs 
   [{
   "title": string ,
@@ -57,6 +59,8 @@ In this app, you can
   "genre": string,
   "performers": string
   },]
+
+
 -4-) songs to already existing albums
   [{
   "title": string ,
