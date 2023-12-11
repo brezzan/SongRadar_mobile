@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
 import 'dart:core';
-import 'package:songradar/api.dart';
-import 'dart:convert';
-import 'package:songradar/login.dart';
-import 'package:songradar/signup.dart';
-import 'package:songradar/albumPage.dart';
+
 
 class songPage extends StatefulWidget {
   final int songId, albumId, userid, year;

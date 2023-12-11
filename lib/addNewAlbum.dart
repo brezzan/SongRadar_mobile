@@ -4,8 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:songradar/api.dart';
 import 'dart:core';
 import 'dart:convert';
-import 'package:songradar/signup.dart';
-import 'package:songradar/mainAppPage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:songradar/variables.dart';
 import 'dart:io';
@@ -50,6 +48,7 @@ class _addNewAlbumState extends State<addNewAlbum> {
       print('Failed to load albums from MySQL. Status code: ${response.statusCode}');
     }
   }
+
   Future<void> readSongsFromMySQL() async {
     final response = await http.get(Uri.parse("http://"+connection+"/songradar_sql/get_songs.php"));
     if (response.statusCode == 200) {
@@ -59,34 +58,37 @@ class _addNewAlbumState extends State<addNewAlbum> {
         if (songData is Map<String, dynamic>) {
           print(songData);
 
-          if (songData['album_id'] == 0 || songData['album_id'] == null)
+          if (songData['album_id'] == 0 || songData['album_id'] == null) {
             songData.remove('album_id');
-          if (!songData.containsKey('album')) {
-            songData.remove('album');
-          }
-          await addSongFromFile(songData);
-
-        }
-        else{
-          int album_id = songData['album_id'];
-          List<Map<String, dynamic>> albums = await AuthService().getAlbums();
-
-          bool album_exists = false;
-
-          String album_name = '';
-
-          for (var albumLine in albums) {
-            if (albumLine['id'] == album_id ){
-              album_exists = true;
-              album_name = albumLine['title'];
-
+            if (!songData.containsKey('album')) {
+              songData.remove('album');
             }
+            await addSongFromFile(songData);
           }
-          songData.remove('album_id');
-          if (!songData.containsKey('album')) {
-            songData['album'] = album_name ;
+          else{
+            int album_id = songData['album_id'];
+            List<Map<String, dynamic>> albums = await AuthService().getAlbums();
+
+            bool album_exists = false;
+            String album_name = '';
+
+            for (var albumLine in albums) {
+              if (albumLine['id'] == album_id ){
+                album_exists = true;
+                album_name = albumLine['title'];
+
+              }
+            }
+            songData.remove('album_id');
+            if (!songData.containsKey('album')) {
+              songData['album'] = album_name ;
+            }
+            print(songData);
+            await addSongFromFile(songData);
           }
-          await addSongFromFile(songData);
+        }
+        else {
+          print('Wrong data structure: ${response.statusCode}');
         }
       }
     } else {
@@ -347,8 +349,6 @@ class _addNewAlbumState extends State<addNewAlbum> {
       // User canceled file picking
     }
   }
-
-
 
   @override
   void initState() {

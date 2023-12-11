@@ -1,13 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
 import 'package:songradar/api.dart';
 import 'dart:core';
-import 'package:sqflite/sqflite.dart';
-import 'dart:convert';
-import 'package:songradar/login.dart';
-import 'package:songradar/signup.dart';
-import 'package:flutter/services.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);

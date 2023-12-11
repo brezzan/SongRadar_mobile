@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
 import 'package:songradar/api.dart';
 import 'dart:core';
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
-import 'package:songradar/signup.dart';
-import 'package:songradar/mainAppPage.dart';
 import 'package:songradar/variables.dart';
 import 'dart:io';
 

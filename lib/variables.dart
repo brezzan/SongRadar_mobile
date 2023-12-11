@@ -1,2 +1,2 @@
 
-String connection = "your ip here ";
+String connection = "192.168.1.33"; // put your own ip address here

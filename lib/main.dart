@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
 import 'package:songradar/addNewAlbum.dart';
 import 'package:songradar/addNewSong.dart';
 import 'package:songradar/performerPage.dart';
 import 'package:songradar/personalPage.dart';
 import 'dart:core';
-import 'package:sqflite/sqflite.dart';
-import 'dart:convert';
 import 'package:songradar/login.dart';
 import 'package:songradar/signup.dart';
 import 'package:songradar/mainAppPage.dart';
