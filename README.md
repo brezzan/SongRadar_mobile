@@ -4,15 +4,19 @@
 
 2-) Create a flutter application and open the application folder in Android studio  
 
-3-) In terminal
+3-) In terminal:
 
-- git clone https://github.com/brezzan/SongRadar_mobile
+```sh
+   git clone https://github.com/brezzan/SongRadar_mobile
+```
 
 4-) Create a virtual mobile device from the SDK Manager ( Android version 9.0 Pie and above)
 
 5-)Open a terminal and run the code to get the dependencies from pubspec.yaml file 
 
+```sh
 - flutter pub get
+```
 
 6-)Create the virtual environment for api to run. Check the backend side 
 
@@ -34,6 +38,7 @@ In this app, you can
 
 
 -1-) albums full of songs 
+```json
   [{"title": string ,
   "year": int ,
   "genre": string,
@@ -44,34 +49,39 @@ In this app, you can
   "year": int ,
   "genre": string,
   "performers": string 
-  }]]
+  }]},...
+  ]
+```
 
--2-) songless albums [
-  {
+2-) songless albums 
+```json
+[ {
   "title": string ,
   "year": int ,
   "genre": string,
   "performers": string 
-  },]
-
--3-) albumless songs 
+  },...]
+```
+-3-) albumless songs
+```json  
   [{
   "title": string ,
   "year": int ,
   "genre": string,
   "performers": string
-  },]
-
+  },...]
+```
 
 -4-) songs to already existing albums
+```json
   [{
   "title": string ,
   "year": int ,
   "genre": string,
   "performers": string
   "album":string 
-  },]
-
+  },...]
+```
 - Add songs and albums via data reading from another local database (MVP - Data Collection 3)
 
 - Delete album and all songs within that album (MVP - Data Collection 5)
