@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AuthService {
-  final String baseUrl =
-      'http://10.0.2.2:8000'; // Replace with your actual API base URL
+  final String baseUrl = 'http://10.0.2.2:8000'; //
 
   Future<Map<String, dynamic>> loginUser(String username,
       String password) async {
@@ -331,5 +330,368 @@ class AuthService {
     }
   }
 
+  //////////////////////////////////////////////////////SONGS FROM CSV ///////////////////////////////////////////////
+
+  Future<Map<String, dynamic>> getSongsFromCsv() async {
+    final String url = '$baseUrl/songs/';
+
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'accept': 'application/json',
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final List<dynamic> responseData = jsonDecode(response.body);
+
+        // Print the first 10 songs
+        final firstTenSongs = responseData.take(10).toList();
+        print('first ten songs of the csv are : ');
+        print(firstTenSongs);
+        print('...');
+        return {'is songs not empty ? ': response.body.isNotEmpty};
+        //final Map<String, dynamic> responseData = jsonDecode(response.body);
+        //print(responseData);
+        //return responseData;
+      } else {
+        // Handle signup error
+        final Map<String, dynamic> errorData = jsonDecode(response.body);
+        return {'error': response.body};
+      }
+
+    }
+    catch (error) {
+      // Handle network or unexpected errors
+      print('Error: $error');
+      return {'error': 'An unexpected error occurred.'};
+    }
+  }
+
+  Future<Map<String, dynamic>> getSongByNameFromCsv(String songName) async {
+    final String url = '$baseUrl/songs/search_name';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'accept': 'application/json',
+    };
+
+    final Map<String, dynamic> body = {
+      'name': songName,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        print(responseData);
+        return responseData;
+      } else {
+        // Handle signup error
+        final Map<String, dynamic> errorData = jsonDecode(response.body);
+        return {'error': response.body};
+      }
+
+    }
+    catch (error) {
+      // Handle network or unexpected errors
+      print('Error: $error');
+      return {'error': 'An unexpected error occurred.'};
+    }
+  }
+
+  Future<Map<String, dynamic>> getSongByArtistFromCsv(String artistName) async {
+    final String url = '$baseUrl/songs/search_artist';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'accept': 'application/json',
+    };
+
+    final Map<String, dynamic> body = {
+      'name': artistName,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        print(responseData);
+        return responseData;
+      } else {
+        // Handle signup error
+        final Map<String, dynamic> errorData = jsonDecode(response.body);
+        return {'error': response.body};
+      }
+
+    }
+    catch (error) {
+      // Handle network or unexpected errors
+      print('Error: $error');
+      return {'error': 'An unexpected error occurred.'};
+    }
+  }
+
+  Future<String> getSongCountFromCsv() async {
+    final String url = '$baseUrl/songs/count';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'accept': 'application/json',
+
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final String responseData = jsonDecode(response.body);
+        print('number of songs in the csv is $responseData');
+        return responseData;
+
+      } else {
+        // Handle signup error
+        final Map<String, dynamic> errorData = jsonDecode(response.body);
+        return 'non 200 response' ;
+      }
+
+    }
+    catch (error) {
+      // Handle network or unexpected errors
+      print('Error: $error');
+      return 'error caught' ;
+    }
+  }
+
+  Future<Map<String, dynamic>> getSongByIdFromCsv(int id) async {
+    final String url = '$baseUrl/songs/{$id}';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        print(responseData);
+        return responseData;
+      } else {
+        // Handle signup error
+        final Map<String, dynamic> errorData = jsonDecode(response.body);
+        return {'error': response.body};
+      }
+
+    }
+    catch (error) {
+      // Handle network or unexpected errors
+      print('Error: $error');
+      return {'error': 'An unexpected error occurred.'};
+    }
+  }
+
+
+/////////////////////////////////////////////////////ALBUMS FROM CSV ///////////////////////////////////////////////
+
+  Future<Map<String, dynamic>> getAlbumsFromCsv() async {
+    final String url = '$baseUrl/albums/';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final List<dynamic> responseData = jsonDecode(response.body);
+
+        // Print the first 10 songs
+        final firstTenAlbums = responseData.take(10).toList();
+        print('first ten albums of the csv are : ');
+        print(firstTenAlbums);
+        print('...');
+        return {'is albums not empty ? ': response.body.isNotEmpty};
+        //final Map<String, dynamic> responseData = jsonDecode(response.body);
+        //print(responseData);
+        //return responseData;
+      } else {
+        // Handle signup error
+        final Map<String, dynamic> errorData = jsonDecode(response.body);
+        return {'error': response.body};
+      }
+
+    }
+    catch (error) {
+      // Handle network or unexpected errors
+      print('Error: $error');
+      return {'error': 'An unexpected error occurred.'};
+    }
+  }
+
+  Future<Map<String, dynamic>> getAlbumByNameFromCsv(String albumName) async {
+    final String url = '$baseUrl/albums/search_name';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'accept': 'application/json',
+    };
+
+    final Map<String, dynamic> body = {
+      'name': albumName,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        print(responseData);
+        return responseData;
+      } else {
+        // Handle signup error
+        final Map<String, dynamic> errorData = jsonDecode(response.body);
+        return {'error': response.body};
+      }
+
+    }
+    catch (error) {
+      // Handle network or unexpected errors
+      print('Error: $error');
+      return {'error': 'An unexpected error occurred.'};
+    }
+  }
+
+  Future<Map<String, dynamic>> getAlbumByArtistFromCsv(String artistName) async {
+    final String url = '$baseUrl/albums/search_artist';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'accept': 'application/json',
+    };
+
+    final Map<String, dynamic> body = {
+      'name': artistName,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        print(responseData);
+        return responseData;
+      } else {
+        // Handle signup error
+        final Map<String, dynamic> errorData = jsonDecode(response.body);
+        return {'error': response.body};
+      }
+
+    }
+    catch (error) {
+      // Handle network or unexpected errors
+      print('Error: $error');
+      return {'error': 'An unexpected error occurred.'};
+    }
+  }
+
+  Future<String> getAlbumCountFromCsv() async {
+    final String url = '$baseUrl/albums/count';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'accept': 'application/json',
+
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final String responseData = jsonDecode(response.body);
+        print('number of albums in the csv is $responseData');
+        return responseData;
+
+      } else {
+        // Handle signup error
+        final Map<String, dynamic> errorData = jsonDecode(response.body);
+        return 'non 200 response' ;
+      }
+
+    }
+    catch (error) {
+      // Handle network or unexpected errors
+      print('Error: $error');
+      return 'error caught' ;
+    }
+  }
+
+  Future<Map<String, dynamic>> getAlbumByIdFromCsv(int id) async {
+    final String url = '$baseUrl/albums/{$id}';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        print(responseData);
+        return responseData;
+      } else {
+        // Handle signup error
+        final Map<String, dynamic> errorData = jsonDecode(response.body);
+        return {'error': response.body};
+      }
+
+    }
+    catch (error) {
+      // Handle network or unexpected errors
+      print('Error: $error');
+      return {'error': 'An unexpected error occurred.'};
+    }
+  }
 
 }
+
