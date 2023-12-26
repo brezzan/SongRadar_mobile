@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:core';
 import 'package:songradar/api.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:csv/csv.dart';
 
 
 class mainAppPage extends StatefulWidget {
@@ -24,13 +25,9 @@ class _mainAppPageState extends State<mainAppPage> {
   late Future<Map<String, dynamic>> currentUser ;  // for printing username after getting id in arguments
 
   Future<void> fetchAlbums() async {
-    albums = AuthService().getAlbums();  // future widget build to see album cards
-    songs = AuthService().getSongs();
+    songs = AuthService().getSongsFromCsv();
+    to_print_songs = await AuthService().getSongsFromCsv();
 
-    to_print_albums = await AuthService().getAlbums();   // for the terminal
-    to_print_songs = await AuthService().getSongs();
-    print("all albums printed:   ");
-    print(to_print_albums);
     print("----");
     print("all songs printed:   ");
     print(to_print_songs);
@@ -82,6 +79,277 @@ class _mainAppPageState extends State<mainAppPage> {
         ),
       ),
       body: SingleChildScrollView(
+        child:
+        Column(children: <Widget>[
+          SizedBox(height: 40),
+          Text(
+            'Recently Favorited -NOT IMPLEMENTED',
+            textAlign: TextAlign.left,
+          ),
+          FutureBuilder(
+            future: songs,
+            builder:
+                (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                // While data is being fetched, you can show a loading indicator
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                // If an error occurs during data fetching
+                return Text('Error loading albums');
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                // If no albums are available
+                return Text('No albums found');
+              } else {
+                // Data has been successfully fetched, build the list of AlbumCards
+                List<Map<String, dynamic>> songs = snapshot.data!;
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (var song in songs)
+                        SongCard(
+                            albumName: song['album'].toString(),
+                            albumPerformers: song['artists'].toString(),
+                            albumYear: song['year'].toString(),
+                            songName: song['name'].toString(),
+                            songId: song['id'].toString(),
+                            albumId: song['album_id'].toString(),
+                            userid: userid,
+                            username: username),
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+          SizedBox(height: 80),
+          Text(
+            'Recommended -NOT IMPLEMENTED',
+            textAlign: TextAlign.left,
+          ),
+          FutureBuilder(
+            future: songs,
+            builder:
+                (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                // While data is being fetched, you can show a loading indicator
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                // If an error occurs during data fetching
+                return Text('Error loading albums');
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                // If no albums are available
+                return Text('No albums found');
+              } else {
+                // Data has been successfully fetched, build the list of AlbumCards
+                List<Map<String, dynamic>> songs = snapshot.data!;
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (var song in songs)
+                        SongCard(
+                            albumName: song['album'].toString(),
+                            albumPerformers: song['artists'].toString(),
+                            albumYear: song['year'].toString(),
+                            songName: song['name'].toString(),
+                            songId: song['id'].toString(),
+                            albumId: song['album_id'].toString(),
+                            userid: userid,
+                            username: username),
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+          SizedBox(height: 80),
+          Text(
+            'Discover new Albums',
+            textAlign: TextAlign.left,
+          ),
+          FutureBuilder(
+            future: songs,
+            builder:
+                (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                // While data is being fetched, you can show a loading indicator
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                // If an error occurs during data fetching
+                return Text('Error loading albums');
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                // If no albums are available
+                return Text('No albums found');
+              } else {
+                // Data has been successfully fetched, build the list of AlbumCards
+                List<Map<String, dynamic>> songs = snapshot.data!;
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (var song in songs)
+                        SongCard(
+                            albumName: song['album'].toString(),
+                            albumPerformers: song['artists'].toString(),
+                            albumYear: song['year'].toString(),
+                            songName: song['name'].toString(),
+                            songId: song['id'].toString(),
+                            albumId: song['album_id'].toString(),
+                            userid: userid,
+                            username: username),
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+          SizedBox(height: 80),
+        ],
+        ),
+      ),
+    );
+  }
+}
+
+class AlbumCard extends StatelessWidget {
+  final String albumName, albumPerformers, albumYear,username;
+  final int albumId, userid;
+
+  AlbumCard({
+    required this.userid,
+    required this.albumName,
+    required this.albumPerformers,
+    required this.albumYear,
+    required this.albumId,
+    required this.username
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushReplacementNamed(context, '/albumPage',
+            arguments: {'albumId': albumId, 'albumTitle':albumName,'userid': userid,'username':username});
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 120, // Set the desired height for the box
+            width: 120, // Set the desired width for the box
+            child: Container(
+              margin: EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Center(
+                child: Text(
+                  'Album Cover', // You can replace this with actual album cover widget
+                  style: TextStyle(fontSize: 12), // Set the desired font size
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+              height: 4.0), // Adjust the spacing between the box and the text
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '   ' + albumName,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '   ' + albumPerformers,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SongCard extends StatelessWidget {
+  final String albumName, albumPerformers, albumYear,username;
+  final String songName,albumId, songId;
+  final int  userid;
+
+  SongCard({
+    required this.userid,
+    required this.albumName,
+    required this.albumPerformers,
+    required this.albumYear,
+    required this.songName,
+    required this.songId,
+    required this.albumId,
+    required this.username
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushReplacementNamed(context, '/albumPage',
+            arguments: {'albumId': albumId, 'albumTitle':albumName,'userid': userid,'username':username});
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 120, // Set the desired height for the box
+            width: 120, // Set the desired width for the box
+            child: Container(
+              margin: EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Center(
+                child: Text(
+                  'Album Cover', // You can replace this with actual album cover widget
+                  style: TextStyle(fontSize: 12), // Set the desired font size
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+              height: 4.0), // Adjust the spacing between the box and the text
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '   ' + songName,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '   ' + albumName,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+                ),
+
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/*
+body: SingleChildScrollView(
         child:
         Column(children: <Widget>[
           SizedBox(height: 40),
@@ -205,72 +473,4 @@ class _mainAppPageState extends State<mainAppPage> {
         ],
         ),
       ),
-    );
-  }
-}
-
-class AlbumCard extends StatelessWidget {
-  final String albumName, albumPerformers, albumYear,username;
-  final int albumId, userid;
-
-  AlbumCard({
-    required this.userid,
-    required this.albumName,
-    required this.albumPerformers,
-    required this.albumYear,
-    required this.albumId,
-    required this.username
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushReplacementNamed(context, '/albumPage',
-            arguments: {'albumId': albumId, 'albumTitle':albumName,'userid': userid,'username':username});
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: 120, // Set the desired height for the box
-            width: 120, // Set the desired width for the box
-            child: Container(
-              margin: EdgeInsets.all(8.0),
-              padding: EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Center(
-                child: Text(
-                  'Album Cover', // You can replace this with actual album cover widget
-                  style: TextStyle(fontSize: 12), // Set the desired font size
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-              height: 4.0), // Adjust the spacing between the box and the text
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '   ' + albumName,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  '   ' + albumPerformers,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+ */

@@ -1,11 +1,21 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:csv/csv.dart';
+import 'dart:io';
+import 'package:path/path.dart' as path;
+import 'package:flutter/services.dart';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:csv/csv.dart';
 
 class AuthService {
   final String baseUrl = 'http://10.0.2.2:8000'; //
 
-  Future<Map<String, dynamic>> loginUser(String username,
-      String password) async {
+  Future<Map<String, dynamic>> loginUser(
+      String username, String password) async {
     final String loginUrl = '$baseUrl/auth/sign_in';
 
     final Map<String, String> headers = {
@@ -39,7 +49,6 @@ class AuthService {
         final String tokenType = responseData['token_type'];
 
         return {'access_token': accessToken, 'token_type': tokenType};
-
       } else {
         // Handle login error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
@@ -83,7 +92,8 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> getUserbyID(int userId) async {    // works but depends on userid argument that comes with widget build so it takes time and requires future build
+  Future<Map<String, dynamic>> getUserbyID(int userId) async {
+    // works but depends on userid argument that comes with widget build so it takes time and requires future build
     final String getUserUrl = '$baseUrl/debug/users/$userId';
 
     final Map<String, String> headers = {
@@ -116,8 +126,8 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> signUpUser(String username, String email,
-      String password) async {
+  Future<Map<String, dynamic>> signUpUser(
+      String username, String email, String password) async {
     final String signUpUrl = '$baseUrl/auth/sign_up';
 
     final Map<String, String> headers = {
@@ -156,34 +166,41 @@ class AuthService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getAlbums() async {   // get albums and the songs they contain
+  Future<List<Map<String, dynamic>>> getAlbums() async {
+    // get albums and the songs they contain
     final String url = '$baseUrl/debug/albums?skip=0&limit=100';
     final response = await http.get(Uri.parse(url));
     try {
-
-      final http.Response response = await http.get(Uri.parse(url),);
+      final http.Response response = await http.get(
+        Uri.parse(url),
+      );
 
       if (response.statusCode == 200) {
         List<dynamic> albumsJson = jsonDecode(response.body);
         List<Map<String, dynamic>> albums = [];
 
+        var i = 0;
         for (var albumJson in albumsJson) {
-          albums.add(Map<String, dynamic>.from(albumJson));
-
+          if (i < 10) {
+            albums.add(Map<String, dynamic>.from(albumJson));
+            i = i + 1;
+          }
         }
-        return albums;  //return albums
+        return albums; //return albums
       } else {
         return [];
       }
-    }
-    catch (error) {
+    } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return [{'error': 'An unexpected error occurred.'}];
+      return [
+        {'error': 'An unexpected error occurred.'}
+      ];
     }
   }
 
-  Future<Map<String, dynamic>> createAlbum(String album, String performers, int year, String genre) async {
+  Future<Map<String, dynamic>> createAlbum(
+      String album, String performers, int year, String genre) async {
     final String url = '$baseUrl/debug/album';
 
     final Map<String, String> headers = {
@@ -213,8 +230,7 @@ class AuthService {
         final Map<String, dynamic> errorData = jsonDecode(response.body);
         return {'error': response.body};
       }
-    }
-    catch (error) {
+    } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
       return {'error': 'An unexpected error occurred.'};
@@ -276,21 +292,22 @@ class AuthService {
 
         for (var albumJson in songsJson) {
           songs.add(Map<String, dynamic>.from(albumJson));
-
         }
-        return songs;  //return albums
+        return songs; //return albums
       } else {
         return [];
       }
-    }
-    catch (error) {
+    } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return [{'error': 'An unexpected error occurred.'}];
+      return [
+        {'error': 'An unexpected error occurred.'}
+      ];
     }
   }
 
-  Future<Map<String, dynamic>> createSong(String title, String performers, int year, String genre,int album_id)async {
+  Future<Map<String, dynamic>> createSong(String title, String performers,
+      int year, String genre, int album_id) async {
     final String url = '$baseUrl/debug/songs';
 
     final Map<String, String> headers = {
@@ -301,7 +318,7 @@ class AuthService {
       'year': year,
       'genre': genre,
       'performers': performers,
-      'album_id':album_id
+      'album_id': album_id
     };
 
     try {
@@ -321,9 +338,7 @@ class AuthService {
         final Map<String, dynamic> errorData = jsonDecode(response.body);
         return {'error': response.body};
       }
-
-    }
-    catch (error) {
+    } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
       return {'error': 'An unexpected error occurred.'};
@@ -332,67 +347,101 @@ class AuthService {
 
   //////////////////////////////////////////////////////SONGS FROM CSV ///////////////////////////////////////////////
 
-  Future<Map<String, dynamic>> getSongsFromCsv() async {
-    final String url = '$baseUrl/songs/';
+  Future<List<Map<String, dynamic>>> getSongsFromCsv() async {
+    // id,name,album,album_id,artists,artist_ids,track_number,
+    // disc_number,explicit,danceability,energy,key,loudness,mode,
+    // speechiness,acousticness,instrumentalness,liveness,valence,
+    // tempo,duration_ms,time_signature,year,release_date
 
-    final Map<String, String> headers = {
-      'Content-Type': 'application/json',
-      'accept': 'application/json',
-    };
-
+    // script.py functions are not within virtenv' reach so ı will just red the files directly ,
+    // if updated uncomment the section below and delete the current section
     try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: headers,
-      );
+    String csvContent = await rootBundle.loadString('assets/songs_0.csv');
 
-      if (response.statusCode == 200) {
+    // Parse the CSV data
+    List<List<dynamic>> csvData = CsvToListConverter().convert(csvContent);
+    List<Map<String, dynamic>> songsList = csvData
+        .map((List<dynamic> row) => Map.fromIterables([
+      'id',
+      'name',
+      'album',
+      'album_id',
+      'artists',
+      'artist_ids',
+      'track_number',
+      'disc_number',
+      'explicit',
+      'danceability',
+      'energy',
+      'key',
+      'loudness',
+      'mode',
+      'speechiness',
+      'acousticness',
+      'instrumentalness',
+      'liveness',
+      'valence',
+      'tempo',
+      'duration_ms',
+      'time_signature',
+      'year',
+      'release_date'
+    ], row))
+        .toList();
 
-        final List<dynamic> responseData = jsonDecode(response.body);
-
-        // Print the first 10 songs
-        final firstTenSongs = responseData.take(10).toList();
-        print('first ten songs of the csv are : ');
-        print(firstTenSongs);
-        print('...');
-        return {'is songs not empty ? ': response.body.isNotEmpty};
-        //final Map<String, dynamic> responseData = jsonDecode(response.body);
-        //print(responseData);
-        //return responseData;
-      } else {
-        // Handle signup error
-        final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return {'error': response.body};
-      }
-
-    }
-    catch (error) {
-      // Handle network or unexpected errors
-      print('Error: $error');
-      return {'error': 'An unexpected error occurred.'};
-    }
+    // Return only the first 20 rows
+    return songsList.take(20).toList();
+  } catch (e) {
+  throw Exception('Failed to read songs data: $e');
   }
 
+  }
+
+/* List<Map<String, dynamic>> songsList = csvData
+          .map((List<dynamic> row) => Map.fromIterables([
+                'id',
+                'name',
+                'album',
+                'album_id',
+                'artists',
+                'artist_ids',
+                'track_number',
+                'disc_number',
+                'explicit',
+                'danceability',
+                'energy',
+                'key',
+                'loudness',
+                'mode',
+                'speechiness',
+                'acousticness',
+                'instrumentalness',
+                'liveness',
+                'valence',
+                'tempo',
+                'duration_ms',
+                'time_signature',
+                'year',
+                'month',
+                'day'
+              ], row))
+          .toList(); */
+
   Future<Map<String, dynamic>> getSongByNameFromCsv(String songName) async {
-    final String url = '$baseUrl/songs/search_name';
+    final String url =
+        '$baseUrl/songs/search_name?name=$songName&skip=0&limit=10';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
       'accept': 'application/json',
     };
 
-    final Map<String, dynamic> body = {
-      'name': songName,
-    };
-
     try {
-      final response = await http.post(
+      final response = await http.get(
         Uri.parse(url),
         headers: headers,
-        body: jsonEncode(body),
       );
 
       if (response.statusCode == 200) {
-
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         print(responseData);
         return responseData;
@@ -401,9 +450,7 @@ class AuthService {
         final Map<String, dynamic> errorData = jsonDecode(response.body);
         return {'error': response.body};
       }
-
-    }
-    catch (error) {
+    } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
       return {'error': 'An unexpected error occurred.'};
@@ -411,25 +458,20 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> getSongByArtistFromCsv(String artistName) async {
-    final String url = '$baseUrl/songs/search_artist';
+    final String url =
+        '$baseUrl/songs/search_artist?artist=$artistName&skip=0&limit=10';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
       'accept': 'application/json',
     };
 
-    final Map<String, dynamic> body = {
-      'name': artistName,
-    };
-
     try {
-      final response = await http.post(
+      final response = await http.get(
         Uri.parse(url),
         headers: headers,
-        body: jsonEncode(body),
       );
 
       if (response.statusCode == 200) {
-
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         print(responseData);
         return responseData;
@@ -438,9 +480,7 @@ class AuthService {
         final Map<String, dynamic> errorData = jsonDecode(response.body);
         return {'error': response.body};
       }
-
-    }
-    catch (error) {
+    } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
       return {'error': 'An unexpected error occurred.'};
@@ -452,32 +492,27 @@ class AuthService {
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
       'accept': 'application/json',
-
     };
 
     try {
-      final response = await http.post(
+      final response = await http.get(
         Uri.parse(url),
         headers: headers,
       );
 
       if (response.statusCode == 200) {
-
         final String responseData = jsonDecode(response.body);
         print('number of songs in the csv is $responseData');
         return responseData;
-
       } else {
         // Handle signup error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return 'non 200 response' ;
+        return 'non 200 response';
       }
-
-    }
-    catch (error) {
+    } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return 'error caught' ;
+      return 'error caught';
     }
   }
 
@@ -488,13 +523,12 @@ class AuthService {
     };
 
     try {
-      final response = await http.post(
+      final response = await http.get(
         Uri.parse(url),
         headers: headers,
       );
 
       if (response.statusCode == 200) {
-
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         print(responseData);
         return responseData;
@@ -503,77 +537,70 @@ class AuthService {
         final Map<String, dynamic> errorData = jsonDecode(response.body);
         return {'error': response.body};
       }
-
-    }
-    catch (error) {
+    } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
       return {'error': 'An unexpected error occurred.'};
     }
   }
 
-
 /////////////////////////////////////////////////////ALBUMS FROM CSV ///////////////////////////////////////////////
 
-  Future<Map<String, dynamic>> getAlbumsFromCsv() async {
-    final String url = '$baseUrl/albums/';
+  Future<List<Map<String, dynamic>>> getAlbumsFromCsv() async {
+    final String url = '$baseUrl/albums/?skip=0&limit=10';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
 
     try {
-      final response = await http.post(
+      final response = await http.get(
         Uri.parse(url),
         headers: headers,
       );
 
       if (response.statusCode == 200) {
+        List<dynamic> albumsJson = jsonDecode(response.body);
+        List<Map<String, dynamic>> albums = [];
 
-        final List<dynamic> responseData = jsonDecode(response.body);
-
-        // Print the first 10 songs
-        final firstTenAlbums = responseData.take(10).toList();
-        print('first ten albums of the csv are : ');
-        print(firstTenAlbums);
-        print('...');
-        return {'is albums not empty ? ': response.body.isNotEmpty};
-        //final Map<String, dynamic> responseData = jsonDecode(response.body);
-        //print(responseData);
-        //return responseData;
+        var i = 0;
+        for (var albumJson in albumsJson) {
+          if (i < 10) {
+            albums.add(Map<String, dynamic>.from(albumJson));
+            i = i + 1;
+          }
+        }
+        return albums; //return albums
       } else {
         // Handle signup error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return {'error': response.body};
+        return [
+          {'error': response.body}
+        ];
       }
-
-    }
-    catch (error) {
+    } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return {'error': 'An unexpected error occurred.'};
+      return [
+        {'error': 'An unexpected error occurred.'}
+      ];
     }
   }
 
   Future<Map<String, dynamic>> getAlbumByNameFromCsv(String albumName) async {
-    final String url = '$baseUrl/albums/search_name';
+    final String url =
+        '$baseUrl/albums/search_name?name=$albumName&skip=0&limit=10';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
       'accept': 'application/json',
     };
 
-    final Map<String, dynamic> body = {
-      'name': albumName,
-    };
-
     try {
-      final response = await http.post(
+      final response = await http.get(
         Uri.parse(url),
         headers: headers,
-        body: jsonEncode(body),
       );
 
       if (response.statusCode == 200) {
-
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         print(responseData);
         return responseData;
@@ -582,35 +609,29 @@ class AuthService {
         final Map<String, dynamic> errorData = jsonDecode(response.body);
         return {'error': response.body};
       }
-
-    }
-    catch (error) {
+    } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
       return {'error': 'An unexpected error occurred.'};
     }
   }
 
-  Future<Map<String, dynamic>> getAlbumByArtistFromCsv(String artistName) async {
-    final String url = '$baseUrl/albums/search_artist';
+  Future<Map<String, dynamic>> getAlbumByArtistFromCsv(
+      String artistName) async {
+    final String url =
+        '$baseUrl/albums/search_artist?artist=$artistName&skip=0&limit=10';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
       'accept': 'application/json',
     };
 
-    final Map<String, dynamic> body = {
-      'name': artistName,
-    };
-
     try {
-      final response = await http.post(
+      final response = await http.get(
         Uri.parse(url),
         headers: headers,
-        body: jsonEncode(body),
       );
 
       if (response.statusCode == 200) {
-
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         print(responseData);
         return responseData;
@@ -619,9 +640,7 @@ class AuthService {
         final Map<String, dynamic> errorData = jsonDecode(response.body);
         return {'error': response.body};
       }
-
-    }
-    catch (error) {
+    } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
       return {'error': 'An unexpected error occurred.'};
@@ -633,32 +652,27 @@ class AuthService {
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
       'accept': 'application/json',
-
     };
 
     try {
-      final response = await http.post(
+      final response = await http.get(
         Uri.parse(url),
         headers: headers,
       );
 
       if (response.statusCode == 200) {
-
         final String responseData = jsonDecode(response.body);
         print('number of albums in the csv is $responseData');
         return responseData;
-
       } else {
         // Handle signup error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return 'non 200 response' ;
+        return 'non 200 response';
       }
-
-    }
-    catch (error) {
+    } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return 'error caught' ;
+      return 'error caught';
     }
   }
 
@@ -669,13 +683,12 @@ class AuthService {
     };
 
     try {
-      final response = await http.post(
+      final response = await http.get(
         Uri.parse(url),
         headers: headers,
       );
 
       if (response.statusCode == 200) {
-
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         print(responseData);
         return responseData;
@@ -684,14 +697,51 @@ class AuthService {
         final Map<String, dynamic> errorData = jsonDecode(response.body);
         return {'error': response.body};
       }
-
-    }
-    catch (error) {
+    } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
       return {'error': 'An unexpected error occurred.'};
     }
   }
-
 }
 
+
+
+/*
+    // getsongsfromcsv apply when api uptaded
+    final String url = '$baseUrl/songs/?skip=0&limit=10';
+
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'accept': 'application/json',
+    };
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+          List<dynamic> songsJson = jsonDecode(response.body);
+          List<Map<String, dynamic>> songs = [];
+
+          var i = 0;
+          for (var songJson in songsJson) {
+            if (i < 10) {
+              songs.add(Map<String, dynamic>.from(songJson));
+              i = i + 1;
+            }
+          }
+          return songs; //return albums
+        } else {
+          return [];
+        }
+    }
+    catch (error) {
+      // Handle network or unexpected errors
+      print('Error: $error');
+      return [{'error': 'An unexpected error occurred.'}];
+    }
+
+ */
