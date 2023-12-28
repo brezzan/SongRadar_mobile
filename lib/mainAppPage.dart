@@ -3,7 +3,7 @@ import 'dart:core';
 import 'package:songradar/api.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:csv/csv.dart';
-
+import 'package:songradar/variables.dart';
 
 class mainAppPage extends StatefulWidget {
   final int userid;
@@ -26,6 +26,7 @@ class _mainAppPageState extends State<mainAppPage> {
 
   Future<void> fetchAlbums() async {
     songs = AuthService().getSongsFromCsv();
+    global_songs = songs;
     to_print_songs = await AuthService().getSongsFromCsv();
 
     print("----");

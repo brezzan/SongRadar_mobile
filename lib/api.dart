@@ -360,6 +360,7 @@ class AuthService {
 
     // Parse the CSV data
     List<List<dynamic>> csvData = CsvToListConverter().convert(csvContent);
+
     List<Map<String, dynamic>> songsList = csvData
         .map((List<dynamic> row) => Map.fromIterables([
       'id',
@@ -389,6 +390,39 @@ class AuthService {
     ], row))
         .toList();
 
+    /*
+    List<Song> songsList = csvData
+
+        .map((List<dynamic> row) {
+      return Song(
+        id: row[0].toString(),
+        name: row[1].toString(),
+        album: row[2].toString(),
+        albumId: row[3].toString(),
+        artists: (row[4] as String).split(','),
+        artistIds: (row[5] as String).split(','),
+        trackNumber: int.parse(row[6].toString()),
+        discNumber: int.parse(row[7].toString()),
+        explicit: row[8].toString().toLowerCase() == 'true',
+        danceability: double.parse(row[9].toString()),
+        energy: double.parse(row[10].toString()),
+        key: int.parse(row[11].toString()),
+        loudness: double.parse(row[12].toString()),
+        mode: row[13].toString(),
+        speechiness: double.parse(row[14].toString()),
+        acousticness: double.parse(row[15].toString()),
+        instrumentalness: double.parse(row[16].toString()),
+        liveness: double.parse(row[17].toString()),
+        valence: double.parse(row[18].toString()),
+        tempo: double.parse(row[19].toString()),
+        durationMs: int.parse(row[20].toString()),
+        timeSignature: int.parse(row[21].toString()),
+        year: int.parse(row[22].toString()),
+        releaseDate: row[23].toString(),
+      );
+    })
+        .toList();
+        */
     // Return only the first 20 rows
     return songsList.take(20).toList();
   } catch (e) {
@@ -745,3 +779,120 @@ class AuthService {
     }
 
  */
+
+
+class Song {
+  String id;
+  String name;
+  String album;
+  String albumId;
+  List<String> artists;
+  List<String> artistIds;
+  int trackNumber;
+  int discNumber;
+  bool explicit;
+  double danceability;
+  double energy;
+  int key;
+  double loudness;
+  String mode;
+  double speechiness;
+  double acousticness;
+  double instrumentalness;
+  double liveness;
+  double valence;
+  double tempo;
+  int durationMs;
+  int timeSignature;
+  int year;
+  String releaseDate;
+
+  Song({
+    required this.id,
+    required this.name,
+    required this.album,
+    required this.albumId,
+    required this.artists,
+    required this.artistIds,
+    required this.trackNumber,
+    required this.discNumber,
+    required this.explicit,
+    required this.danceability,
+    required this.energy,
+    required this.key,
+    required this.loudness,
+    required this.mode,
+    required this.speechiness,
+    required this.acousticness,
+    required this.instrumentalness,
+    required this.liveness,
+    required this.valence,
+    required this.tempo,
+    required this.durationMs,
+    required this.timeSignature,
+    required this.year,
+    required this.releaseDate,
+  });
+
+  @override
+  String toString() {
+    return 'Song(id: $id, name: $name, album: $album, albumId: $albumId, artists: $artists, artistIds: $artistIds, trackNumber: $trackNumber, discNumber: $discNumber, explicit: $explicit, danceability: $danceability, energy: $energy, key: $key, loudness: $loudness, mode: $mode, speechiness: $speechiness, acousticness: $acousticness, instrumentalness: $instrumentalness, liveness: $liveness, valence: $valence, tempo: $tempo, durationMs: $durationMs, timeSignature: $timeSignature, year: $year, releaseDate: $releaseDate)';
+  }
+}
+
+
+class Album {
+  String album;
+  String albumId;
+  List<String> artists;
+  List<String> artistIds;
+  int trackNumber;
+  int discNumber;
+  bool explicit;
+  double danceability;
+  double energy;
+  int key;
+  double loudness;
+  String mode;
+  double speechiness;
+  double acousticness;
+  double instrumentalness;
+  double liveness;
+  double valence;
+  double tempo;
+  int durationMs;
+  int timeSignature;
+  int year;
+  String releaseDate;
+
+  Album({
+    required this.album,
+    required this.albumId,
+    required this.artists,
+    required this.artistIds,
+    required this.trackNumber,
+    required this.discNumber,
+    required this.explicit,
+    required this.danceability,
+    required this.energy,
+    required this.key,
+    required this.loudness,
+    required this.mode,
+    required this.speechiness,
+    required this.acousticness,
+    required this.instrumentalness,
+    required this.liveness,
+    required this.valence,
+    required this.tempo,
+    required this.durationMs,
+    required this.timeSignature,
+    required this.year,
+    required this.releaseDate,
+  });
+
+  @override
+  String toString() {
+    return 'Album(album: $album, albumId: $albumId, artists: $artists, artistIds: $artistIds, trackNumber: $trackNumber, discNumber: $discNumber, explicit: $explicit, danceability: $danceability, energy: $energy, key: $key, loudness: $loudness, mode: $mode, speechiness: $speechiness, acousticness: $acousticness, instrumentalness: $instrumentalness, liveness: $liveness, valence: $valence, tempo: $tempo, durationMs: $durationMs, timeSignature: $timeSignature, year: $year, releaseDate: $releaseDate)';
+  }
+}
+
