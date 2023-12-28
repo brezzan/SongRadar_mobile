@@ -25,9 +25,10 @@ class _mainAppPageState extends State<mainAppPage> {
   late Future<Map<String, dynamic>> currentUser ;  // for printing username after getting id in arguments
 
   Future<void> fetchAlbums() async {
-    songs = AuthService().getSongsFromCsv();
-    global_songs = songs;
-    to_print_songs = await AuthService().getSongsFromCsv();
+
+      songs = AuthService().getSongsFromCsv();
+      global_songs = songs;
+      to_print_songs = await AuthService().getSongsFromCsv();
 
     print("----");
     print("all songs printed:   ");
@@ -88,7 +89,7 @@ class _mainAppPageState extends State<mainAppPage> {
             textAlign: TextAlign.left,
           ),
           FutureBuilder(
-            future: songs,
+            future: global_songs,
             builder:
                 (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -102,12 +103,12 @@ class _mainAppPageState extends State<mainAppPage> {
                 return Text('No albums found');
               } else {
                 // Data has been successfully fetched, build the list of AlbumCards
-                List<Map<String, dynamic>> songs = snapshot.data!;
+                List<Map<String, dynamic>> global_songs = snapshot.data!;
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      for (var song in songs)
+                      for (var song in global_songs)
                         SongCard(
                             albumName: song['album'].toString(),
                             albumPerformers: song['artists'].toString(),
@@ -129,7 +130,7 @@ class _mainAppPageState extends State<mainAppPage> {
             textAlign: TextAlign.left,
           ),
           FutureBuilder(
-            future: songs,
+            future: global_songs,
             builder:
                 (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -143,12 +144,12 @@ class _mainAppPageState extends State<mainAppPage> {
                 return Text('No albums found');
               } else {
                 // Data has been successfully fetched, build the list of AlbumCards
-                List<Map<String, dynamic>> songs = snapshot.data!;
+                List<Map<String, dynamic>> global_songs = snapshot.data!;
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      for (var song in songs)
+                      for (var song in global_songs)
                         SongCard(
                             albumName: song['album'].toString(),
                             albumPerformers: song['artists'].toString(),
@@ -170,7 +171,7 @@ class _mainAppPageState extends State<mainAppPage> {
             textAlign: TextAlign.left,
           ),
           FutureBuilder(
-            future: songs,
+            future: global_songs,
             builder:
                 (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -184,12 +185,12 @@ class _mainAppPageState extends State<mainAppPage> {
                 return Text('No albums found');
               } else {
                 // Data has been successfully fetched, build the list of AlbumCards
-                List<Map<String, dynamic>> songs = snapshot.data!;
+                List<Map<String, dynamic>> global_songs = snapshot.data!;
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      for (var song in songs)
+                      for (var song in global_songs)
                         SongCard(
                             albumName: song['album'].toString(),
                             albumPerformers: song['artists'].toString(),

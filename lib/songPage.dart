@@ -3,8 +3,8 @@ import 'dart:core';
 
 
 class songPage extends StatefulWidget {
-  final int songId, albumId, userid, year;
-  final String username, songName, albumName, performers, genre;
+  final int  userid, year;
+  final String username, songName, albumName, performers, genre,songId, albumId;
   const songPage(
       {required this.songId,
       required this.albumName,
@@ -23,8 +23,8 @@ class songPage extends StatefulWidget {
 }
 
 class _songPageState extends State<songPage> {
-  late String username, songName, albumName, performers, genre;
-  late int userid, songId, year, albumId; // Corrected variable name to userId
+  late String username, songName, albumName, performers, genre, songId, albumId;
+  late int userid, year; // Corrected variable name to userId
 
   @override
   void initState() {
@@ -36,14 +36,14 @@ class _songPageState extends State<songPage> {
     final arguments =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     userid = int.parse('${arguments?['userid']}');
-    songId = int.parse('${arguments?['songId']}');
+    songId = '${arguments?['songId']}';
     year = int.parse('${arguments?['year']}');
     username = '${arguments?['username']}';
     albumName = '${arguments?['albumName']}';
     songName = '${arguments?['songName']}';
     performers = '${arguments?['performers']}';
     genre = '${arguments?['genre']}';
-    albumId = int.parse('${arguments?['albumId']}');
+    albumId = '${arguments?['albumId']}';
 
     return Scaffold(
       appBar: AppBar(
@@ -52,7 +52,7 @@ class _songPageState extends State<songPage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Text('$albumName-$songName'),
+            Text('$albumName'),
             Flexible(
               child: SizedBox(width: 200),
             ),
@@ -84,7 +84,7 @@ class _songPageState extends State<songPage> {
           children: <Widget>[
             SizedBox(height: 40),
             Text(
-              'Song Details',
+              'Song: $songName',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 25),
             ),
@@ -159,9 +159,9 @@ class _songPageState extends State<songPage> {
             ),
             SongCard(
               songName: songName,
-              albumId: albumId,
+              albumId: albumId.toString(),
               genre: genre,
-              songId: songId,
+              songId: songId.toString(),
               songPerformers: performers,
               songYear: year.toString(),
               userid: userid,
@@ -191,8 +191,8 @@ bottomNavigationBar: Row(
  */
 
 class SongCard extends StatelessWidget {
-  final String songName, songPerformers, songYear, username, genre;
-  final int songId, userid, albumId;
+  final String songName, songPerformers, songYear, username, genre,albumId,songId;
+  final int userid;
 
   SongCard(
       {required this.userid,
@@ -242,6 +242,7 @@ class SongCard extends StatelessWidget {
           ),
           SizedBox(width: 4.0),
           Expanded(
+            flex: 3,
             child: Row(
               children: [
                 Column(
@@ -264,9 +265,9 @@ class SongCard extends StatelessWidget {
               ],
             ),
           ),
-          Flexible(
+          Expanded(
             child: SizedBox(
-              width: 200,
+              width: 10,
             ),
           ),
           Column(
