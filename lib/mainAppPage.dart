@@ -18,10 +18,15 @@ class mainAppPage extends StatefulWidget {
 class _mainAppPageState extends State<mainAppPage> {
   late int userid;
   late String username;
+  TextEditingController searchController = TextEditingController();
+
+  List<Map<String, dynamic>> filteredSongs = [];
+
   late Future<Map<String, dynamic>>
       currentUser; // for printing username after getting id in arguments
   late int count;
   List<Map<String, dynamic>> songs_to_print = [];
+  bool isSearchActive = false;
 
   Future<void> fetchAlbums() async {
     global_songs = AuthService().getSongsFromCsv();
@@ -43,10 +48,46 @@ class _mainAppPageState extends State<mainAppPage> {
     print("album count: $count");
   }
 
+  void search(String query) async {
+    isSearchActive = query.isNotEmpty;
+
+    if (!isSearchActive) {
+      setState(() {
+        filteredSongs = [];
+      });
+      return;
+    }
+
+    if (query.isEmpty) {
+      setState(() {
+        filteredSongs = songs_to_print;
+      });
+      return;
+    }
+
+    try {
+      var response = await AuthService().getSongByNameFromCsv(query);
+      if (response.containsKey('error')) {
+        print("Error fetching songs: ${response['error']}");
+      } else {
+        List<Map<String, dynamic>> _tempFilteredSongs = List<Map<String, dynamic>>.from(response['songs']);
+        setState(() {
+          filteredSongs = _tempFilteredSongs;
+        });
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    fetchAlbums();
+    fetchAlbums().then((_) {
+      setState(() {
+        filteredSongs = songs_to_print;
+      });
+    });
   }
 
   @override
@@ -92,6 +133,44 @@ class _mainAppPageState extends State<mainAppPage> {
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  labelText: 'Search',
+                  hintText: 'Search for songs',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                  ),
+                ),
+                onChanged: (value) => search(value),
+              ),
+            ),
+
+            if (isSearchActive)
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: filteredSongs.length,
+                itemBuilder: (context, index) {
+                  var song = filteredSongs[index];
+                  return ListTile(
+                    title: Text(song['name']),
+                    subtitle: Text(song['artists']),
+                    onTap: () {
+                      Navigator.pushReplacementNamed(context, 'songPage', arguments:
+                      {
+                        'userid': userid,
+                        'username': username,
+                        'song': song
+                      }
+                      );
+                    },
+                  );
+                },
+              ),
             SizedBox(height: 40),
             Text(
               'Recently Favorited -NOT IMPLEMENTED',
