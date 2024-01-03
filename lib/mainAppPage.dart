@@ -311,7 +311,7 @@ class SongCard extends StatelessWidget {
         Navigator.pushReplacementNamed(context, '/songPage', arguments: {
           'userid': userid,
           'username': username,
-          'song': song
+          'songId': song.id
         });
       },
       child: Column(

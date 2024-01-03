@@ -6,10 +6,8 @@ import 'package:songradar/variables.dart';
 class albumPage extends StatefulWidget {
   final int userid; // Corrected variable name to userId
   final String username,albumId;
-  const albumPage(
-      {required this.albumId,
-      required this.userid,
-      required this.username,
+
+  const albumPage({required this.albumId, required this.userid, required this.username,
       Key? key})
       : super(key: key);
 
@@ -18,52 +16,95 @@ class albumPage extends StatefulWidget {
 }
 
 class _albumPageState extends State<albumPage> {
-  late int userid ; // Corrected variable name to userId
-  late String username,albumId;
-
-  late Future<List<Map<String, dynamic>>> album_data ;
-  late Future<Map<String, dynamic>> currentUser ;  // for printing username after getting id in arguments
+  late int userid;
+  late String username, albumId;
+  late Future<Map<String, dynamic>> albumData; // Adjusted the type
+  Map<String, dynamic> data ={};
+  late Album album = Album(
+    id: '',
+    name: '',
+    artists: '',
+    artist_ids: '',
+    number_of_tracks: 0,
+    explicit: false,
+    danceability: 0.0,
+    energy: 0.0,
+    key: 0,
+    loudness: 0.0,
+    mode: 0,
+    speechiness: 0.0,
+    acousticness: 0,
+    instrumentalness: 0,
+    liveness: 0,
+    valence: 0,
+    tempo: 0,
+    duration_ms: 0,
+    time_signature: 0,
+    year: 0,
+    month: 0,
+    day: 0,
+    owner_id: 0,
+  );
+  late List<Song> tracks = [];
 
   Future<void> fetchData() async {
-   album_data = AuthService().getAlbumByIdFromCsv(albumId);
-    print(album_data);
+    albumData = AuthService().getAlbumByIdFromCsv(albumId);
+    data = await AuthService().getAlbumByIdFromCsv(albumId);
+    album = Album(id: data['id'], name: data['name'], artists: data['artists'], artist_ids: data['artist_ids'],
+        number_of_tracks: data['number_of_tracks'], explicit :data['explicit'], danceability: data['danceability'], energy: data['energy'],
+        key: data['key'], loudness: data['loudness'], mode: data['mode'], speechiness: data['speechiness'], acousticness: data['acousticness'],
+        instrumentalness: data['instrumentalness'], liveness: data['liveness'], valence: data['valence'], tempo: data['tempo'],
+        duration_ms: data['duration_ms'], time_signature: data['time_signature'], year: data['year'],
+        month: data['month'], day: data['day'], owner_id: data['owner_id']);
+
+    for (var data in data['tracks']){
+      tracks.add(Song(id: data['id'], name: data['name'],album:data['album'] ,album_id:data['album_id'] , artists: data['artists'],
+          artist_ids: data['artist_ids'],track_number: data['track_number'],disc_number:data['disc_number'],
+           explicit :data['explicit'], danceability: data['danceability'], energy: data['energy'],
+          key: data['key'], loudness: data['loudness'], mode: data['mode'], speechiness: data['speechiness'], acousticness: data['acousticness'],
+          instrumentalness: data['instrumentalness'], liveness: data['liveness'], valence: data['valence'], tempo: data['tempo'],
+          duration_ms: data['duration_ms'], time_signature: data['time_signature'], year: data['year'],
+          month: data['month'], day: data['day'], owner_id: data['owner_id']));
+    }
+
+    print('aaaa1');
+    print('albumdata is $data');
+    print('aaaa2');
+
   }
 
-  @override
   @override
   void initState() {
     super.initState();
-    userid = widget.userid;
-    username = widget.username;
-    albumId = widget.albumId;
-    fetchData();
-  }
 
+  }
 
   @override
   Widget build(BuildContext context) {
     final arguments =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     userid = int.parse('${arguments?['userid']}');
     albumId = '${arguments?['albumId']}';
     username = '${arguments?['username']}';
+    fetchData();
 
     return FutureBuilder(
-      future: album_data,
+      future: albumData,
       builder: (context,
-          AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+          AsyncSnapshot<Map<String, dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // While data is being fetched, you can show a loading indicator
           return CircularProgressIndicator();
         } else if (snapshot.hasError) {
           // If an error occurs during data fetching
           return Text('Error loading albums');
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty ) {
+
           // If no albums are available
-          return Text('No albums found');
+          return Text('No album found');
         } else {
           // Data has been successfully fetched, build the list of AlbumCards
-          List<Map<String, dynamic>> album_data = snapshot.data!;
+          Map<String, dynamic> albumData = snapshot.data!;
           return Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,
@@ -80,7 +121,7 @@ class _albumPageState extends State<albumPage> {
                           arguments: {'userid': userid, 'username': username});
                     },
                   ),
-                  Text(album_data[0]['name']),
+                  Text('  '), // album name
                   Flexible(
                     child: SizedBox(width: 200),
                   ),
@@ -129,12 +170,10 @@ class _albumPageState extends State<albumPage> {
                       SizedBox(width: 20),
                       Expanded(
                         child: Center(
-                          child: albumInfo(year: album_data[0]['year'],
-                              userid: userid,
-                              username: username,
-                              albumName: album_data[0]['name'],
-                              performers: album_data[0]['artists']
-
+                          child: albumInfo(
+                            userid: userid,
+                            username: username,
+                            album: album,
                           ),
                         ),
                       ),
@@ -190,43 +229,9 @@ class _albumPageState extends State<albumPage> {
                       ),
                     ],
                   ),
-                  FutureBuilder(
-                    future: global_songs,
-                    builder: (context,
-                        AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        // While data is being fetched, you can show a loading indicator
-                        return CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        // If an error occurs during data fetching
-                        return Text('Error loading songs');
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        // If no albums are available
-                        return Text('No songs found');
-                      } else {
-                        // Data has been successfully fetched, build the list of AlbumCards
-                        List<Map<String, dynamic>> global_songs = snapshot.data!;
-                        return SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: Column(
-                            children: [
-                              for (var song in global_songs)
-                                if (song['album_id'] == albumId)
-                                  SongCard(
-                                      songName: song['name'].toString(),
-                                      songPerformers: song['artists'].toString(),
-                                      songYear: song['year'].toString(),
-                                      songId: song['id'].toString(),
-                                      albumId: song['album_id'].toString(),
-                                      albumName: album_data[0]['name'],
-                                      userid: userid,
-                                      username: username),
-                            ],
-                          ),
-                        );
-                      }
-                    },
-                  ),
+                  for (var song in tracks)
+                    SongCard(userid: userid, username: username, song: song)
+
                 ],
               ),
             ),
@@ -238,33 +243,24 @@ class _albumPageState extends State<albumPage> {
 }
 
 class SongCard extends StatelessWidget {
-  final String songName, songPerformers, songYear, username, albumName,songId, albumId;
+  final String username;
   final int userid;
+  final Song song;
   void deletesong() {}
 
   SongCard(
       {required this.userid,
-      required this.songName,
-      required this.songPerformers,
-      required this.songYear,
-      required this.songId,
-      required this.albumId,
-      required this.albumName,
-      required this.username});
+      required this.username,
+      required this.song});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Navigator.pushReplacementNamed(context, '/songPage', arguments: {
-          'songId': songId,
-          'songName':songName,
-          'albumName': albumName,
           'userid': userid,
-          'albumId': albumId,
-          'year': int.parse(songYear),
-          'performers': songPerformers,
-          'username': username
+          'username': username,
+          'songId': song.id
         });
       },
       child: Row(
@@ -298,14 +294,15 @@ class SongCard extends StatelessWidget {
               children: [
                 SizedBox(height: 45),
                 Text(
-                  songName,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  song.name,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  songPerformers,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+                  song.artists,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
+                SizedBox(height: 4),
               ],
             ),
           ),
@@ -332,15 +329,14 @@ class SongCard extends StatelessWidget {
 }
 
 class albumInfo extends StatelessWidget {
-  final String albumName, performers, year, username;
+  final String username;
   final int userid;
-  //final int rating;
+  final Album album;
+
   const albumInfo({
-    required this.albumName,
-    required this.performers,
-    required this.year,
     required this.username,
-    required this.userid
+    required this.userid,
+    required this.album
   });
 
   @override
@@ -352,31 +348,34 @@ class albumInfo extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         SizedBox(height: 15),
-        Text('Album Name: $albumName'),
+        Center(child: Text('${album.name}',)),
         SizedBox(height: 15),
-        Row(
+        Text(
+          'Performers:',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 15),
+        ),
+        Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Performers: ',
-              textAlign: TextAlign.center,
-            ),
-            InkWell(
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/performerPage',
-                    arguments: {'userid': userid, 'username': username,'performers':performers});
-              },
-              child: Text(
-                '$performers',
-                style: TextStyle(fontWeight: FontWeight.normal, decoration: TextDecoration.underline),
+            for (var artist in album.artists.split(","))
+              InkWell(
+                onTap: () {
+                  Navigator.pushReplacementNamed(context, '/performerPage',
+                      arguments: {'userid': userid, 'username': username, 'performers': artist });
+                },
+                child: Text(
+                  artist.trim(), // trim to remove leading/trailing spaces
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.normal, decoration: TextDecoration.underline),
+                ),
               ),
-            ),
           ],
         ),
-        SizedBox(height: 15),
-        Text('Genre: '),
-        SizedBox(height: 15),
-        Text('Year: $year'),
+        SizedBox(height: 10),
+        Text(
+          'Publish Date: ${album.day}-${album.month}-${album.year}',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.normal),
+        ),
         SizedBox(height: 10),
         Row(
           children: [
@@ -399,224 +398,10 @@ class albumInfo extends StatelessWidget {
   }
 }
 
-/*
-body: SingleChildScrollView(
-        child:
-        Column(children: <Widget>[
-            SizedBox(height: 40),
-            Text(
-              'Songs in this album',
-              textAlign: TextAlign.left,
-            ),
-            FutureBuilder(
-              future: songs,
-              builder:
-                  (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  // While data is being fetched, you can show a loading indicator
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  // If an error occurs during data fetching
-                  return Text('Error loading songs');
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  // If no albums are available
-                  return Text('No songs found');
-                } else {
-                  // Data has been successfully fetched, build the list of AlbumCards
-                  List<Map<String, dynamic>> songs = snapshot.data!;
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        for (var song in songs)
-                          if (song['album_id'] == albumId)
-                            SongCard(
-                              songName: song['title'].toString(),
-                              songPerformers: song['performers'].toString(),
-                              songYear: song['year'].toString(),
-                              songId: song['id'],
-                              songAlbum: song['album_id'],
-                              userid: userid,
-                              username: username),
-                      ],
-                    ),
-                  );
-                }
-              },
-            ),
-          ],),
-      ),
-      bottomNavigationBar: Row(
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 30, vertical: 15),
-                      shape: BeveledRectangleBorder()),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('Confirm Delete'),
-                          content: Text(
-                              'Are you sure you want to delete this album?'),
-                          actions: <Widget>[
-                            TextButton(
-                              child: Text('Cancel'),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            TextButton(
-                                child: Text('Delete'),
-                                onPressed: () async {
-                                  final Map<String, dynamic>deletedAlbum = await AuthService().deleteAlbum(albumId);
-                                  print(deletedAlbum);
-                                  if (!deletedAlbum.containsKey('error')) {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: Text('Success'),
-                                          content: Text('Album deleted'),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              child: Text('OK'),
-                                              onPressed: () {
-                                                Navigator.pushReplacementNamed(context, '/mainAppPage',
-                                                    arguments: {'userid': userid, 'username': username
-                                                    });
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  } else {
-                                    // Handle deletion error here
-                                    Navigator.of(context).pop();
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: Text('Error'),
-                                          content: Text(
-                                              'Album could not be deleted'),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              child: Text('OK'),
-                                              onPressed: () {
-                                                Navigator.of(context)
-                                                    .pop();
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  }
-                                }),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  child: Text('Delete Album')
-              ),
-            ),
-          ],
-        ),
- */
 
-/*
-bottomNavigationBar: Row(
-        children: [
-          Expanded(
-            child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    shape: BeveledRectangleBorder()),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text('Confirm Delete'),
-                        content:
-                            Text('Are you sure you want to delete this album?'),
-                        actions: <Widget>[
-                          TextButton(
-                            child: Text('Cancel'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                          TextButton(
-                              child: Text('Delete'),
-                              onPressed: () async {
-                                final Map<String, dynamic> deletedAlbum =
-                                    await AuthService().deleteAlbum(albumId);
-                                print(deletedAlbum);
-                                if (!deletedAlbum.containsKey('error')) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text('Success'),
-                                        content: Text('Album deleted'),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            child: Text('OK'),
-                                            onPressed: () {
-                                              Navigator.pushReplacementNamed(
-                                                  context, '/mainAppPage',
-                                                  arguments: {
-                                                    'userid': userid,
-                                                    'username': username
-                                                  });
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                } else {
-                                  // Handle deletion error here
-                                  Navigator.of(context).pop();
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text('Error'),
-                                        content:
-                                            Text('Album could not be deleted'),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            child: Text('OK'),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                }
-                              }),
-                        ],
-                      );
-                    },
-                  );
-                },
-                child: Text('Delete Album')),
-          ),
-        ],
-      ),
- */
+
+
+
 
 
 
@@ -674,3 +459,156 @@ onPressed: () async {
                                         );
                                       }
                                     }) ,  */
+
+
+/*
+return FutureBuilder(
+      future: albumData,
+      builder: (context,
+          AsyncSnapshot<Map<String, dynamic>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // While data is being fetched, you can show a loading indicator
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          // If an error occurs during data fetching
+          return Text('Error loading albums');
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          // If no albums are available
+          return Text('No album found');
+        } else {
+          // Data has been successfully fetched, build the list of AlbumCards
+          Map<String, dynamic> albumData = snapshot.data!;
+          return Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              backgroundColor: Colors.deepOrange,
+              title: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.arrow_back,
+                      size: 30,
+                    ),
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/mainAppPage',
+                          arguments: {'userid': userid, 'username': username});
+                    },
+                  ),
+                  Text('  '), // album name
+                  Flexible(
+                    child: SizedBox(width: 200),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.home,
+                      size: 30,
+                    ),
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/mainAppPage',
+                          arguments: {'userid': userid, 'username': username});
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.person_pin_rounded,
+                      size: 30,
+                    ),
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/personalPage',
+                          arguments: {'userid': userid, 'username': username});
+                    },
+                  ),
+                ],
+              ),
+            ),
+            body: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 20),
+                  Row(
+                    children: [
+                      SizedBox(width: 20),
+                      Container(
+                        width: 140,
+                        height: 140,
+                        color: Colors.grey[200],
+                        padding: EdgeInsets.all(20),
+                        child: Center(
+                          child: Text(
+                            'Album cover',
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      Expanded(
+                        child: Center(
+                          child: albumInfo(
+                              userid: userid,
+                              username: username,
+                              album: album,
+                          ),
+                        ),
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.delete_forever_outlined,
+                              size: 35,
+                            ),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Confirm Delete'),
+                                    content: Text(
+                                        'Are you sure you want to delete this album?'),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: Text('Cancel'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: Text('Delete'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            color: Colors.grey,
+                          ),
+                          SizedBox(height: 100),
+                        ],
+                      )
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Divider(
+                          height: 5, // Set the height of the divider
+                          thickness: 1, // Set the thickness of the divider
+                          color: Colors.black, // Set the color of the divider
+                        ),
+                      ),
+                    ],
+                  ),
+                  for (var song in tracks)
+                    SongCard(userid: userid, username: username, song: song)
+
+                ],
+              ),
+            ),
+          );
+        }
+      },
+    );*/

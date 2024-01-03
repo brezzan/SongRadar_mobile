@@ -14,8 +14,8 @@ import 'package:csv/csv.dart';
 class AuthService {
   final String baseUrl = 'http://10.0.2.2:8000'; //
 
-  Future<Map<String, dynamic>> loginUser(
-      String username, String password) async {
+  Future<Map<String, dynamic>> loginUser(String username,
+      String password) async {
     final String loginUrl = '$baseUrl/auth/sign_in';
 
     final Map<String, String> headers = {
@@ -126,8 +126,8 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> signUpUser(
-      String username, String email, String password) async {
+  Future<Map<String, dynamic>> signUpUser(String username, String email,
+      String password) async {
     final String signUpUrl = '$baseUrl/auth/sign_up';
 
     final Map<String, String> headers = {
@@ -199,8 +199,8 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> createAlbum(
-      String album, String performers, int year, String genre) async {
+  Future<Map<String, dynamic>> createAlbum(String album, String performers,
+      int year, String genre) async {
     final String url = '$baseUrl/debug/album';
 
     final Map<String, String> headers = {
@@ -347,7 +347,7 @@ class AuthService {
 
   //////////////////////////////////////////////////////SONGS FROM CSV ///////////////////////////////////////////////
 
-  Future<List<Map<String, dynamic>>> getSongsFromCsv() async {
+  Future<List<Map<String, dynamic>>> getSongsFromCsv() async {  //works
     final String url = '$baseUrl/songs/?skip=0&limit=10';
 
     final Map<String, String> headers = {
@@ -443,7 +443,7 @@ class AuthService {
     }
   }
 
-  Future<int> getSongCountFromCsv() async {
+  Future<int> getSongCountFromCsv() async {  // works
     final String url = '$baseUrl/songs/count';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -463,7 +463,7 @@ class AuthService {
       } else {
         // Handle signup error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return 0 ;
+        return 0;
       }
     } catch (error) {
       // Handle network or unexpected errors
@@ -473,7 +473,7 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> getSongByIdFromCsv(String id) async {
-    final String url = '$baseUrl/songs/{$id}';
+    final String url = '$baseUrl/songs/$id'; // Corrected the URL
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
@@ -486,10 +486,10 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
-        print(responseData);
+
         return responseData;
       } else {
-        // Handle signup error
+        // Handle error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
         return {'error': response.body};
       }
@@ -500,9 +500,10 @@ class AuthService {
     }
   }
 
+
 /////////////////////////////////////////////////////ALBUMS FROM CSV ///////////////////////////////////////////////
 
-  Future<List<Map<String, dynamic>>> getAlbumsFromCsv() async {
+  Future<List<Map<String, dynamic>>> getAlbumsFromCsv() async {  // works
     final String url = '$baseUrl/albums/?skip=0&limit=10';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -572,10 +573,11 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> getAlbumByArtistFromCsv(
+  Future<List<Map<String, dynamic>>> getAlbumByArtistFromCsv(
       String artistName) async {
     final String url =
-        '$baseUrl/albums/search_artist?artist=$artistName&skip=0&limit=10';
+        '$baseUrl/albums/search_artist?artist=$artistName&skip=0&limit=20';
+
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
       'accept': 'application/json',
@@ -588,22 +590,30 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
-        print(responseData);
-        return responseData;
+        List<dynamic> albumsJson = jsonDecode(response.body);
+        List<Map<String, dynamic>> albums = [];
+
+        var i = 0;
+        for (var albumJson in albumsJson) {
+          if (i < 10) {
+            albums.add(Map<String, dynamic>.from(albumJson));
+            i = i + 1;
+          }
+        }
+        return albums;
       } else {
         // Handle signup error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return {'error': response.body};
+        return [{'error': response.body}];
       }
     } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return {'error': 'An unexpected error occurred.'};
+      return [{'error': 'An unexpected error occurred.'}];
     }
   }
 
-  Future<int> getAlbumCountFromCsv() async {
+  Future<int> getAlbumCountFromCsv() async {  // works
     final String url = '$baseUrl/albums/count';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -630,8 +640,8 @@ class AuthService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getAlbumByIdFromCsv(String id) async {
-    final String url = '$baseUrl/albums/{$id}';
+  Future<Map<String, dynamic>> getAlbumByIdFromCsv(String id) async {   // works
+    final String url = '$baseUrl/albums/$id';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
@@ -643,22 +653,22 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        final List<Map<String, dynamic>> responseData = jsonDecode(response.body);
+        final Map<String, dynamic> responseData = jsonDecode(
+            response.body);
         print(responseData);
         return responseData;
       } else {
-        // Handle signup error
+        // Handle error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return [{'error': response.body}];
+        return {'error': response.body};
       }
     } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return [{'error': 'An unexpected error occurred.'}];
+      return {'error': 'An unexpected error occurred.'};
     }
   }
 }
-
 
 class Song {
   final String id;
