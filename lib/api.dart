@@ -168,7 +168,7 @@ class AuthService {
 
   Future<List<Map<String, dynamic>>> getAlbums() async {
     // get albums and the songs they contain
-    final String url = '$baseUrl/debug/albums?skip=0&limit=100';
+    final String url = '$baseUrl/debug/albums?skip=0&limit=10';
     final response = await http.get(Uri.parse(url));
     try {
       final http.Response response = await http.get(
@@ -348,118 +348,40 @@ class AuthService {
   //////////////////////////////////////////////////////SONGS FROM CSV ///////////////////////////////////////////////
 
   Future<List<Map<String, dynamic>>> getSongsFromCsv() async {
-    // id,name,album,album_id,artists,artist_ids,track_number,
-    // disc_number,explicit,danceability,energy,key,loudness,mode,
-    // speechiness,acousticness,instrumentalness,liveness,valence,
-    // tempo,duration_ms,time_signature,year,release_date
+    final String url = '$baseUrl/songs/?skip=0&limit=10';
 
-    // script.py functions are not within virtenv' reach so ı will just red the files directly ,
-    // if updated uncomment the section below and delete the current section
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'accept': 'application/json',
+    };
+
     try {
-    String csvContent = await rootBundle.loadString('assets/songs_0.csv');
-
-    // Parse the CSV data
-    List<List<dynamic>> csvData = CsvToListConverter().convert(csvContent);
-
-    List<Map<String, dynamic>> songsList = csvData
-        .map((List<dynamic> row) => Map.fromIterables([
-      'id',
-      'name',
-      'album',
-      'album_id',
-      'artists',
-      'artist_ids',
-      'track_number',
-      'disc_number',
-      'explicit',
-      'danceability',
-      'energy',
-      'key',
-      'loudness',
-      'mode',
-      'speechiness',
-      'acousticness',
-      'instrumentalness',
-      'liveness',
-      'valence',
-      'tempo',
-      'duration_ms',
-      'time_signature',
-      'year',
-      'release_date'
-    ], row))
-        .toList();
-
-    /*
-    List<Song> songsList = csvData
-
-        .map((List<dynamic> row) {
-      return Song(
-        id: row[0].toString(),
-        name: row[1].toString(),
-        album: row[2].toString(),
-        albumId: row[3].toString(),
-        artists: (row[4] as String).split(','),
-        artistIds: (row[5] as String).split(','),
-        trackNumber: int.parse(row[6].toString()),
-        discNumber: int.parse(row[7].toString()),
-        explicit: row[8].toString().toLowerCase() == 'true',
-        danceability: double.parse(row[9].toString()),
-        energy: double.parse(row[10].toString()),
-        key: int.parse(row[11].toString()),
-        loudness: double.parse(row[12].toString()),
-        mode: row[13].toString(),
-        speechiness: double.parse(row[14].toString()),
-        acousticness: double.parse(row[15].toString()),
-        instrumentalness: double.parse(row[16].toString()),
-        liveness: double.parse(row[17].toString()),
-        valence: double.parse(row[18].toString()),
-        tempo: double.parse(row[19].toString()),
-        durationMs: int.parse(row[20].toString()),
-        timeSignature: int.parse(row[21].toString()),
-        year: int.parse(row[22].toString()),
-        releaseDate: row[23].toString(),
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
       );
-    })
-        .toList();
-        */
-    // Return only the first 20 rows
-    return songsList.take(20).toList();
-  } catch (e) {
-  throw Exception('Failed to read songs data: $e');
-  }
 
-  }
+      if (response.statusCode == 200) {
+        List<dynamic> songsJson = jsonDecode(response.body);
+        List<Map<String, dynamic>> songs = [];
 
-/* List<Map<String, dynamic>> songsList = csvData
-          .map((List<dynamic> row) => Map.fromIterables([
-                'id',
-                'name',
-                'album',
-                'album_id',
-                'artists',
-                'artist_ids',
-                'track_number',
-                'disc_number',
-                'explicit',
-                'danceability',
-                'energy',
-                'key',
-                'loudness',
-                'mode',
-                'speechiness',
-                'acousticness',
-                'instrumentalness',
-                'liveness',
-                'valence',
-                'tempo',
-                'duration_ms',
-                'time_signature',
-                'year',
-                'month',
-                'day'
-              ], row))
-          .toList(); */
+        for (var songJson in songsJson) {
+          // Add each song directly without checking the index
+          songs.add(Map<String, dynamic>.from(songJson));
+        }
+
+        return songs;
+      } else {
+        // Handle non-200 status codes
+        print('Error: ${response.statusCode}');
+        return [];
+      }
+    } catch (error) {
+      // Handle network or unexpected errors
+      print('Error: $error');
+      return [{'error': 'An unexpected error occurred.'}];
+    }
+  }
 
   Future<Map<String, dynamic>> getSongByNameFromCsv(String songName) async {
     final String url =
@@ -482,7 +404,7 @@ class AuthService {
       } else {
         // Handle signup error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return {'error': response.body};
+        return {'error': errorData};
       }
     } catch (error) {
       // Handle network or unexpected errors
@@ -521,7 +443,7 @@ class AuthService {
     }
   }
 
-  Future<String> getSongCountFromCsv() async {
+  Future<int> getSongCountFromCsv() async {
     final String url = '$baseUrl/songs/count';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -535,22 +457,22 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        final String responseData = jsonDecode(response.body);
+        final int responseData = jsonDecode(response.body);
         print('number of songs in the csv is $responseData');
         return responseData;
       } else {
         // Handle signup error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return 'non 200 response';
+        return 0 ;
       }
     } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return 'error caught';
+      return -1;
     }
   }
 
-  Future<Map<String, dynamic>> getSongByIdFromCsv(int id) async {
+  Future<Map<String, dynamic>> getSongByIdFromCsv(String id) async {
     final String url = '$baseUrl/songs/{$id}';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -681,7 +603,7 @@ class AuthService {
     }
   }
 
-  Future<String> getAlbumCountFromCsv() async {
+  Future<int> getAlbumCountFromCsv() async {
     final String url = '$baseUrl/albums/count';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -695,22 +617,20 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        final String responseData = jsonDecode(response.body);
+        final int responseData = jsonDecode(response.body);
         print('number of albums in the csv is $responseData');
         return responseData;
       } else {
-        // Handle signup error
-        final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return 'non 200 response';
+        return 0;
       }
     } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return 'error caught';
+      return -1;
     }
   }
 
-  Future<Map<String, dynamic>> getAlbumByIdFromCsv(int id) async {
+  Future<List<Map<String, dynamic>>> getAlbumByIdFromCsv(String id) async {
     final String url = '$baseUrl/albums/{$id}';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -723,99 +643,60 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final List<Map<String, dynamic>> responseData = jsonDecode(response.body);
         print(responseData);
         return responseData;
       } else {
         // Handle signup error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return {'error': response.body};
+        return [{'error': response.body}];
       }
     } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return {'error': 'An unexpected error occurred.'};
+      return [{'error': 'An unexpected error occurred.'}];
     }
   }
 }
 
 
-
-/*
-    // getsongsfromcsv apply when api uptaded
-    final String url = '$baseUrl/songs/?skip=0&limit=10';
-
-    final Map<String, String> headers = {
-      'Content-Type': 'application/json',
-      'accept': 'application/json',
-    };
-
-    try {
-      final response = await http.get(
-        Uri.parse(url),
-        headers: headers,
-      );
-
-      if (response.statusCode == 200) {
-          List<dynamic> songsJson = jsonDecode(response.body);
-          List<Map<String, dynamic>> songs = [];
-
-          var i = 0;
-          for (var songJson in songsJson) {
-            if (i < 10) {
-              songs.add(Map<String, dynamic>.from(songJson));
-              i = i + 1;
-            }
-          }
-          return songs; //return albums
-        } else {
-          return [];
-        }
-    }
-    catch (error) {
-      // Handle network or unexpected errors
-      print('Error: $error');
-      return [{'error': 'An unexpected error occurred.'}];
-    }
-
- */
-
-
 class Song {
-  String id;
-  String name;
-  String album;
-  String albumId;
-  List<String> artists;
-  List<String> artistIds;
-  int trackNumber;
-  int discNumber;
-  bool explicit;
-  double danceability;
-  double energy;
-  int key;
-  double loudness;
-  String mode;
-  double speechiness;
-  double acousticness;
-  double instrumentalness;
-  double liveness;
-  double valence;
-  double tempo;
-  int durationMs;
-  int timeSignature;
-  int year;
-  String releaseDate;
+  final String id;
+  final String name;
+  final String album;
+  final String album_id;
+  final String artists;
+  final String artist_ids;
+  final int track_number;
+  final int disc_number;
+  final bool explicit;
+  final double danceability;
+  final double energy;
+  final int key;
+  final double loudness;
+  final int mode;
+  final double speechiness;
+  final double acousticness;
+  final double instrumentalness;
+  final double liveness;
+  final double valence;
+  final double tempo;
+  final int duration_ms;
+  final int time_signature;
+  final int year;
+  final int month;
+  final int day;
+  final int owner_id;
 
   Song({
     required this.id,
     required this.name,
     required this.album,
-    required this.albumId,
-    required this.artists,
-    required this.artistIds,
-    required this.trackNumber,
-    required this.discNumber,
+    required this.album_id,
+    required String artists,
+    required String artist_ids,
+    required this.track_number,
+    required this.disc_number,
     required this.explicit,
     required this.danceability,
     required this.energy,
@@ -828,50 +709,49 @@ class Song {
     required this.liveness,
     required this.valence,
     required this.tempo,
-    required this.durationMs,
-    required this.timeSignature,
+    required this.duration_ms,
+    required this.time_signature,
     required this.year,
-    required this.releaseDate,
-  });
+    required this.month,
+    required this.day,
+    required this.owner_id,
+  }) : artists = artists.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" ),
+        artist_ids = artist_ids.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" );
 
-  @override
-  String toString() {
-    return 'Song(id: $id, name: $name, album: $album, albumId: $albumId, artists: $artists, artistIds: $artistIds, trackNumber: $trackNumber, discNumber: $discNumber, explicit: $explicit, danceability: $danceability, energy: $energy, key: $key, loudness: $loudness, mode: $mode, speechiness: $speechiness, acousticness: $acousticness, instrumentalness: $instrumentalness, liveness: $liveness, valence: $valence, tempo: $tempo, durationMs: $durationMs, timeSignature: $timeSignature, year: $year, releaseDate: $releaseDate)';
-  }
+
 }
-
 
 class Album {
-  String album;
-  String albumId;
-  List<String> artists;
-  List<String> artistIds;
-  int trackNumber;
-  int discNumber;
-  bool explicit;
-  double danceability;
-  double energy;
-  int key;
-  double loudness;
-  String mode;
-  double speechiness;
-  double acousticness;
-  double instrumentalness;
-  double liveness;
-  double valence;
-  double tempo;
-  int durationMs;
-  int timeSignature;
-  int year;
-  String releaseDate;
+  final String id;
+  final String name;
+  final String artists;
+  final String artist_ids;
+  final int number_of_tracks;
+  final bool explicit;
+  final double danceability;
+  final double energy;
+  final int key;
+  final double loudness;
+  final int mode;
+  final double speechiness;
+  final double acousticness;
+  final double instrumentalness;
+  final double liveness;
+  final double valence;
+  final double tempo;
+  final int duration_ms;
+  final int time_signature;
+  final int year;
+  final int month;
+  final int day;
+  final int owner_id;
 
   Album({
-    required this.album,
-    required this.albumId,
-    required this.artists,
-    required this.artistIds,
-    required this.trackNumber,
-    required this.discNumber,
+    required this.id,
+    required this.name,
+    required String artists,
+    required String artist_ids,
+    required this.number_of_tracks,
     required this.explicit,
     required this.danceability,
     required this.energy,
@@ -884,15 +764,15 @@ class Album {
     required this.liveness,
     required this.valence,
     required this.tempo,
-    required this.durationMs,
-    required this.timeSignature,
+    required this.duration_ms,
+    required this.time_signature,
     required this.year,
-    required this.releaseDate,
-  });
+    required this.month,
+    required this.day,
+    required this.owner_id,
+  }): artists = artists.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" ),
+        artist_ids = artist_ids.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" );
 
-  @override
-  String toString() {
-    return 'Album(album: $album, albumId: $albumId, artists: $artists, artistIds: $artistIds, trackNumber: $trackNumber, discNumber: $discNumber, explicit: $explicit, danceability: $danceability, energy: $energy, key: $key, loudness: $loudness, mode: $mode, speechiness: $speechiness, acousticness: $acousticness, instrumentalness: $instrumentalness, liveness: $liveness, valence: $valence, tempo: $tempo, durationMs: $durationMs, timeSignature: $timeSignature, year: $year, releaseDate: $releaseDate)';
-  }
+
+
 }
-

@@ -8,7 +8,8 @@ import 'package:songradar/variables.dart';
 class mainAppPage extends StatefulWidget {
   final int userid;
   final String username;
-  const mainAppPage({required this.userid,required this.username, Key? key}) : super(key: key);
+  const mainAppPage({required this.userid, required this.username, Key? key})
+      : super(key: key);
 
   @override
   State<mainAppPage> createState() => _mainAppPageState();
@@ -16,24 +17,30 @@ class mainAppPage extends StatefulWidget {
 
 class _mainAppPageState extends State<mainAppPage> {
   late int userid;
-  late String username ;
-
-  List<Map<String, dynamic>> to_print_albums = [];
-  List<Map<String, dynamic>> to_print_songs = [];
-  late Future<List<Map<String, dynamic>>> albums;
-  late Future<List<Map<String, dynamic>>> songs;
-  late Future<Map<String, dynamic>> currentUser ;  // for printing username after getting id in arguments
+  late String username;
+  late Future<Map<String, dynamic>>
+      currentUser; // for printing username after getting id in arguments
+  late int count;
+  List<Map<String, dynamic>> songs_to_print = [];
 
   Future<void> fetchAlbums() async {
-
-      songs = AuthService().getSongsFromCsv();
-      global_songs = songs;
-      to_print_songs = await AuthService().getSongsFromCsv();
-
+    global_songs = AuthService().getSongsFromCsv();
+    global_albums = AuthService().getAlbumsFromCsv();
+    songs_to_print = await AuthService().getSongsFromCsv();
+    print(songs_to_print);
     print("----");
     print("all songs printed:   ");
-    print(to_print_songs);
+    print(global_songs);
     print("----");
+    print("all albums printed:   ");
+    print(global_albums);
+    print("----");
+
+    count = await AuthService().getSongCountFromCsv();
+    print("song count: $count");
+
+    count = await AuthService().getAlbumCountFromCsv();
+    print("album count: $count");
   }
 
   @override
@@ -65,7 +72,8 @@ class _mainAppPageState extends State<mainAppPage> {
                 size: 30,
               ),
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/addNewSong', arguments: {'userid': userid,'username':username});
+                Navigator.pushReplacementNamed(context, '/addNewSong',
+                    arguments: {'userid': userid, 'username': username});
               },
             ),
             IconButton(
@@ -74,140 +82,150 @@ class _mainAppPageState extends State<mainAppPage> {
                 size: 30,
               ),
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/personalPage', arguments: {'userid': userid,'username':username});
+                Navigator.pushReplacementNamed(context, '/personalPage',
+                    arguments: {'userid': userid, 'username': username});
               },
             ),
           ],
         ),
       ),
       body: SingleChildScrollView(
-        child:
-        Column(children: <Widget>[
-          SizedBox(height: 40),
-          Text(
-            'Recently Favorited -NOT IMPLEMENTED',
-            textAlign: TextAlign.left,
-          ),
-          FutureBuilder(
-            future: global_songs,
-            builder:
-                (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                // While data is being fetched, you can show a loading indicator
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                // If an error occurs during data fetching
-                return Text('Error loading albums');
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                // If no albums are available
-                return Text('No albums found');
-              } else {
-                // Data has been successfully fetched, build the list of AlbumCards
-                List<Map<String, dynamic>> global_songs = snapshot.data!;
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (var song in global_songs)
-                        SongCard(
-                            albumName: song['album'].toString(),
-                            albumPerformers: song['artists'].toString(),
-                            albumYear: song['year'].toString(),
-                            songName: song['name'].toString(),
-                            songId: song['id'].toString(),
-                            albumId: song['album_id'].toString(),
-                            userid: userid,
-                            username: username),
-                    ],
-                  ),
-                );
-              }
-            },
-          ),
-          SizedBox(height: 80),
-          Text(
-            'Recommended -NOT IMPLEMENTED',
-            textAlign: TextAlign.left,
-          ),
-          FutureBuilder(
-            future: global_songs,
-            builder:
-                (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                // While data is being fetched, you can show a loading indicator
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                // If an error occurs during data fetching
-                return Text('Error loading albums');
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                // If no albums are available
-                return Text('No albums found');
-              } else {
-                // Data has been successfully fetched, build the list of AlbumCards
-                List<Map<String, dynamic>> global_songs = snapshot.data!;
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (var song in global_songs)
-                        SongCard(
-                            albumName: song['album'].toString(),
-                            albumPerformers: song['artists'].toString(),
-                            albumYear: song['year'].toString(),
-                            songName: song['name'].toString(),
-                            songId: song['id'].toString(),
-                            albumId: song['album_id'].toString(),
-                            userid: userid,
-                            username: username),
-                    ],
-                  ),
-                );
-              }
-            },
-          ),
-          SizedBox(height: 80),
-          Text(
-            'Discover new Albums',
-            textAlign: TextAlign.left,
-          ),
-          FutureBuilder(
-            future: global_songs,
-            builder:
-                (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                // While data is being fetched, you can show a loading indicator
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                // If an error occurs during data fetching
-                return Text('Error loading albums');
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                // If no albums are available
-                return Text('No albums found');
-              } else {
-                // Data has been successfully fetched, build the list of AlbumCards
-                List<Map<String, dynamic>> global_songs = snapshot.data!;
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (var song in global_songs)
-                        SongCard(
-                            albumName: song['album'].toString(),
-                            albumPerformers: song['artists'].toString(),
-                            albumYear: song['year'].toString(),
-                            songName: song['name'].toString(),
-                            songId: song['id'].toString(),
-                            albumId: song['album_id'].toString(),
-                            userid: userid,
-                            username: username),
-                    ],
-                  ),
-                );
-              }
-            },
-          ),
-          SizedBox(height: 80),
-        ],
+        child: Column(
+          children: <Widget>[
+            SizedBox(height: 40),
+            Text(
+              'Recently Favorited -NOT IMPLEMENTED',
+              textAlign: TextAlign.left,
+            ),
+            SizedBox(height: 80),
+            Text(
+              'Recommended -NOT IMPLEMENTED',
+              textAlign: TextAlign.left,
+            ),
+            SizedBox(height: 80),
+            Text(
+              'Discover new Songs',
+              textAlign: TextAlign.left,
+            ),
+            FutureBuilder(
+              future: global_songs,
+              builder: (context,
+                  AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // While data is being fetched, you can show a loading indicator
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  // If an error occurs during data fetching
+                  return Text('Error loading albums');
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  // If no albums are available
+                  return Text('No albums found');
+                } else {
+                  // Data has been successfully fetched, build the list of AlbumCards
+                  List<Map<String, dynamic>> global_songs = snapshot.data!;
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (var global_song in global_songs)
+
+                          SongCard(
+                              userid: userid,
+                              username: username,
+                              song: Song(
+                                  id: global_song['id'],
+                                  name: global_song['name'],
+                                  album: global_song['album'],
+                                  album_id: global_song['album_id'],
+                                  artists: global_song['artists'],
+                                  artist_ids: global_song['artist_ids'],
+                                  track_number: global_song['track_number'],
+                                  disc_number: global_song['disc_number'],
+                                  explicit: global_song['explicit'],
+                                  danceability: global_song['danceability'],
+                                  energy: global_song['energy'],
+                                  key: global_song['key'],
+                                  loudness: global_song['loudness'],
+                                  mode: global_song['mode'],
+                                  speechiness: global_song['speechiness'],
+                                  acousticness: global_song['acousticness'],
+                                  instrumentalness: global_song['instrumentalness'],
+                                  liveness: global_song['liveness'],
+                                  valence: global_song['valence'],
+                                  tempo: global_song['tempo'],
+                                  duration_ms: global_song['duration_ms'],
+                                  time_signature: global_song['time_signature'],
+                                  year: global_song['year'],
+                                  month: global_song['month'],
+                                  day: global_song['day'],
+                                  owner_id: global_song['owner_id']))
+                      ],
+                    ),
+                  );
+                }
+              },
+            ),
+            SizedBox(height: 80),
+            Text(
+              'Discover new Albums',
+              textAlign: TextAlign.left,
+            ),
+            FutureBuilder(
+              future: global_albums,
+              builder: (context,
+                  AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // While data is being fetched, you can show a loading indicator
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  // If an error occurs during data fetching
+                  return Text('Error loading albums');
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  // If no albums are available
+                  return Text('No albums found');
+                } else {
+                  // Data has been successfully fetched, build the list of AlbumCards
+                  List<Map<String, dynamic>> global_albums = snapshot.data!;
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (var global_album in global_albums)
+
+                          AlbumCard(
+                              userid: userid,
+                              username: username,
+                              album: Album(
+                                  id: global_album['id'],
+                                  name: global_album['name'],
+                                  artists: global_album['artists'],
+                                  artist_ids: global_album['artist_ids'],
+                                  number_of_tracks: global_album['number_of_tracks'],
+                                  explicit: global_album['explicit'],
+                                  danceability: global_album['danceability'],
+                                  energy: global_album['energy'],
+                                  key: global_album['key'],
+                                  loudness: global_album['loudness'],
+                                  mode: global_album['mode'],
+                                  speechiness: global_album['speechiness'],
+                                  acousticness: global_album['acousticness'],
+                                  instrumentalness: global_album['instrumentalness'],
+                                  liveness: global_album['liveness'],
+                                  valence: global_album['valence'],
+                                  tempo: global_album['tempo'],
+                                  duration_ms: global_album['duration_ms'],
+                                  time_signature: global_album['time_signature'],
+                                  year: global_album['year'],
+                                  month: global_album['month'],
+                                  day: global_album['day'],
+                                  owner_id: global_album['owner_id']))
+                      ],
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -215,24 +233,23 @@ class _mainAppPageState extends State<mainAppPage> {
 }
 
 class AlbumCard extends StatelessWidget {
-  final String albumName, albumPerformers, albumYear,username;
-  final int albumId, userid;
+  final String username;
+  final int userid;
+  final Album album;
 
-  AlbumCard({
-    required this.userid,
-    required this.albumName,
-    required this.albumPerformers,
-    required this.albumYear,
-    required this.albumId,
-    required this.username
-  });
+  AlbumCard(
+      {required this.userid, required this.album, required this.username});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushReplacementNamed(context, '/albumPage',
-            arguments: {'albumId': albumId, 'albumTitle':albumName,'userid': userid,'username':username});
+        Navigator.pushReplacementNamed(context, '/albumPage', arguments: {
+          'albumId': album.id,
+          'albumTitle': album.name,
+          'userid': userid,
+          'username': username
+        });
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -264,11 +281,11 @@ class AlbumCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '   ' + albumName,
+                  '   ' + album.name,
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '   ' + albumPerformers,
+                  '   ' + album.artists,// Joining artists with a comma and space
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
                 ),
               ],
@@ -281,27 +298,21 @@ class AlbumCard extends StatelessWidget {
 }
 
 class SongCard extends StatelessWidget {
-  final String albumName, albumPerformers, albumYear,username;
-  final String songName,albumId, songId;
-  final int  userid;
+  final String username;
+  final int userid;
+  final Song song;
 
-  SongCard({
-    required this.userid,
-    required this.albumName,
-    required this.albumPerformers,
-    required this.albumYear,
-    required this.songName,
-    required this.songId,
-    required this.albumId,
-    required this.username
-  });
+  SongCard({required this.userid, required this.username, required this.song});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushReplacementNamed(context, '/albumPage',
-            arguments: {'albumId': albumId, 'albumTitle':albumName,'userid': userid,'username':username});
+        Navigator.pushReplacementNamed(context, '/songPage', arguments: {
+          'userid': userid,
+          'username': username,
+          'song': song
+        });
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -333,14 +344,13 @@ class SongCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '   ' + songName,
+                  '   ' + song.name,
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '   ' + albumName,
+                  '   ' + song.album,
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
                 ),
-
               ],
             ),
           ),
@@ -350,129 +360,58 @@ class SongCard extends StatelessWidget {
   }
 }
 
-/*
-body: SingleChildScrollView(
-        child:
-        Column(children: <Widget>[
-          SizedBox(height: 40),
-          Text(
-            'Recently Favorited -NOT IMPLEMENTED',
-            textAlign: TextAlign.left,
-          ),
-          FutureBuilder(
-            future: albums,
-            builder:
-                (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                // While data is being fetched, you can show a loading indicator
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                // If an error occurs during data fetching
-                return Text('Error loading albums');
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                // If no albums are available
-                return Text('No albums found');
-              } else {
-                // Data has been successfully fetched, build the list of AlbumCards
-                List<Map<String, dynamic>> albums = snapshot.data!;
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (var album in albums)
-                        AlbumCard(
-                            albumName: album['title'].toString(),
-                            albumPerformers: album['performers'].toString(),
-                            albumYear: album['year'].toString(),
-                            albumId: album['id'],
-                            userid: userid,
-                            username: username),
-                    ],
-                  ),
-                );
-              }
-            },
-          ),
-          SizedBox(height: 80),
-          Text(
-            'Recommended -NOT IMPLEMENTED',
-            textAlign: TextAlign.left,
-          ),
-          FutureBuilder(
-            future: albums,
-            builder:
-                (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                // While data is being fetched, you can show a loading indicator
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                // If an error occurs during data fetching
-                return Text('Error loading albums');
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                // If no albums are available
-                return Text('No albums found');
-              } else {
-                // Data has been successfully fetched, build the list of AlbumCards
-                List<Map<String, dynamic>> albums = snapshot.data!;
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (var album in albums)
-                        AlbumCard(
-                            albumName: album['title'].toString(),
-                            albumPerformers: album['performers'].toString(),
-                            albumYear: album['year'].toString(),
-                            albumId: album['id'],
-                            userid: userid,
-                            username: username),
-                    ],
-                  ),
-                );
-              }
-            },
-          ),
-          SizedBox(height: 80),
-          Text(
-            'Discover new Albums',
-            textAlign: TextAlign.left,
-          ),
-          FutureBuilder(
-            future: albums,
-            builder:
-                (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                // While data is being fetched, you can show a loading indicator
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                // If an error occurs during data fetching
-                return Text('Error loading albums');
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                // If no albums are available
-                return Text('No albums found');
-              } else {
-                // Data has been successfully fetched, build the list of AlbumCards
-                List<Map<String, dynamic>> albums = snapshot.data!;
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (var album in albums)
-                        AlbumCard(
-                            albumName: album['title'].toString(),
-                            albumPerformers: album['performers'].toString(),
-                            albumYear: album['year'].toString(),
-                            albumId: album['id'],
-                            userid: userid,
-                            username: username),
-                    ],
-                  ),
-                );
-              }
-            },
-          ),
-          SizedBox(height: 80),
-        ],
-        ),
-      ),
- */
+
+/*FutureBuilder(
+              future: global_albums,
+              builder: (context,
+                  AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // While data is being fetched, you can show a loading indicator
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  // If an error occurs during data fetching
+                  return Text('Error loading albums');
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  // If no albums are available
+                  return Text('No albums found');
+                } else {
+                  // Data has been successfully fetched, build the list of AlbumCards
+                  List<Map<String, dynamic>> global_albums = snapshot.data!;
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (var global_album in global_albums)
+                          AlbumCard(
+                              userid: userid,
+                              username: username,
+                              album: Album(
+                                  id: global_album['id'],
+                                  name: global_album['name'],
+                                  artists: global_album['artists'],
+                                  artist_ids: global_album['artist_ids'],
+                                  number_of_tracks: global_album['number_of_tracks'],
+                                  explicit: global_album['explicit'],
+                                  danceability: global_album['danceability'],
+                                  energy: global_album['energy'],
+                                  key: global_album['key'],
+                                  loudness: global_album['loudness'],
+                                  mode: global_album['mode'],
+                                  speechiness: global_album['speechiness'],
+                                  acousticness: global_album['acousticness'],
+                                  instrumentalness: global_album['instrumentalness'],
+                                  liveness: global_album['liveness'],
+                                  valence: global_album['valence'],
+                                  tempo: global_album['tempo'],
+                                  duration_ms: global_album['duration_ms'],
+                                  time_signature: global_album['time_signature'],
+                                  year: global_album['year'],
+                                  month: global_album['month'],
+                                  day: global_album['day'],
+                                  owner_id: global_album['owner_id']))
+                      ],
+                    ),
+                  );
+                }
+              },
+            ), */

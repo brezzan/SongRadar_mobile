@@ -5,10 +5,9 @@ import 'package:songradar/variables.dart';
 
 class albumPage extends StatefulWidget {
   final int userid; // Corrected variable name to userId
-  final String username, albumTitle,albumId;
+  final String username,albumId;
   const albumPage(
       {required this.albumId,
-      required this.albumTitle,
       required this.userid,
       required this.username,
       Key? key})
@@ -19,39 +18,27 @@ class albumPage extends StatefulWidget {
 }
 
 class _albumPageState extends State<albumPage> {
-  late int userid, year; // Corrected variable name to userId
-  late String username, albumTitle, performers, genre,albumId;
+  late int userid ; // Corrected variable name to userId
+  late String username,albumId;
 
-  List<Map<String, dynamic>> to_print_albums = [];
-  List<Map<String, dynamic>> to_print_songs = [];
-  //late Future<List<Map<String, dynamic>>> albums;
-  //late Future<List<Map<String, dynamic>>> songs;
+  late Future<List<Map<String, dynamic>>> album_data ;
   late Future<Map<String, dynamic>> currentUser ;  // for printing username after getting id in arguments
 
-  /*
-  List<Map<String, dynamic>> to_print_albums = [];
-  List<Map<String, dynamic>> to_print_songs = [];
-  //late Future<List<Map<String, dynamic>>> albums;
-  late Future<List<Map<String, dynamic>>> songs;
-
-   */
-
   Future<void> fetchData() async {
-    //songs = AuthService().getSongsFromCsv();
-    //to_print_songs = await AuthService().getSongsFromCsv();
-
-    print("----");
-    print("all songs printed:   ");
-    print(global_songs);
-    print("----");
+   album_data = AuthService().getAlbumByIdFromCsv(albumId);
+    print(album_data);
   }
 
   @override
+  @override
   void initState() {
     super.initState();
+    userid = widget.userid;
+    username = widget.username;
+    albumId = widget.albumId;
     fetchData();
-    print("Albums: ");
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -60,205 +47,192 @@ class _albumPageState extends State<albumPage> {
     userid = int.parse('${arguments?['userid']}');
     albumId = '${arguments?['albumId']}';
     username = '${arguments?['username']}';
-    albumTitle = '${arguments?['albumTitle']}';
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.deepOrange,
-        title: Row(
-          children: [
-            IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                size: 30,
-              ),
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/mainAppPage',
-                    arguments: {'userid': userid, 'username': username});
-              },
-            ),
-            Text('$albumTitle'),
-            Flexible(
-              child: SizedBox(width: 200),
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.home,
-                size: 30,
-              ),
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/mainAppPage',
-                    arguments: {'userid': userid, 'username': username});
-              },
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.person_pin_rounded,
-                size: 30,
-              ),
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/personalPage',
-                    arguments: {'userid': userid, 'username': username});
-              },
-            ),
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            SizedBox(height: 20),
-            Row(
-              children: [
-                SizedBox(width: 20),
-                Container(
-                  width: 140,
-                  height: 140,
-                  color: Colors.grey[200],
-                  padding: EdgeInsets.all(20),
-                  child: Center(
-                    child: Text(
-                      'Album cover',
-                      textAlign: TextAlign.left,
+    return FutureBuilder(
+      future: album_data,
+      builder: (context,
+          AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // While data is being fetched, you can show a loading indicator
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          // If an error occurs during data fetching
+          return Text('Error loading albums');
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          // If no albums are available
+          return Text('No albums found');
+        } else {
+          // Data has been successfully fetched, build the list of AlbumCards
+          List<Map<String, dynamic>> album_data = snapshot.data!;
+          return Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              backgroundColor: Colors.deepOrange,
+              title: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.arrow_back,
+                      size: 30,
                     ),
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/mainAppPage',
+                          arguments: {'userid': userid, 'username': username});
+                    },
                   ),
-                ),
-                SizedBox(width: 20),
-                Expanded(
-                  child: Center(
-                    child: FutureBuilder(
-                      future: global_songs ,
-                      builder: (context,
-                          AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          // While data is being fetched, you can show a loading indicator
-                          return CircularProgressIndicator();
-                        } else if (snapshot.hasError) {
-                          // If an error occurs during data fetching
-                          return Text('Error loading songs');
-                        } else if (!snapshot.hasData ||
-                            snapshot.data!.isEmpty) {
-                          // If no albums are available
-                          return Text('No songs found');
-                        } else {
-                          // Data has been successfully fetched, build the list of AlbumCards
-                          List<Map<String, dynamic>> global_songs = snapshot.data!;
-                          return SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Column(
-                              children: [
-                                for (var album in global_songs)
-                                  if (album['id'] == albumId)
-                                    albumInfo(
-                                      albumName: albumTitle.toString(),
-                                      performers: album['artists'].toString(),
-                                      //genre: album['genre'].toString(),
-                                      year: album['year'].toString(),
-                                      username: username,
-                                      userid: userid,
-                                    )
-                              ],
-                            ),
-                          );
-                        }
-                      },
+                  Text(album_data[0]['name']),
+                  Flexible(
+                    child: SizedBox(width: 200),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.home,
+                      size: 30,
                     ),
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/mainAppPage',
+                          arguments: {'userid': userid, 'username': username});
+                    },
                   ),
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.delete_forever_outlined,
-                        size: 35,
+                  IconButton(
+                    icon: Icon(
+                      Icons.person_pin_rounded,
+                      size: 30,
+                    ),
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/personalPage',
+                          arguments: {'userid': userid, 'username': username});
+                    },
+                  ),
+                ],
+              ),
+            ),
+            body: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 20),
+                  Row(
+                    children: [
+                      SizedBox(width: 20),
+                      Container(
+                        width: 140,
+                        height: 140,
+                        color: Colors.grey[200],
+                        padding: EdgeInsets.all(20),
+                        child: Center(
+                          child: Text(
+                            'Album cover',
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
                       ),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Confirm Delete'),
-                              content: Text(
-                                  'Are you sure you want to delete this album?'),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: Text('Cancel'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                                TextButton(
-                                    child: Text('Delete'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      color: Colors.grey,
-                    ),
-                    SizedBox(height: 100),
-                  ],
-                )
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Divider(
-                    height: 5, // Set the height of the divider
-                    thickness: 1, // Set the thickness of the divider
-                    color: Colors.black, // Set the color of the divider
+                      SizedBox(width: 20),
+                      Expanded(
+                        child: Center(
+                          child: albumInfo(year: album_data[0]['year'],
+                              userid: userid,
+                              username: username,
+                              albumName: album_data[0]['name'],
+                              performers: album_data[0]['artists']
+
+                          ),
+                        ),
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.delete_forever_outlined,
+                              size: 35,
+                            ),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Confirm Delete'),
+                                    content: Text(
+                                        'Are you sure you want to delete this album?'),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: Text('Cancel'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: Text('Delete'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            color: Colors.grey,
+                          ),
+                          SizedBox(height: 100),
+                        ],
+                      )
+                    ],
                   ),
-                ),
-              ],
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Divider(
+                          height: 5, // Set the height of the divider
+                          thickness: 1, // Set the thickness of the divider
+                          color: Colors.black, // Set the color of the divider
+                        ),
+                      ),
+                    ],
+                  ),
+                  FutureBuilder(
+                    future: global_songs,
+                    builder: (context,
+                        AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        // While data is being fetched, you can show a loading indicator
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        // If an error occurs during data fetching
+                        return Text('Error loading songs');
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        // If no albums are available
+                        return Text('No songs found');
+                      } else {
+                        // Data has been successfully fetched, build the list of AlbumCards
+                        List<Map<String, dynamic>> global_songs = snapshot.data!;
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Column(
+                            children: [
+                              for (var song in global_songs)
+                                if (song['album_id'] == albumId)
+                                  SongCard(
+                                      songName: song['name'].toString(),
+                                      songPerformers: song['artists'].toString(),
+                                      songYear: song['year'].toString(),
+                                      songId: song['id'].toString(),
+                                      albumId: song['album_id'].toString(),
+                                      albumName: album_data[0]['name'],
+                                      userid: userid,
+                                      username: username),
+                            ],
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
-            FutureBuilder(
-              future: global_songs,
-              builder: (context,
-                  AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  // While data is being fetched, you can show a loading indicator
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  // If an error occurs during data fetching
-                  return Text('Error loading songs');
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  // If no albums are available
-                  return Text('No songs found');
-                } else {
-                  // Data has been successfully fetched, build the list of AlbumCards
-                  List<Map<String, dynamic>> global_songs = snapshot.data!;
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Column(
-                      children: [
-                        for (var song in global_songs)
-                          if (song['album_id'] == albumId)
-                            SongCard(
-                                songName: song['name'].toString(),
-                                songPerformers: song['artists'].toString(),
-                                songYear: song['year'].toString(),
-                                songId: song['id'].toString(),
-                                albumId: song['album_id'].toString(),
-                                albumName: albumTitle,
-                                userid: userid,
-                                username: username),
-                      ],
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
-        ),
-      ),
+          );
+        }
+      },
     );
   }
 }
