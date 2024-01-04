@@ -13,43 +13,31 @@ class albumPage extends StatefulWidget {
 
   @override
   State<albumPage> createState() => _albumPageState();
+
 }
 
 class _albumPageState extends State<albumPage> {
   late int userid;
   late String username, albumId;
+
   late Future<Map<String, dynamic>> albumData; // Adjusted the type
-  Map<String, dynamic> data ={};
   late Album album = Album(
-    id: '',
-    name: '',
-    artists: '',
-    artist_ids: '',
-    number_of_tracks: 0,
-    explicit: false,
-    danceability: 0.0,
-    energy: 0.0,
-    key: 0,
-    loudness: 0.0,
-    mode: 0,
-    speechiness: 0.0,
-    acousticness: 0,
-    instrumentalness: 0,
-    liveness: 0,
-    valence: 0,
-    tempo: 0,
-    duration_ms: 0,
-    time_signature: 0,
-    year: 0,
-    month: 0,
-    day: 0,
-    owner_id: 0,
+    id: '', name: '', artists: '', artist_ids: '', number_of_tracks: 0, explicit: false,
+    danceability: 0.0, energy: 0.0, key: 0, loudness: 0.0, mode: 0, speechiness: 0.0, acousticness: 0, instrumentalness: 0,
+    liveness: 0, valence: 0, tempo: 0, duration_ms: 0, time_signature: 0, year: 0, month: 0, day: 0, owner_id: 0,
   );
+
+  Map<String, dynamic> data ={};
   late List<Song> tracks = [];
 
   Future<void> fetchData() async {
-    albumData = AuthService().getAlbumByIdFromCsv(albumId);
-    data = await AuthService().getAlbumByIdFromCsv(albumId);
+
+    data = await AuthService().getAlbumByIdFromCsv(global_albumId);
+
+    setState(() {
+
+    albumData = AuthService().getAlbumByIdFromCsv(global_albumId);
+
     album = Album(id: data['id'], name: data['name'], artists: data['artists'], artist_ids: data['artist_ids'],
         number_of_tracks: data['number_of_tracks'], explicit :data['explicit'], danceability: data['danceability'], energy: data['energy'],
         key: data['key'], loudness: data['loudness'], mode: data['mode'], speechiness: data['speechiness'], acousticness: data['acousticness'],
@@ -66,17 +54,14 @@ class _albumPageState extends State<albumPage> {
           duration_ms: data['duration_ms'], time_signature: data['time_signature'], year: data['year'],
           month: data['month'], day: data['day'], owner_id: data['owner_id']));
     }
-
-    print('aaaa1');
-    print('albumdata is $data');
-    print('aaaa2');
+    });
 
   }
 
   @override
   void initState() {
     super.initState();
-
+    fetchData();
   }
 
   @override
@@ -86,42 +71,14 @@ class _albumPageState extends State<albumPage> {
     userid = int.parse('${arguments?['userid']}');
     albumId = '${arguments?['albumId']}';
     username = '${arguments?['username']}';
-    fetchData();
 
-    return FutureBuilder(
-      future: albumData,
-      builder: (context,
-          AsyncSnapshot<Map<String, dynamic>> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          // While data is being fetched, you can show a loading indicator
-          return CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          // If an error occurs during data fetching
-          return Text('Error loading albums');
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty ) {
-
-          // If no albums are available
-          return Text('No album found');
-        } else {
-          // Data has been successfully fetched, build the list of AlbumCards
-          Map<String, dynamic> albumData = snapshot.data!;
           return Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,
               backgroundColor: Colors.deepOrange,
               title: Row(
                 children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.arrow_back,
-                      size: 30,
-                    ),
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/mainAppPage',
-                          arguments: {'userid': userid, 'username': username});
-                    },
-                  ),
-                  Text('  '), // album name
+                  Text(album.name), // album name
                   Flexible(
                     child: SizedBox(width: 200),
                   ),
@@ -236,9 +193,6 @@ class _albumPageState extends State<albumPage> {
               ),
             ),
           );
-        }
-      },
-    );
   }
 }
 
@@ -257,6 +211,7 @@ class SongCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        global_songId=  song.id;         /////////////////////////////////////////////////////////////////////////
         Navigator.pushReplacementNamed(context, '/songPage', arguments: {
           'userid': userid,
           'username': username,
@@ -361,6 +316,7 @@ class albumInfo extends StatelessWidget {
             for (var artist in album.artists.split(","))
               InkWell(
                 onTap: () {
+                  global_artist = artist; //////////////////////////////////////////////////////////////////////
                   Navigator.pushReplacementNamed(context, '/performerPage',
                       arguments: {'userid': userid, 'username': username, 'performers': artist });
                 },

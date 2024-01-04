@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:core';
 import 'package:songradar/api.dart';
+import 'package:songradar/variables.dart';
 
 class performerPage extends StatefulWidget {
   final int userid;
@@ -20,12 +21,19 @@ class _performerPageState extends State<performerPage> {
   late String username, performers;
   late int userid;
   late Future<List<Map<String, dynamic>>> albums;
-  List<Map<String, dynamic>> albums_ = [];
+  List<Map<String, dynamic>> albumsData = [];
+
+  int rating = 0;
+  void _onStarClicked(int starCount) {}
 
   Future<void> fetchAlbumsbyArtist() async {
-    albums = AuthService().getAlbumByArtistFromCsv(performers);
-    albums_ = await AuthService().getAlbumByArtistFromCsv(performers);
-    print(albums_);
+    albumsData = await AuthService().getAlbumByArtistFromCsv(global_artist);
+    albumsData.sort((a, b) => b['year'].compareTo(a['year']));
+
+    setState(() {
+      albums = AuthService().getAlbumByArtistFromCsv(global_artist);
+    });
+
   }
 
   Map<String, List<Map<String, dynamic>>> _groupAlbumsByYear(
@@ -34,11 +42,9 @@ class _performerPageState extends State<performerPage> {
 
     for (var album in albums) {
       var year = album['year'].toString();
-
       if (!groupedAlbums.containsKey(year)) {
         groupedAlbums[year] = [];
       }
-
       groupedAlbums[year]!.add(album);
     }
     return groupedAlbums;
@@ -47,6 +53,7 @@ class _performerPageState extends State<performerPage> {
   @override
   void initState() {
     super.initState();
+    fetchAlbumsbyArtist();
   }
 
   Widget build(BuildContext context) {
@@ -55,8 +62,7 @@ class _performerPageState extends State<performerPage> {
     userid = int.parse('${arguments?['userid']}');
     username = '${arguments?['username']}';
     performers = '${arguments?['performers']}';
-    print(performers);
-    fetchAlbumsbyArtist();
+
 
     return Scaffold(
         appBar: AppBar(
@@ -114,6 +120,25 @@ class _performerPageState extends State<performerPage> {
               SizedBox(height: 20),
               Text('$performers',
                   style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Rating:',style: TextStyle(fontSize: 20)),
+                  for (int i = 1; i <= 5; i++)
+                    GestureDetector(
+                      onTap: () {
+                        // Handle star click, you can call your function here
+                        _onStarClicked(i);
+                      },
+                      child: Icon(
+                        i <= rating ? Icons.star : Icons.star_border,
+                        color: Colors.yellow,
+                        size: 30,
+                      ),
+                    ),
+                ],
+              ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
                 child: Row(
@@ -129,27 +154,11 @@ class _performerPageState extends State<performerPage> {
                 ),
               ),
               SizedBox(height: 20),
-              FutureBuilder(
-                future: albums,
-                builder: (context,
-                    AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    // While data is being fetched, you can show a loading indicator
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    // If an error occurs during data fetching
-                    return Text('Error loading songs');
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    // If no albums are available
-                    return Text('No albums found');
-                  } else {
-                    List<Map<String, dynamic>> albums = snapshot.data!;
-
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Column(
-                        children: [
-                          for (var year in _groupAlbumsByYear(albums).keys)
+              SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                  child: Column(
+                    children: [
+                          for (var year in _groupAlbumsByYear(albumsData).keys)
                             Column(
                               children: [
                                 Padding(
@@ -185,8 +194,7 @@ class _performerPageState extends State<performerPage> {
                                     ],
                                   ),
                                 ),
-                                for (var album
-                                    in _groupAlbumsByYear(albums)[year]!)
+                                for (var album in _groupAlbumsByYear(albumsData)[year]!)
                                   AlbumCard(
                                       username: username,
                                       userid: userid,
@@ -220,14 +228,13 @@ class _performerPageState extends State<performerPage> {
                               ],
                             ),
                         ],
-                      ),
-                    );
-                  }
-                },
+
+                  ),
               ),
             ],
-          ),
-        ));
+          )
+        ),
+    );
   }
 }
 
@@ -243,9 +250,9 @@ class AlbumCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        global_albumId=  album.id;         /////////////////////////////////////////////////////////////////////
         Navigator.pushReplacementNamed(context, '/albumPage', arguments: {
           'albumId': album.id,
-          'albumTitle': album.name,
           'userid': userid,
           'username': username
         });
@@ -276,24 +283,26 @@ class AlbumCard extends StatelessWidget {
             ),
             SizedBox(width: 4.0),
             Expanded(
-              child: Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 20),
-                      Text(
-                        album.name,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
+              child: SingleChildScrollView(scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 20),
+                        Text(
+                          album.name,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 4, // Set the maximum number of lines
-                        overflow: TextOverflow.ellipsis, // Add ellipsis (...) if the text overflows
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

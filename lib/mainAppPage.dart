@@ -159,15 +159,15 @@ class _mainAppPageState extends State<mainAppPage> {
                   return ListTile(
                     title: Text(song['name']),
                     subtitle: Text(song['artists']),
-                    onTap: () {
-                      Navigator.pushReplacementNamed(context, 'songPage', arguments:
-                      {
+                    /*onTap: () {
+                      global_songId=  song.id;         /////////////////////////////////////////////////////////////////////////
+                      Navigator.pushReplacementNamed(context, '/songPage', arguments: {
                         'userid': userid,
                         'username': username,
-                        'song': song
-                      }
+                        'songId': song.id
+                      });
                       );
-                    },
+                    },*/
                   );
                 },
               ),
@@ -304,6 +304,7 @@ class _mainAppPageState extends State<mainAppPage> {
                 }
               },
             ),
+            SizedBox(height: 80),
           ],
         ),
       ),
@@ -323,6 +324,7 @@ class AlbumCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        global_albumId=  album.id;         /////////////////////////////////////////////////////////////////////
         Navigator.pushReplacementNamed(context, '/albumPage', arguments: {
           'albumId': album.id,
           'userid': userid,
@@ -386,6 +388,8 @@ class SongCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        global_songId=  song.id;         /////////////////////////////////////////////////////////////////////////
+        print('songid is ${song.id}');
         Navigator.pushReplacementNamed(context, '/songPage', arguments: {
           'userid': userid,
           'username': username,
@@ -437,59 +441,3 @@ class SongCard extends StatelessWidget {
     );
   }
 }
-
-
-/*FutureBuilder(
-              future: global_albums,
-              builder: (context,
-                  AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  // While data is being fetched, you can show a loading indicator
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  // If an error occurs during data fetching
-                  return Text('Error loading albums');
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  // If no albums are available
-                  return Text('No albums found');
-                } else {
-                  // Data has been successfully fetched, build the list of AlbumCards
-                  List<Map<String, dynamic>> global_albums = snapshot.data!;
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        for (var global_album in global_albums)
-                          AlbumCard(
-                              userid: userid,
-                              username: username,
-                              album: Album(
-                                  id: global_album['id'],
-                                  name: global_album['name'],
-                                  artists: global_album['artists'],
-                                  artist_ids: global_album['artist_ids'],
-                                  number_of_tracks: global_album['number_of_tracks'],
-                                  explicit: global_album['explicit'],
-                                  danceability: global_album['danceability'],
-                                  energy: global_album['energy'],
-                                  key: global_album['key'],
-                                  loudness: global_album['loudness'],
-                                  mode: global_album['mode'],
-                                  speechiness: global_album['speechiness'],
-                                  acousticness: global_album['acousticness'],
-                                  instrumentalness: global_album['instrumentalness'],
-                                  liveness: global_album['liveness'],
-                                  valence: global_album['valence'],
-                                  tempo: global_album['tempo'],
-                                  duration_ms: global_album['duration_ms'],
-                                  time_signature: global_album['time_signature'],
-                                  year: global_album['year'],
-                                  month: global_album['month'],
-                                  day: global_album['day'],
-                                  owner_id: global_album['owner_id']))
-                      ],
-                    ),
-                  );
-                }
-              },
-            ), */
