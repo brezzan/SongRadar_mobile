@@ -270,10 +270,38 @@ class SongCard extends StatelessWidget {
             children: [
               SizedBox(height: 35),
               IconButton(
-                color: Colors.grey,
-                onPressed: deletesong,
                 icon: Icon(
-                    Icons.settings), // Wrap Icons.settings in an Icon widget
+                  Icons.delete_forever_outlined,
+                  size: 25,
+                ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Confirm Delete'),
+                        content: Text(
+                            'Are you sure you want to delete this album? - NOT YET'),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text('Cancel'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          TextButton(
+                            child: Text('Delete'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              //
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                color: Colors.grey,
               ),
             ],
           )

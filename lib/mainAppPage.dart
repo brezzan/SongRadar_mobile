@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'dart:core';
 import 'package:songradar/api.dart';
@@ -19,9 +18,11 @@ class _mainAppPageState extends State<mainAppPage> {
   late String username;
   TextEditingController searchController = TextEditingController();
 
-  List<Map<String, dynamic>> filteredSongs = [];
+  List<dynamic> filteredSongs = [];
+  List<dynamic> filteredAlbums = [];
 
-  late Future<Map<String, dynamic>>currentUser; // for printing username after getting id in arguments
+  late Future<Map<String, dynamic>>
+      currentUser; // for printing username after getting id in arguments
   late int count;
   List<Map<String, dynamic>> songs_to_print = [];
   List<Map<String, dynamic>> albums_to_print = [];
@@ -44,7 +45,9 @@ class _mainAppPageState extends State<mainAppPage> {
     print("all albums printed:   ");
     print(global_albums);
     print("----");
-
+    var response = await AuthService()
+        .getSongByNameFromCsv('Maria'); // just to see if it works
+    print(response);
   }
 
   void search(String query) async {
@@ -53,6 +56,7 @@ class _mainAppPageState extends State<mainAppPage> {
     if (!isSearchActive) {
       setState(() {
         filteredSongs = [];
+        filteredAlbums= [];
       });
       return;
     }
@@ -65,22 +69,17 @@ class _mainAppPageState extends State<mainAppPage> {
     }
 
     try {
-      var response = await AuthService().getSongByNameFromCsv(query);
-      if (response.containsKey('error')) {
-        print("Error fetching songs: ${response['error']}");
-      } else {
-        List<Map<String, dynamic>> _tempFilteredSongs = List<Map<String, dynamic>>.from(response['songs']);
-        setState(() {
-          filteredSongs = _tempFilteredSongs;
-        });
-      }
+      List<dynamic> response = await AuthService().getSongByNameFromCsv(query);
+      List<dynamic> response_2 = await AuthService().getAlbumByNameFromCsv(query);
+
+      setState(() {
+        filteredSongs = response + response_2;
+        filteredAlbums = response_2;
+      });
     } catch (error) {
       print('Error: $error');
     }
   }
-
-
-
 
   Future<void> count_album() async {
     count = await AuthService().getSongCountFromCsv();
@@ -95,6 +94,7 @@ class _mainAppPageState extends State<mainAppPage> {
     fetchAlbums().then((_) {
       setState(() {
         filteredSongs = songs_to_print;
+        filteredAlbums = albums_to_print;
       });
     });
   }
@@ -102,7 +102,7 @@ class _mainAppPageState extends State<mainAppPage> {
   @override
   Widget build(BuildContext context) {
     final arguments =
-    ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     userid = int.parse('${arguments?['userid']}');
     username = '${arguments?['username']}';
 
@@ -157,29 +157,49 @@ class _mainAppPageState extends State<mainAppPage> {
                 onChanged: (value) => search(value),
               ),
             ),
-
             if (isSearchActive)
               ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: filteredSongs.length,
                 itemBuilder: (context, index) {
+                  IconData iconData;
                   var song = filteredSongs[index];
+                  if (song['album_id'] == null) {
+                    iconData = Icons.album;
+
+                  } else {
+                    // Album
+                    iconData = Icons.music_note;
+                  }
                   return ListTile(
+                    leading: Icon(iconData),
                     title: Text(song['name']),
                     subtitle: Text(song['artists']),
-                    /*onTap: () {
-                      global_songId=  song.id;         /////////////////////////////////////////////////////////////////////////
-                      Navigator.pushReplacementNamed(context, '/songPage', arguments: {
-                        'userid': userid,
-                        'username': username,
-                        'songId': song.id
-                      });
-                      );
-                    },*/
+                    onTap: () {
+                      if (song['album_id'] == null) {
+                        global_albumId = song['id'];
+                        Navigator.pushReplacementNamed(context, '/albumPage',
+                            arguments: {
+                              'albumId': song['id'],
+                              'userid': userid,
+                              'username': username,
+                            });
+                      }
+                      else {
+                        global_songId = song['id'];
+                        Navigator.pushReplacementNamed(context, '/songPage',
+                            arguments: {
+                              'userid': userid,
+                              'username': username,
+                              'songId': song['id'],
+                            });
+                      }
+                    },
                   );
                 },
               ),
+
             SizedBox(height: 40),
             Text(
               'Recently Favorited -NOT IMPLEMENTED',
@@ -200,7 +220,6 @@ class _mainAppPageState extends State<mainAppPage> {
               child: Row(
                 children: [
                   for (var global_song in songs_to_print)
-
                     SongCard(
                         userid: userid,
                         username: username,
@@ -244,7 +263,6 @@ class _mainAppPageState extends State<mainAppPage> {
               child: Row(
                 children: [
                   for (var global_album in albums_to_print)
-
                     AlbumCard(
                         userid: userid,
                         username: username,
@@ -295,7 +313,8 @@ class AlbumCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        global_albumId=  album.id;         /////////////////////////////////////////////////////////////////////
+        global_albumId = album
+            .id; /////////////////////////////////////////////////////////////////////
         Navigator.pushReplacementNamed(context, '/albumPage', arguments: {
           'albumId': album.id,
           'userid': userid,
@@ -336,7 +355,8 @@ class AlbumCard extends StatelessWidget {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '   ' + album.artists,// Joining artists with a comma and space
+                  '   ' +
+                      album.artists, // Joining artists with a comma and space
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
                 ),
               ],
@@ -359,7 +379,8 @@ class SongCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        global_songId=  song.id;         /////////////////////////////////////////////////////////////////////////
+        global_songId = song
+            .id; /////////////////////////////////////////////////////////////////////////
         print('songid is ${song.id}');
         Navigator.pushReplacementNamed(context, '/songPage', arguments: {
           'userid': userid,
@@ -602,7 +623,6 @@ SingleChildScrollView(
                     ),
                   ),
                   */
-
 
 /*    future içerir
 FutureBuilder(

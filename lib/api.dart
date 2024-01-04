@@ -383,7 +383,7 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> getSongByNameFromCsv(String songName) async {
+  Future<List<dynamic>> getSongByNameFromCsv(String songName) async { //works
     final String url =
         '$baseUrl/songs/search_name?name=$songName&skip=0&limit=10';
     final Map<String, String> headers = {
@@ -398,18 +398,18 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final List<dynamic> responseData = jsonDecode(response.body);
         print(responseData);
         return responseData;
       } else {
         // Handle signup error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return {'error': errorData};
+        return [{'error': errorData}];
       }
     } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return {'error': 'An unexpected error occurred.'};
+      return [{'error': 'An unexpected error occurred.'}];
     }
   }
 
@@ -544,7 +544,7 @@ class AuthService {
   }
 
 
-  Future<Map<String, dynamic>> getAlbumByNameFromCsv(String albumName) async {
+  Future<List<dynamic>> getAlbumByNameFromCsv(String albumName) async {
     final String url =
         '$baseUrl/albums/search_name?name=$albumName&skip=0&limit=10';
     final Map<String, String> headers = {
@@ -559,18 +559,18 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final List<dynamic> responseData = jsonDecode(response.body);
         print(responseData);
         return responseData;
       } else {
         // Handle signup error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return {'error': response.body};
+        return [{'error': response.body}];
       }
     } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return {'error': 'An unexpected error occurred.'};
+      return [{'error': 'An unexpected error occurred.'}];
     }
   }
 
