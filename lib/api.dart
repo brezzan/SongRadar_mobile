@@ -504,7 +504,7 @@ class AuthService {
 /////////////////////////////////////////////////////ALBUMS FROM CSV ///////////////////////////////////////////////
 
   Future<List<Map<String, dynamic>>> getAlbumsFromCsv() async {  // works
-    final String url = '$baseUrl/albums/?skip=0&limit=10';
+    final String url = '$baseUrl/albums/?skip=0&limit=30';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
@@ -543,6 +543,7 @@ class AuthService {
     }
   }
 
+
   Future<Map<String, dynamic>> getAlbumByNameFromCsv(String albumName) async {
     final String url =
         '$baseUrl/albums/search_name?name=$albumName&skip=0&limit=10';
@@ -576,7 +577,7 @@ class AuthService {
   Future<List<Map<String, dynamic>>> getAlbumByArtistFromCsv(
       String artistName) async {
     final String url =
-        '$baseUrl/albums/search_artist?artist=$artistName&skip=0&limit=20';
+        '$baseUrl/albums/search_artist?artist=$artistName&skip=0&limit=100';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -612,6 +613,7 @@ class AuthService {
       return [{'error': 'An unexpected error occurred.'}];
     }
   }
+
 
   Future<int> getAlbumCountFromCsv() async {  // works
     final String url = '$baseUrl/albums/count';
