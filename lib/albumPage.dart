@@ -179,6 +179,8 @@ class _albumPageState extends State<albumPage> {
                       )
                     ],
                   ),
+                  SizedBox(height: 10,),
+                  album.getCharacteristicsChart(),
                   Row(
                     children: [
                       Expanded(

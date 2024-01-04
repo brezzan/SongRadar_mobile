@@ -30,7 +30,7 @@ class _mainAppPageState extends State<mainAppPage> {
   List<Map<String, dynamic>> albums_to_print = [];
   bool isSearchActive = false;
 
-  int pageSize = 20; // Adjust the page size according to your needs
+  int pageSize = 30; // Adjust the page size according to your needs
   int currentPageAlbum = 1;
   int currentPageSong = 1;
 

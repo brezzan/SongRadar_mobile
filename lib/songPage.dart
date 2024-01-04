@@ -244,7 +244,21 @@ class _songPageState extends State<songPage> {
                 ),
               ],
             ),
-            SongCard(userid: userid, song: song, username: username)
+            SizedBox(height:10),
+            song.getCharacteristicsChart(),
+            Row(
+              children: [
+                Flexible(
+                  child: Divider(
+                    height: 5, // Set the height of the divider
+                    thickness: 1, // Set the thickness of the divider
+                    color: Colors.black, // Set the color of the divider
+                  ),
+                ),
+              ],
+            ),
+            SongCard(userid: userid, song: song, username: username),
+            SizedBox(height:40),
           ],
         ),
       ),

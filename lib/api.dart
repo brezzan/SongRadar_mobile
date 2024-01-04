@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:csv/csv.dart';
 import 'dart:io';
@@ -741,6 +742,122 @@ class Song {
     return color;
   }
 
+  Widget getCharacteristicsChart() {
+    return Container(
+      height: 600, // Set the desired height for the chart
+      width: 400,
+      child: BarChart(
+        BarChartData(
+
+          barGroups: [
+            BarChartGroupData(
+              x: 0,
+              barRods: [
+                BarChartRodData(
+                  toY: energy,
+                  color: Colors.blueAccent[200] ,
+                ),
+              ],
+            ),
+            BarChartGroupData(
+              x: 1,
+              barRods: [
+                BarChartRodData(
+                  toY: speechiness,
+                  color: Colors.greenAccent[200] ,
+                ),
+              ],
+            ),
+            BarChartGroupData(
+              x: 2,
+              barRods: [
+                BarChartRodData(
+                  toY: acousticness,
+                  color: Colors.orangeAccent[200] ,
+                ),
+              ],
+            ),
+            BarChartGroupData(
+              x: 3,
+              barRods: [
+                BarChartRodData(
+                  toY: instrumentalness,
+                  color: Colors.blueAccent[400] ,
+                ),
+              ],
+            ),
+            BarChartGroupData(
+              x: 4,
+              barRods: [
+                BarChartRodData(
+                  toY: liveness,
+                  color: Colors.greenAccent[400] ,
+                ),
+              ],
+            ),
+            BarChartGroupData(
+              x: 5,
+              barRods: [
+                BarChartRodData(
+                    toY: valence,
+                    color: Colors.orangeAccent[400]
+                ),
+              ],
+            ),
+            BarChartGroupData(
+              x: 6,
+              barRods: [
+                BarChartRodData(
+                    toY: danceability,
+                    color: Colors.blueAccent[600]
+                ),
+              ],
+            ),
+          ],
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
+            bottomTitles: AxisTitles(sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                String str = '';
+                if (value == 0) {
+                  str = 'energy';
+                } else if (value == 1) {
+                  str = 'speechiness';
+                } else if (value == 2) {
+                  str = 'acousticness';
+                } else if (value == 3) {
+                  str = 'instrumentalness';
+                } else if (value == 4) {
+                  str = 'liveness';
+                } else if (value == 5) {
+                  str = 'valence';
+                } else if (value == 6) {
+                  str = 'danceability';
+                }
+
+                return Container(
+                  margin: EdgeInsets.all(0.0),
+                  padding: EdgeInsets.all(5.0),//
+                  transform: Matrix4.rotationZ(-0.5),
+                  child: Text('$str'),
+                );
+              },
+            ),
+            ),
+          ),
+          borderData: FlBorderData(show: true),
+          barTouchData: BarTouchData(
+            touchTooltipData: BarTouchTooltipData(
+              tooltipBgColor: Colors.blueAccent,
+            ),
+            handleBuiltInTouches: true,
+          ),
+        ),
+      ),
+    );
+  }
+
 }
 
 class Album {
@@ -807,4 +924,121 @@ class Album {
 
     return color;
   }
+
+  Widget getCharacteristicsChart() {
+    return Container(
+      height: 600, // Set the desired height for the chart
+      width: 400,
+      child: BarChart(
+        BarChartData(
+
+          barGroups: [
+            BarChartGroupData(
+              x: 0,
+              barRods: [
+                BarChartRodData(
+                  toY: energy,
+                  color: Colors.blueAccent[200] ,
+                ),
+              ],
+            ),
+            BarChartGroupData(
+              x: 1,
+              barRods: [
+                BarChartRodData(
+                  toY: speechiness,
+                  color: Colors.greenAccent[200] ,
+                ),
+              ],
+            ),
+            BarChartGroupData(
+              x: 2,
+              barRods: [
+                BarChartRodData(
+                  toY: acousticness,
+                  color: Colors.orangeAccent[200] ,
+                ),
+              ],
+            ),
+            BarChartGroupData(
+              x: 3,
+              barRods: [
+                BarChartRodData(
+                  toY: instrumentalness,
+                  color: Colors.blueAccent[400] ,
+                ),
+              ],
+            ),
+            BarChartGroupData(
+              x: 4,
+              barRods: [
+                BarChartRodData(
+                  toY: liveness,
+                  color: Colors.greenAccent[400] ,
+                ),
+              ],
+            ),
+            BarChartGroupData(
+              x: 5,
+              barRods: [
+                BarChartRodData(
+                  toY: valence,
+                    color: Colors.orangeAccent[400]
+                ),
+              ],
+            ),
+            BarChartGroupData(
+              x: 6,
+              barRods: [
+                BarChartRodData(
+                  toY: danceability,
+                    color: Colors.blueAccent[600]
+                ),
+              ],
+            ),
+          ],
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
+            bottomTitles: AxisTitles(sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                String str = '';
+                if (value == 0) {
+                  str = 'energy';
+                } else if (value == 1) {
+                  str = 'speechiness';
+                } else if (value == 2) {
+                  str = 'acousticness';
+                } else if (value == 3) {
+                  str = 'instrumentalness';
+                } else if (value == 4) {
+                  str = 'liveness';
+                } else if (value == 5) {
+                  str = 'valence';
+                } else if (value == 6) {
+                  str = 'danceability';
+                }
+
+                return Container(
+                  margin: EdgeInsets.all(0.0),
+                  padding: EdgeInsets.all(5.0),//
+                  transform: Matrix4.rotationZ(-0.5),
+                  child: Text('$str'),
+                );
+              },
+            ),
+            ),
+          ),
+          borderData: FlBorderData(show: true),
+          barTouchData: BarTouchData(
+            touchTooltipData: BarTouchTooltipData(
+              tooltipBgColor: Colors.blueAccent,
+            ),
+            handleBuiltInTouches: true,
+          ),
+        ),
+      ),
+    );
+  }
+
 }
