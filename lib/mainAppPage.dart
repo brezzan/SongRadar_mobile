@@ -16,7 +16,9 @@ class mainAppPage extends StatefulWidget {
 class _mainAppPageState extends State<mainAppPage> {
   late int userid;
   late String username;
-  TextEditingController searchController = TextEditingController();
+  TextEditingController searchController = TextEditingController(); //searchbar related
+  ScrollController _scrollControllerAlbum = ScrollController(); // lazy loading for album
+  ScrollController _scrollControllerSong = ScrollController(); // lazy loading for album
 
   List<dynamic> filteredSongs = [];
   List<dynamic> filteredAlbums = [];
@@ -28,28 +30,21 @@ class _mainAppPageState extends State<mainAppPage> {
   List<Map<String, dynamic>> albums_to_print = [];
   bool isSearchActive = false;
 
+  int pageSize = 20; // Adjust the page size according to your needs
+  int currentPageAlbum = 1;
+  int currentPageSong = 1;
+
   Future<void> fetchAlbums() async {
     setState(() {
-      global_songs = AuthService().getSongsFromCsv();
-      global_albums = AuthService().getAlbumsFromCsv();
+      global_songs = AuthService().getSongsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
+      global_albums = AuthService().getAlbumsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
     });
 
-    songs_to_print = await AuthService().getSongsFromCsv();
-    albums_to_print = await AuthService().getAlbumsFromCsv();
-
-    print(songs_to_print);
-    print("----");
-    print("all songs printed:   ");
-    print(global_songs);
-    print("----");
-    print("all albums printed:   ");
-    print(global_albums);
-    print("----");
-    var response = await AuthService()
-        .getSongByNameFromCsv('Maria'); // just to see if it works
-    print(response);
+    songs_to_print = await AuthService().getSongsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
+    albums_to_print = await AuthService().getAlbumsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
   }
 
+  //searchbar related
   void search(String query) async {
     isSearchActive = query.isNotEmpty;
 
@@ -81,17 +76,29 @@ class _mainAppPageState extends State<mainAppPage> {
     }
   }
 
-  Future<void> count_album() async {
-    count = await AuthService().getSongCountFromCsv();
-    print("song count: $count");
+  // lazy loading related
+  void _scrollListenerAlbum() {
+    if (_scrollControllerAlbum.position.pixels == _scrollControllerAlbum.position.maxScrollExtent) {
+      // Reached the bottom of the list, load more albums
+      currentPageAlbum++;
+      fetchAlbums();
+    }
+  }
+  void _scrollListenerSong() {
+    if (_scrollControllerSong.position.pixels == _scrollControllerSong.position.maxScrollExtent) {
+      // Reached the bottom of the list, load more albums
+      currentPageSong++;
+      fetchAlbums();
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    fetchAlbums();
+    _scrollControllerAlbum.addListener(_scrollListenerAlbum);
+    _scrollControllerSong.addListener(_scrollListenerSong);
 
-    fetchAlbums().then((_) {
+    fetchAlbums().then((_) {//searchbar related
       setState(() {
         filteredSongs = songs_to_print;
         filteredAlbums = albums_to_print;
@@ -213,9 +220,11 @@ class _mainAppPageState extends State<mainAppPage> {
             SizedBox(height: 80),
             Text(
               'Discover new Songs',
+              style: TextStyle(fontSize: 20),
               textAlign: TextAlign.left,
             ),
             SingleChildScrollView(
+              controller: _scrollControllerSong,
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
@@ -256,9 +265,11 @@ class _mainAppPageState extends State<mainAppPage> {
             SizedBox(height: 80),
             Text(
               'Discover new Albums',
+              style: TextStyle(fontSize: 20),
               textAlign: TextAlign.left,
             ),
             SingleChildScrollView(
+              controller: _scrollControllerAlbum,
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
@@ -331,16 +342,14 @@ class AlbumCard extends StatelessWidget {
             width: 120, // Set the desired width for the box
             child: Container(
               margin: EdgeInsets.all(8.0),
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black),
                 borderRadius: BorderRadius.circular(8.0),
+                color: album.getVibeColor_energy(),
               ),
               child: Center(
-                child: Text(
-                  'Album Cover', // You can replace this with actual album cover widget
-                  style: TextStyle(fontSize: 12), // Set the desired font size
-                ),
+                child: Icon(Icons.album,size:80,color: Colors.grey,),
               ),
             ),
           ),
@@ -351,12 +360,12 @@ class AlbumCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '   ' + album.name,
+                  '  ' +(album.name.length > 20 ? album.name.substring(0, 15) :album.name),
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '   ' +
-                      album.artists, // Joining artists with a comma and space
+                  '  ' +(album.artists.length > 20 ? album.artists.substring(0, 15) :album.artists),
+                  // Joining artists with a comma and space
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
                 ),
               ],
@@ -398,16 +407,14 @@ class SongCard extends StatelessWidget {
             width: 120, // Set the desired width for the box
             child: Container(
               margin: EdgeInsets.all(8.0),
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black),
                 borderRadius: BorderRadius.circular(8.0),
+                color: song.getVibeColor_energy(),
               ),
               child: Center(
-                child: Text(
-                  'Album Cover', // You can replace this with actual album cover widget
-                  style: TextStyle(fontSize: 12), // Set the desired font size
-                ),
+                child: Icon(Icons.music_note,size:80,color: Colors.grey,),
               ),
             ),
           ),
@@ -418,11 +425,11 @@ class SongCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '   ' + song.name,
+                  '  ' +(song.name.length > 20 ? song.name.substring(0, 15) :song.name),
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '   ' + song.album,
+                  '  ' +(song.album.length > 20 ? song.album.substring(0, 15) :song.album),
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
                 ),
               ],

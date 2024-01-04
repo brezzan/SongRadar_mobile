@@ -275,20 +275,18 @@ class SongCard extends StatelessWidget {
         children: [
           SizedBox(width: 20),
           SizedBox(
-            height: 90,
-            width: 90,
+            height: 90, // Set the desired height for the box
+            width: 90, // Set the desired width for the box
             child: Container(
               margin: EdgeInsets.all(8.0),
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black),
                 borderRadius: BorderRadius.circular(8.0),
+                color: song.getVibeColor_energy(),
               ),
               child: Center(
-                child: Text(
-                  'Song Image',
-                  style: TextStyle(fontSize: 12),
-                ),
+                child: Icon(Icons.music_note,size:40,color: Colors.grey,),
               ),
             ),
           ),

@@ -111,16 +111,20 @@ class _albumPageState extends State<albumPage> {
                   SizedBox(height: 20),
                   Row(
                     children: [
-                      SizedBox(width: 20),
-                      Container(
-                        width: 140,
-                        height: 140,
-                        color: Colors.grey[200],
-                        padding: EdgeInsets.all(20),
-                        child: Center(
-                          child: Text(
-                            'Album cover',
-                            textAlign: TextAlign.left,
+                      SizedBox(width: 15),
+                      SizedBox(
+                        height: 140, // Set the desired height for the box
+                        width: 140, // Set the desired width for the box
+                        child: Container(
+                          margin: EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: album.getVibeColor_energy(),
+                            border: Border.all(color: Colors.black),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Center(
+                            child: Icon(Icons.album,size:80,color: Colors.grey,),
                           ),
                         ),
                       ),
@@ -225,20 +229,18 @@ class SongCard extends StatelessWidget {
         children: [
           SizedBox(width: 20),
           SizedBox(
-            height: 90,
-            width: 90,
+            height: 90, // Set the desired height for the box
+            width: 90, // Set the desired width for the box
             child: Container(
               margin: EdgeInsets.all(8.0),
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black),
                 borderRadius: BorderRadius.circular(8.0),
+                color: song.getVibeColor_energy(),
               ),
               child: Center(
-                child: Text(
-                  'Song Image',
-                  style: TextStyle(fontSize: 12),
-                ),
+                child: Icon(Icons.music_note,size:40,color: Colors.grey,),
               ),
             ),
           ),

@@ -347,8 +347,8 @@ class AuthService {
 
   //////////////////////////////////////////////////////SONGS FROM CSV ///////////////////////////////////////////////
 
-  Future<List<Map<String, dynamic>>> getSongsFromCsv() async {  //works
-    final String url = '$baseUrl/songs/?skip=0&limit=10';
+  Future<List<Map<String, dynamic>>> getSongsFromCsv({int skip = 0, int limit = 20}) async {  //works
+    final String url = '$baseUrl/songs/?skip=$skip&limit=$limit';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -502,9 +502,8 @@ class AuthService {
 
 
 /////////////////////////////////////////////////////ALBUMS FROM CSV ///////////////////////////////////////////////
-
-  Future<List<Map<String, dynamic>>> getAlbumsFromCsv() async {  // works
-    final String url = '$baseUrl/albums/?skip=0&limit=30';
+  Future<List<Map<String, dynamic>>> getAlbumsFromCsv({int skip = 0, int limit = 20}) async {
+    final String url = '$baseUrl/albums/?skip=$skip&limit=$limit';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
@@ -730,6 +729,17 @@ class Song {
   }) : artists = artists.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" ),
         artist_ids = artist_ids.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" );
 
+  Color getVibeColor_energy() {
+    // Adjust the weights based on the importance of each characteristic
+    double weightedValue = energy ;
+    // Map the weighted value to the hue in HSL color space
+    double hue = (1.0 - weightedValue) * 120.0; // Adjust the multiplier for a different hue range
+
+    // Create a vibrant color based on the hue
+    Color color = HSLColor.fromAHSL(1.0, hue, 1.0, 0.5).toColor();
+
+    return color;
+  }
 
 }
 
@@ -786,5 +796,15 @@ class Album {
         artist_ids = artist_ids.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" );
 
 
+  Color getVibeColor_energy() {
+    // Adjust the weights based on the importance of each characteristic
+    double weightedValue = energy ;
+    // Map the weighted value to the hue in HSL color space
+    double hue = (1.0 - weightedValue) * 120.0; // Adjust the multiplier for a different hue range
 
+    // Create a vibrant color based on the hue
+    Color color = HSLColor.fromAHSL(1.0, hue, 1.0, 0.5).toColor();
+
+    return color;
+  }
 }
