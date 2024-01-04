@@ -544,7 +544,7 @@ class AuthService {
   }
 
 
-  Future<List<dynamic>> getAlbumByNameFromCsv(String albumName) async {
+  Future<List<dynamic>> getAlbumByNameFromCsv(String albumName) async {  //works
     final String url =
         '$baseUrl/albums/search_name?name=$albumName&skip=0&limit=10';
     final Map<String, String> headers = {
