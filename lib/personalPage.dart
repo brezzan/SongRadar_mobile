@@ -4,7 +4,8 @@ import 'dart:core';
 class personalPage extends StatefulWidget {
   final int userid;
   final String username;
-  const personalPage({required this.userid, required this.username,Key? key}) : super(key: key);
+  const personalPage({required this.userid, required this.username, Key? key})
+      : super(key: key);
 
   @override
   State<personalPage> createState() => _personalPageState();
@@ -35,7 +36,7 @@ class _personalPageState extends State<personalPage> {
               ),
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/mainAppPage',
-                    arguments: {'userid': userid,'username':username});
+                    arguments: {'userid': userid, 'username': username});
               },
             ),
             Expanded(
@@ -83,13 +84,126 @@ class _personalPageState extends State<personalPage> {
           ],
         ),
       ),
-      body:Center(
+      body: SingleChildScrollView(
         child: Column(
           children: [
+            SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                GestureDetector(
+                  onTap: (){},
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 120,
+                        width: 120,
+                        child: Container(
+                          margin: EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black),
+                            borderRadius: BorderRadius.circular(8.0),
+                            color: Colors.black12,
+                          ),
+                          child: Center(
+                            child: Icon(Icons.music_note,size: 60,),
+                          ),
+                        ),
+                      ),
+                      Text('Favorite Songs',style: TextStyle(fontSize: 15)),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                GestureDetector(
+                  onTap: (){},
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 120,
+                        width: 120,
+                        child: Container(
+                          margin: EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black),
+                            borderRadius: BorderRadius.circular(8.0),
+                            color: Colors.black12,
+                          ),
+                          child: Center(
+                            child: Icon(Icons.album,size: 60,),
+                          ),
+                        ),
+                      ),
+                      Text('Favorite Albums',style: TextStyle(fontSize: 15)),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                GestureDetector(
+                  onTap: (){},
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 120,
+                        width: 120,
+                        child: Container(
+                          margin: EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black),
+                            borderRadius: BorderRadius.circular(8.0),
+                            color: Colors.black12,
+                          ),
+                          child: Center(
+                            child: Icon(Icons.person,size: 60,),
+                          ),
+                        ),
+                      ),
+                      Text('Favorite Artists',style: TextStyle(fontSize: 15)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 40,
+            ),
+            GestureDetector(
+              onTap: (){},  // add a playlist
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 80,
+                    width: MediaQuery.of(context).size.width,
+                    child: Container(
+                      margin: EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: Colors.black12,
+                      ),
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add,size:35),
+                            Text(' Create New Playlist',style: TextStyle(fontSize: 25),)
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-            SizedBox(height: 100),
-
-            Text('NOT IMPLEMENTED YET'),
 
           ],
         ),

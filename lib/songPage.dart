@@ -46,8 +46,8 @@ class _songPageState extends State<songPage> {
         album_id: data['album_id'],
         artists: data['artists'],
         artist_ids: data['artist_ids'],
-        track_number: data['track_number'],
-        disc_number: data['disc_number'],
+        track_number: 0,
+        disc_number: 0,
         explicit: data['explicit'],
         danceability: data['danceability'],
         energy: data['energy'],
@@ -300,7 +300,22 @@ class SongCard extends StatelessWidget {
                 color: song.getVibeColor_energy(),
               ),
               child: Center(
-                child: Icon(Icons.music_note,size:40,color: Colors.grey,),
+                child: FutureBuilder<String>(
+                  future: AuthService().getSongCoverById(song.id),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasData) {
+                        return Image.network(snapshot.data!);
+                      } else {
+                        // Handle the case when there's an error in fetching the image
+                        return Text('Error loading image');
+                      }
+                    } else {
+                      // While the future is still resolving, you can show a loading indicator
+                      return CircularProgressIndicator();
+                    }
+                  },
+                ),
               ),
             ),
           ),

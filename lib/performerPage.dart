@@ -278,7 +278,22 @@ class AlbumCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Center(
-                  child: Icon(Icons.album,size:40,color: Colors.grey,),
+                  child:  FutureBuilder<String>(
+                    future: AuthService().getAlbumCoverById(album.id),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        if (snapshot.hasData) {
+                          return Image.network(snapshot.data!);
+                        } else {
+                          // Handle the case when there's an error in fetching the image
+                          return Text('Error loading image');
+                        }
+                      } else {
+                        // While the future is still resolving, you can show a loading indicator
+                        return CircularProgressIndicator();
+                      }
+                    },
+                  ),
                 ),
               ),
             ),
