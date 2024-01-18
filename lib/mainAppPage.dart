@@ -23,10 +23,9 @@ class _mainAppPageState extends State<mainAppPage> {
   List<dynamic> filteredSongs = [];
   List<dynamic> filteredAlbums = [];
 
-  late Future<Map<String, dynamic>>
-      currentUser; // for printing username after getting id in arguments
+  late Future<Map<String, dynamic>> currentUser; // for printing username after getting id in arguments
   late int count;
-  List<Map<String, dynamic>> songs_to_print = [];
+  List<Map<String, dynamic>>  songs_to_print = [];
   List<Map<String, dynamic>> albums_to_print = [];
   bool isSearchActive = false;
 
@@ -42,6 +41,11 @@ class _mainAppPageState extends State<mainAppPage> {
 
     songs_to_print = await AuthService().getSongsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
     albums_to_print = await AuthService().getAlbumsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
+
+    print('--');
+
+    print('--');
+
   }
 
   //searchbar related
@@ -64,8 +68,8 @@ class _mainAppPageState extends State<mainAppPage> {
     }
 
     try {
-      List<dynamic> response = await AuthService().getSongByNameFromCsv(query);
-      List<dynamic> response_2 = await AuthService().getAlbumByNameFromCsv(query);
+      List<dynamic> response = await AuthService().getSongByName(query);
+      List<dynamic> response_2 = await AuthService().getAlbumByName(query);
 
       setState(() {
         filteredSongs = response + response_2;
@@ -229,7 +233,8 @@ class _mainAppPageState extends State<mainAppPage> {
               child: Row(
                 children: [
                   for (var global_song in songs_to_print)
-                    SongCard(
+
+                   SongCard(
                         userid: userid,
                         username: username,
                         song: Song(
@@ -239,8 +244,8 @@ class _mainAppPageState extends State<mainAppPage> {
                             album_id: global_song['album_id'],
                             artists: global_song['artists'],
                             artist_ids: global_song['artist_ids'],
-                            track_number: global_song['track_number'],
-                            disc_number: global_song['disc_number'],
+                            track_number: 0,
+                            disc_number:0,
                             explicit: global_song['explicit'],
                             danceability: global_song['danceability'],
                             energy: global_song['energy'],
@@ -273,6 +278,8 @@ class _mainAppPageState extends State<mainAppPage> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
+                  SizedBox(height: 10,),
+
                   for (var global_album in albums_to_print)
                     AlbumCard(
                         userid: userid,
@@ -301,6 +308,7 @@ class _mainAppPageState extends State<mainAppPage> {
                             month: global_album['month'],
                             day: global_album['day'],
                             owner_id: global_album['owner_id']))
+
                 ],
               ),
             ),
@@ -312,6 +320,7 @@ class _mainAppPageState extends State<mainAppPage> {
   }
 }
 
+/*
 class AlbumCard extends StatelessWidget {
   final String username;
   final int userid;
@@ -320,12 +329,12 @@ class AlbumCard extends StatelessWidget {
   AlbumCard(
       {required this.userid, required this.album, required this.username});
 
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        global_albumId = album
-            .id; /////////////////////////////////////////////////////////////////////
+        global_albumId = album.id; /////////////////////////////////////////////////////////////////////
         Navigator.pushReplacementNamed(context, '/albumPage', arguments: {
           'albumId': album.id,
           'userid': userid,
@@ -349,7 +358,9 @@ class AlbumCard extends StatelessWidget {
                 color: album.getVibeColor_energy(),
               ),
               child: Center(
-                child: Icon(Icons.album,size:80,color: Colors.grey,),
+                //child: Icon(Icons.album,size:80,color: Colors.grey,),
+                child: Image.network(
+                  album.getAlbumCoverByIdFromCsv(album.id),),
               ),
             ),
           ),
@@ -376,6 +387,93 @@ class AlbumCard extends StatelessWidget {
     );
   }
 }
+*/
+
+
+// album card class with future builder
+
+class AlbumCard extends StatelessWidget {
+  final String username;
+  final int userid;
+  final Album album;
+
+  AlbumCard({required this.userid, required this.album, required this.username});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        global_albumId = album.id; /////////////////////////////////////////////////////////////////////
+        Navigator.pushReplacementNamed(context, '/albumPage', arguments: {
+          'albumId': album.id,
+          'userid': userid,
+          'username': username
+        });
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 120,
+            width: 120,
+            child: Container(
+              margin: EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(8.0),
+                color: album.getVibeColor_energy(),
+              ),
+              child: Center(
+                child: FutureBuilder<String>(
+                  future: AuthService().getAlbumCoverById(album.id),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasData) {
+                        return Image.network(snapshot.data!);
+                      } else {
+                        // Handle the case when there's an error in fetching the image
+                        return Text('Error loading image');
+                      }
+                    } else {
+                      // While the future is still resolving, you can show a loading indicator
+                      return CircularProgressIndicator();
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 4.0),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '  ' +
+                      (album.name.length > 20
+                          ? album.name.substring(0, 15)
+                          : album.name),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '  ' +
+                      (album.artists.length > 20
+                          ? album.artists.substring(0, 15)
+                          : album.artists),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class SongCard extends StatelessWidget {
   final String username;
@@ -388,8 +486,7 @@ class SongCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        global_songId = song
-            .id; /////////////////////////////////////////////////////////////////////////
+        global_songId = song.id; /////////////////////////////////////////////////////////////////////////
         print('songid is ${song.id}');
         Navigator.pushReplacementNamed(context, '/songPage', arguments: {
           'userid': userid,
@@ -403,8 +500,8 @@ class SongCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: 120, // Set the desired height for the box
-            width: 120, // Set the desired width for the box
+            height: 120,
+            width: 120,
             child: Container(
               margin: EdgeInsets.all(8.0),
               padding: EdgeInsets.all(8.0),
@@ -414,12 +511,26 @@ class SongCard extends StatelessWidget {
                 color: song.getVibeColor_energy(),
               ),
               child: Center(
-                child: Icon(Icons.music_note,size:80,color: Colors.grey,),
+                child: FutureBuilder<String>(
+                  future: AuthService().getSongCoverById(song.id),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasData) {
+                        return Image.network(snapshot.data!);
+                      } else {
+                        // Handle the case when there's an error in fetching the image
+                        return Text('Error loading image');
+                      }
+                    } else {
+                      // While the future is still resolving, you can show a loading indicator
+                      return CircularProgressIndicator();
+                    }
+                  },
+                ),
               ),
             ),
           ),
-          SizedBox(
-              height: 4.0), // Adjust the spacing between the box and the text
+          SizedBox(height: 4.0), // Adjust the spacing between the box and the text
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,6 +551,7 @@ class SongCard extends StatelessWidget {
     );
   }
 }
+
 /*
 class AlbumList extends StatefulWidget {
   final String username;

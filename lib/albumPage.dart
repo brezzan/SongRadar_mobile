@@ -32,11 +32,11 @@ class _albumPageState extends State<albumPage> {
 
   Future<void> fetchData() async {
 
-    data = await AuthService().getAlbumByIdFromCsv(global_albumId);
+    data = await AuthService().getAlbumById(global_albumId);
 
     setState(() {
 
-    albumData = AuthService().getAlbumByIdFromCsv(global_albumId);
+    albumData = AuthService().getAlbumById(global_albumId);
 
     album = Album(id: data['id'], name: data['name'], artists: data['artists'], artist_ids: data['artist_ids'],
         number_of_tracks: data['number_of_tracks'], explicit :data['explicit'], danceability: data['danceability'], energy: data['energy'],

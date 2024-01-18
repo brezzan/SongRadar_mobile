@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:songradar/api.dart';
 import 'dart:core';
-
+import 'package:songradar/variables.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -71,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     if (!loginResult.containsKey('error')) {
 
-                      final String accessToken = loginResult['access_token'];
+                      accessToken= loginResult['access_token'];
                       final Map<String, dynamic> userResult = await authService.getUser(accessToken);
                       print(userResult);
                       if(!userResult.containsKey('error')){

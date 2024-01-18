@@ -27,11 +27,11 @@ class _performerPageState extends State<performerPage> {
   void _onStarClicked(int starCount) {}
 
   Future<void> fetchAlbumsbyArtist() async {
-    albumsData = await AuthService().getAlbumByArtistFromCsv(global_artist);
+    albumsData = await AuthService().getAlbumByArtist(global_artist);
     albumsData.sort((a, b) => b['year'].compareTo(a['year']));
 
     setState(() {
-      albums = AuthService().getAlbumByArtistFromCsv(global_artist);
+      albums = AuthService().getAlbumByArtist(global_artist);
     });
 
   }

@@ -33,11 +33,11 @@ class _songPageState extends State<songPage> {
 
 
   Future<void> fecthsong() async {
-    data = await AuthService().getSongByIdFromCsv(global_songId);
+    data = await AuthService().getSongById(global_songId);
 
     setState(() {
       print(global_songId);
-      songData = AuthService().getSongByIdFromCsv(global_songId);
+      songData = AuthService().getSongById(global_songId);
 
       song = Song(
         id: data['id'],

@@ -22,7 +22,9 @@ class _addNewAlbumState extends State<addNewAlbum> {
   late int userid;
   late String username;
   TextEditingController performers = TextEditingController();
-  String year = '0';
+  String year = '';
+  String month = '';
+  String day = '';
   TextEditingController genre = TextEditingController();
   TextEditingController album = TextEditingController();
   int songs_count = 0;
@@ -438,36 +440,70 @@ class _addNewAlbumState extends State<addNewAlbum> {
               ),
             ),
             SizedBox(height: 15),
-            Flexible(
-              child: TextFormField(
-                // Set the controller
-                onChanged: (value) {
-                  // Update the new_time_for_brew only when the user modifies the text
-                  if (value.isNotEmpty) {
-                    year = value;
-                  }
-                },
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
-                ],
-                keyboardType: TextInputType.number, // Show numeric keyboard
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.calendar_month_rounded),
-                  hintText: 'Publish Year',
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: TextFormField(
+                  // Set the controller
+                  onChanged: (value) {
+                    // Update the new_time_for_brew only when the user modifies the text
+                    if (value.isNotEmpty) {
+                      day = value;
+                    }
+                  },
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
+                  ],
+                  keyboardType: TextInputType.number, // Show numeric keyboard
+                  decoration: const InputDecoration(
+                    icon: Icon(Icons.calendar_month_rounded),
+                    hintText: 'Day',
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 15),
-            Flexible(
-              child: TextField(
-                controller: genre,
-                decoration: InputDecoration(
-                  icon: Icon(Icons.library_music_rounded),
-                  hintText: 'Genre',
+              SizedBox(width :10),
+              Flexible(
+                child: TextFormField(
+                  // Set the controller
+                  onChanged: (value) {
+                    // Update the new_time_for_brew only when the user modifies the text
+                    if (value.isNotEmpty) {
+                      month = value;
+                    }
+                  },
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
+                  ],
+                  keyboardType: TextInputType.number, // Show numeric keyboard
+                  decoration: const InputDecoration(
+                    hintText: 'Month',
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 15),
+              SizedBox(width :10),
+              Flexible(
+                child: TextFormField(
+                  // Set the controller
+                  onChanged: (value) {
+                    // Update the new_time_for_brew only when the user modifies the text
+                    if (value.isNotEmpty) {
+                      year = value;
+                    }
+                  },
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
+                  ],
+                  keyboardType: TextInputType.number, // Show numeric keyboard
+                  decoration: const InputDecoration(
+
+                    hintText: 'Year',
+                  ),
+                ),
+              ),
+            ],
+          ),
+            SizedBox(height: 45),
             Flexible(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
