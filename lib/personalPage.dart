@@ -204,6 +204,9 @@ class _personalPageState extends State<personalPage> {
               ),
             ),
 
+            // burada list builder ile tüm playlistleri sırala
+            // playlist.dart sayfası yarat ona navigate et
+            // orada rename, delete, add song, remove song cagır
 
           ],
         ),
