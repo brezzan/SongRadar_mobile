@@ -1251,7 +1251,7 @@ class AuthService {
 
         return responseData;
       } else {
-        return [{'error': response.body}];
+        return [{ '${response.statusCode}': response.body}];
       }
     } catch (error) {
       return [{'error': 'An unexpected error occurred.'}];
@@ -1313,10 +1313,6 @@ class AuthService {
       return [{'error2': 'An unexpected error occurred.'}];
     }
   }
-
-
-
-/////////////////////////////////////////////////////  DEBUG  /////////////////////////////////////////////////////////////////////////
 
 
 

@@ -44,7 +44,7 @@ class _mainAppPageState extends State<mainAppPage> {
 
 
     print('--');
-    print(await AuthService().getUserPlaylists( ) );
+    print(await AuthService().getStarred() );
 
     print('--');
 
