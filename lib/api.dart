@@ -12,9 +12,12 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:csv/csv.dart';
 
+String accessToken = '';
+
 class AuthService {
 
   final String baseUrl = 'http://10.0.2.2:8000'; //
+
 
   Future<Map<String, dynamic>> loginUser(String username, String password) async {
     final String loginUrl = '$baseUrl/auth/sign_in';
@@ -27,7 +30,6 @@ class AuthService {
     final Map<String, String> body = {
       'username': username,
       'password': password,
-      'scope': '',
     };
 
     try {
@@ -72,10 +74,6 @@ class AuthService {
         headers: headers,
       );
 
-      print('User Response Body: ${response.body}');
-      print('User Response Status Code: ${response.statusCode}');
-      print('User Response Headers: ${response.headers}');
-
       if (response.statusCode == 200) {
         final Map<String, dynamic> userData = jsonDecode(response.body);
         return userData;
@@ -84,7 +82,6 @@ class AuthService {
         return {'error': errorData['detail']};
       }
     } catch (error) {
-      print('Error: $error');
       return {'error': 'An unexpected error occurred.'};
     }
   } // auth
@@ -706,7 +703,7 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> createAlbumUserInput(String name, String artists, int year, int month, int day) async {
-    final String url = '$baseUrl/albums';
+    final String url = '$baseUrl/albums/';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -726,18 +723,22 @@ class AuthService {
         body: jsonEncode(body),
       );
 
-      if (response.statusCode == 200) {
-        // Successful signup
-        print('okay');
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
+      if (response.statusCode == 401) {
 
-        return responseData;
+        final Map<String, dynamic> userResult = await getUser(accessToken);
+        if(!userResult.containsKey('error')) {
+          final Map<String, dynamic> responseData = jsonDecode(response.body);
+          return responseData;
+        }
+        print('not okay 1 ${response.statusCode}');
+        return {'error': response.body};
+
       } else {
-        print('not okay ${response.statusCode}');
+        print('not okay 2${response.statusCode}');
         return {'error': response.body};
       }
     } catch (error) {
-      print('also not okay');
+      print('not okay 3 ');
       return {'error': 'An unexpected error occurred.'};
     }
   }
