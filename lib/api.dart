@@ -13,7 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:csv/csv.dart';
 
 String accessToken = '';
-
+// 'Authorization': 'Bearer $accessToken',
 class AuthService {
 
   final String baseUrl = 'http://10.0.2.2:8000'; //
@@ -362,11 +362,12 @@ class AuthService {
 
   ////////////////////////////////////////////////////  SONGS  /////////////////////////////////////////////////////////////////////////
 
-  Future<List<Map<String, dynamic>>> deleteSong(int id) async {
-    final String url = '$baseUrl/songs/?id=$id';
+  Future<List<Map<String, dynamic>>> deleteSong(String id) async {
+    final String url = '$baseUrl/songs/$id';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
 
     try {
@@ -395,10 +396,12 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> createSongUserInput(String name, String album_id, String artists, int year, int month, int day) async {
-    final String url = '$baseUrl/songs';
+    final String url = '$baseUrl/songs/';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
+
     };
     final Map<String, dynamic> body = {
         "name": name ,
@@ -434,7 +437,7 @@ class AuthService {
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
-      'accept': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
 
     try {
@@ -465,12 +468,12 @@ class AuthService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> readUserSongs({int skip = 0, int limit = 100}) async {
+  Future<List<dynamic>> readUserSongs({int skip = 0, int limit = 100}) async {
     final String url = '$baseUrl/songs/user?skip=$skip&limit=$limit';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
-      'accept': 'application/json',
+      'Authorization': 'Bearer $accessToken'
     };
 
     try {
@@ -481,7 +484,8 @@ class AuthService {
 
       if (response.statusCode == 200) {
 
-        List<Map<String, dynamic>> songs = jsonDecode(response.body);
+        List<dynamic> songs = jsonDecode(response.body);
+        print( "user songs : $songs");
         return songs;
 
       } else {
@@ -670,11 +674,12 @@ class AuthService {
 
 /////////////////////////////////////////////////////  ALBUMS  /////////////////////////////////////////////////////////////////////////
 
-  Future<List<Map<String, dynamic>>> deleteAlbum(int id) async {
-    final String url = '$baseUrl/albums/?id=$id';
+  Future<List<Map<String, dynamic>>> deleteAlbum(String id) async {
+    final String url = '$baseUrl/albums/$id';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
 
     try {
@@ -707,10 +712,11 @@ class AuthService {
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
     final Map<String, dynamic> body = {
       "name": name,
-      "artists": artists ,
+      "artists": artists,
       "year": year,
       "month": month,
       "day": day
@@ -723,22 +729,17 @@ class AuthService {
         body: jsonEncode(body),
       );
 
-      if (response.statusCode == 401) {
+      if (response.statusCode == 200) {
 
-        final Map<String, dynamic> userResult = await getUser(accessToken);
-        if(!userResult.containsKey('error')) {
-          final Map<String, dynamic> responseData = jsonDecode(response.body);
-          return responseData;
-        }
-        print('not okay 1 ${response.statusCode}');
-        return {'error': response.body};
-
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        print('okay ${response.statusCode}');
+        return responseData;
       } else {
         print('not okay 2${response.statusCode}');
         return {'error': response.body};
       }
     } catch (error) {
-      print('not okay 3 ');
+      print('not okay 3');
       return {'error': 'An unexpected error occurred.'};
     }
   }
@@ -783,12 +784,12 @@ class AuthService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> readUserAlbums({int skip = 0, int limit = 100}) async {
+  Future<List<dynamic>> readUserAlbums({int skip = 0, int limit = 100}) async {
     final String url = '$baseUrl/albums/user?skip=$skip&limit=$limit';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
-      'accept': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
 
     try {
@@ -799,7 +800,8 @@ class AuthService {
 
       if (response.statusCode == 200) {
 
-        List<Map<String, dynamic>> albums = jsonDecode(response.body);
+        List<dynamic> albums = jsonDecode(response.body);
+        print( "user albums : $albums");
         return albums;
 
       } else {
@@ -1001,10 +1003,11 @@ class AuthService {
 /////////////////////////////////////////////////////  PLAYLISTS  /////////////////////////////////////////////////////////////////////////
 
   Future<Map<String, dynamic>> createPlaylist(String name) async {
-    final String url = '$baseUrl/playlists';
+    final String url = '$baseUrl/playlists/';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
     final Map<String, dynamic> body = {
       "name": name
@@ -1035,6 +1038,7 @@ class AuthService {
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
 
     try {
@@ -1057,17 +1061,18 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> renamePlaylist(int id,String name) async {
-    final String url = '$baseUrl/playlists';
+    final String url = '$baseUrl/playlists/?id=$id';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
     final Map<String, dynamic> body = {
       "name": name
     };
 
     try {
-      final response = await http.post(
+      final response = await http.put(
         Uri.parse(url),
         headers: headers,
         body: jsonEncode(body),
@@ -1084,7 +1089,7 @@ class AuthService {
     } catch (error) {
       return {'error': 'An unexpected error occurred.'};
     }
-  }   // NOT DONE YET
+  }
 
   Future<Map<String, dynamic>> getPlaylistById(int id) async {
     final String url = '$baseUrl/playlists/?id=$id';
@@ -1116,6 +1121,7 @@ class AuthService {
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
 
 
@@ -1143,6 +1149,7 @@ class AuthService {
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
 
 
@@ -1165,11 +1172,12 @@ class AuthService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getUserPlaylists({int skip = 0, int limit = 20}) async {
-    final String url = '$baseUrl/playlists/user?skip=0&limit=100';
+  Future<List<Map<String, dynamic>>> getUserPlaylists({int skip = 0, int limit = 100}) async {
+    final String url = '$baseUrl/playlists/user?skip=$skip&limit=$limit';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
 
     try {
@@ -1200,6 +1208,8 @@ class AuthService {
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
+
     };
 
     try {
@@ -1226,6 +1236,7 @@ class AuthService {
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
 
     try {
@@ -1252,6 +1263,7 @@ class AuthService {
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
 
     try {

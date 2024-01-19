@@ -34,9 +34,17 @@ class _mainAppPageState extends State<mainAppPage> {
   int currentPageSong = 1;
 
   Future<void> fetchAlbums() async {
+    setState(() {
+      global_songs = AuthService().getSongsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
+      global_albums = AuthService().getAlbumsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
+    });
+
+    songs_to_print = await AuthService().getSongsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
+    albums_to_print = await AuthService().getAlbumsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
+
 
     print('--');
-    AuthService().createAlbumUserInput('name', 'artists', 2000, 1, 1);
+    print(AuthService().readUserSongs());
     print('--');
 
   }
