@@ -320,7 +320,7 @@ class AuthService {
       ];
     }
   }
-  // do not use - debug
+  // do not use - debug - old
   Future<Map<String, dynamic>> createSong(String title, String performers, int year, String genre, int album_id) async {
     final String url = '$baseUrl/debug/songs';
 
@@ -1172,9 +1172,8 @@ class AuthService {
     }
   }
 
-  //NEEDS FIXING
-  Future<List<Map<String, dynamic>>> getUserPlaylists({int skip = 0, int limit = 100}) async {
-    final String url = '$baseUrl/playlists/user?skip=0&limit=100';
+  Future<List<dynamic>> getUserPlaylists({int skip = 0, int limit = 100}) async {
+    final String url = '$baseUrl/playlists/user?skip=$skip&limit=$limit';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -1189,17 +1188,17 @@ class AuthService {
 
       if (response.statusCode == 200) {
 
-        final List<Map<String, dynamic>> responseData = jsonDecode(response.body);
-
+        final List<dynamic> responseData = jsonDecode(response.body);
+        print('Response Data: $responseData');
         return responseData;
+
       } else {
-        return [{'error': response.body}];
+        return [{'error': response.statusCode }];
       }
     } catch (error) {
-      return [{'error': 'An unexpected error occurred.'}];
+      return [{'error': '$error An unexpected error occurred.'}];
     }
   }
-
 
 
 /////////////////////////////////////////////////////  STARRED - ALL NEEDS FIXING  /////////////////////////////////////////////////////////////////////////
