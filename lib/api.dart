@@ -1034,7 +1034,7 @@ class AuthService {
   }
 
   Future<String > deletePlaylist(int id) async {
-    final String url = '$baseUrl//playlists/?id=$id';
+    final String url = '$baseUrl/playlists/$id';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -1061,7 +1061,7 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> renamePlaylist(int id,String name) async {
-    final String url = '$baseUrl/playlists/?id=$id';
+    final String url = '$baseUrl/playlists/$id?new_name=$name';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -1092,7 +1092,7 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> getPlaylistById(int id) async {
-    final String url = '$baseUrl/playlists/?id=$id';
+    final String url = '$baseUrl/playlists/$id';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -1106,8 +1106,8 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
-
         return responseData;
+
       } else {
         return {'error': response.body};
       }
@@ -1172,8 +1172,9 @@ class AuthService {
     }
   }
 
+  //NEEDS FIXING
   Future<List<Map<String, dynamic>>> getUserPlaylists({int skip = 0, int limit = 100}) async {
-    final String url = '$baseUrl/playlists/user?skip=$skip&limit=$limit';
+    final String url = '$baseUrl/playlists/user?skip=0&limit=100';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -1201,7 +1202,7 @@ class AuthService {
 
 
 
-/////////////////////////////////////////////////////  STARRED  /////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////  STARRED - ALL NEEDS FIXING  /////////////////////////////////////////////////////////////////////////
 
   Future<List<Map<String, dynamic>>> starASong(String id) async {
     final String url = '$baseUrl/starred/$id';
