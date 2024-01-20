@@ -43,7 +43,7 @@ class _mainAppPageState extends State<mainAppPage> {
     albums_to_print = await AuthService().getAlbumsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
 
     print('--');
-    //print(await AuthService().starASong('1hR0fIFK2qRG3f3RF70pb7'));
+    print(await AuthService().getStarred());
     print('--');
 
   }

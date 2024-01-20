@@ -77,6 +77,11 @@ class _songPageState extends State<songPage> {
 
   }
 
+  bool isStarred(String songId){
+
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final arguments =

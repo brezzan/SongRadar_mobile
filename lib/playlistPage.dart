@@ -278,8 +278,8 @@ class _playlistPageState extends State<playlistPage> {
                           return ListTile(
 
                             leading: Icon(iconData),
-                            tileColor: Colors.grey[200],
                             title: Text(song['name']),
+                            subtitle: Text(song['artists']),
                             trailing: IconButton(
                               onPressed: () async {
                                 await AuthService().deleteSongFromPlaylist(song['id'],global_playlist);

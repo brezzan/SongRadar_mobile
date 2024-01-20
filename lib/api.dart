@@ -648,6 +648,7 @@ class AuthService {
     final String url = '$baseUrl/songs/cover/$id';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
 
     try {
@@ -976,6 +977,7 @@ class AuthService {
     final String url = '$baseUrl/albums/cover/$id';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
 
     try {
@@ -1201,17 +1203,15 @@ class AuthService {
   }
 
 
-/////////////////////////////////////////////////////  STARRED - ALL NEEDS FIXING  /////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////  STARRED - getStarred NEEDS FIXING  /////////////////////////////////////////////////////////////////////////
 
-  Future<List<Map<String, dynamic>>> starASong(String id) async {
+  Future<List<dynamic>> starASong(String id) async {
     final String url = '$baseUrl/starred/$id';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $accessToken',
-
     };
-
     try {
       final response = await http.put(
         Uri.parse(url),
@@ -1219,19 +1219,18 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-
-        final List<Map<String, dynamic>> responseData = jsonDecode(response.body);
-
+        final List<dynamic> responseData = jsonDecode(response.body);
         return responseData;
+
       } else {
-        return [{'error': response.body}];
+        return [{'error 1': response.body}];
       }
     } catch (error) {
-      return [{'error': 'An unexpected error occurred.'}];
+      return [{'error 2': 'An unexpected error occurred.'}];
     }
   }
 
-  Future<List<Map<String, dynamic>>> UnstarASong(String id) async {
+  Future<List<dynamic>> UnstarASong(String id) async {
     final String url = '$baseUrl/starred/$id';
 
     final Map<String, String> headers = {
@@ -1247,18 +1246,18 @@ class AuthService {
 
       if (response.statusCode == 200) {
 
-        final List<Map<String, dynamic>> responseData = jsonDecode(response.body);
+        final List<dynamic> responseData = jsonDecode(response.body);
 
         return responseData;
       } else {
         return [{ '${response.statusCode}': response.body}];
       }
     } catch (error) {
-      return [{'error': 'An unexpected error occurred.'}];
+      return [{'error1 ': ' $error , An unexpected error occurred.'}];
     }
   }
 
-  Future<List<Map<String, dynamic>>> getStarred() async {
+  Future<List<dynamic>> getStarred() async {
     final String url = '$baseUrl/starred/';
 
     final Map<String, String> headers = {
@@ -1274,14 +1273,14 @@ class AuthService {
 
       if (response.statusCode == 200) {
 
-        final List<Map<String, dynamic>> responseData = jsonDecode(response.body);
+        final List<dynamic> responseData = jsonDecode(response.body);
 
         return responseData;
       } else {
-        return [{'error': response.body}];
+        return [{ '${response.statusCode}': response.body}];
       }
     } catch (error) {
-      return [{'error': 'An unexpected error occurred.'}];
+      return [{'error2': 'An unexpected error occurred.'}];
     }
   }
 
