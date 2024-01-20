@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:core';
+import 'package:songradar/variables.dart';
+import 'package:songradar/api.dart';
 
 class personalPage extends StatefulWidget {
   final int userid;
@@ -14,6 +16,16 @@ class personalPage extends StatefulWidget {
 class _personalPageState extends State<personalPage> {
   late int userid;
   late String username;
+  List<dynamic> playlists = [];
+
+  Future<List<dynamic>> fetchPlaylists() async {
+    return await AuthService().getUserPlaylists();
+  }
+
+  @override
+  void initState() {
+    fetchPlaylists();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +33,7 @@ class _personalPageState extends State<personalPage> {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     userid = int.parse('${arguments?['userid']}');
     username = '${arguments?['username']}';
+
 
     return Scaffold(
       appBar: AppBar(
@@ -86,6 +99,9 @@ class _personalPageState extends State<personalPage> {
       ),
       body: SingleChildScrollView(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 30),
             Row(
@@ -175,7 +191,10 @@ class _personalPageState extends State<personalPage> {
               height: 40,
             ),
             GestureDetector(
-              onTap: (){},  // add a playlist
+              onTap:(){
+                Navigator.pushReplacementNamed(context, '/createplaylist',
+                  arguments: {'userid': userid, 'username': username});
+                },  // add a playlist
               child: Column(
                 children: [
                   SizedBox(
@@ -204,9 +223,50 @@ class _personalPageState extends State<personalPage> {
               ),
             ),
 
-            // burada list builder ile tüm playlistleri sırala
-            // playlist.dart sayfası yarat ona navigate et
-            // orada rename, delete, add song, remove song cagır
+            FutureBuilder(
+              future: fetchPlaylists(),
+              builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  List<dynamic> playlists = snapshot.data ?? [];
+
+                  return Container(
+                    height: 1000, // You can adjust the height as needed
+                    child: ListView.builder(
+                      itemCount: playlists.length,
+                      itemBuilder: (context, index) {
+                        IconData iconData = Icons.music_note;
+                        var playlist = playlists[index];
+
+                        return ListTile(
+                          onTap: (){
+                            global_playlist = playlist['id'];
+                            global_playlist_name = playlist['name'];
+                            Navigator.pushReplacementNamed(context, '/playlistPage',
+                                arguments: {'userid': userid, 'username': username,'playlistId':global_playlist});
+                          },
+                          leading: Icon(iconData),
+                          tileColor: Colors.grey[50],
+                          title: Text(playlist['name']),
+                          trailing: IconButton(
+                            onPressed: () async {
+                              await AuthService().deletePlaylist(playlist['id']);
+                              setState(() {
+                                playlists.removeAt(index);
+                              });
+                            },
+                            icon: Icon(Icons.delete),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
+              },
+            ),
 
           ],
         ),
@@ -214,3 +274,15 @@ class _personalPageState extends State<personalPage> {
     );
   }
 }
+
+
+/*
+ trailing: IconButton(
+                            onPressed: () async {
+                              await AuthService().deletePlaylist(playlist['id']);
+                              setState(() {
+                                playlists.removeAt(index);
+                              });
+                            },
+                            icon: Icon(Icons.delete),
+                          ),*/

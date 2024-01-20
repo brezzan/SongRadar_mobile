@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:songradar/addNewAlbum.dart';
 import 'package:songradar/addNewSong.dart';
 import 'package:songradar/api.dart';
+import 'package:songradar/createPlaylist.dart';
 import 'package:songradar/performerPage.dart';
 import 'package:songradar/personalPage.dart';
 import 'dart:core';
 import 'package:songradar/login.dart';
+import 'package:songradar/playlistPage.dart';
 import 'package:songradar/signup.dart';
 import 'package:songradar/mainAppPage.dart';
 import 'package:songradar/albumPage.dart';
@@ -38,6 +40,8 @@ class SongRadar extends StatelessWidget {
           '/albumPage':(BuildContext context) => albumPage(albumId: '', userid:0,username:'',),
           '/songPage':(BuildContext context) => songPage(songId:'',userid:0,username:''),
           '/performerPage':(BuildContext context) => performerPage(userid:0,username:'',performers: '',),
+          '/createplaylist':(BuildContext context) => createPlaylist(userid:0,username:'',),
+          '/playlistPage':(BuildContext context) => playlistPage(userid: 0, username: '', playlistId: 0)
         },
     );
   }
