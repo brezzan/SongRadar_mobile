@@ -1274,8 +1274,8 @@ class AuthService {
       if (response.statusCode == 200) {
 
         final List<dynamic> responseData = jsonDecode(response.body);
-
         return responseData;
+
       } else {
         return [{ '${response.statusCode}': response.body}];
       }

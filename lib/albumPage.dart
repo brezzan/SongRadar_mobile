@@ -178,8 +178,8 @@ class _albumPageState extends State<albumPage> {
                                       ),
                                       TextButton(
                                         child: Text('Delete'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
+                                        onPressed: () async {
+                                          await AuthService().deleteAlbum(album.id);
                                         },
                                       ),
                                     ],
@@ -358,8 +358,10 @@ class albumInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int rating = 0;
-    void _onStarClicked(int starCount) {}
+
+    bool  isStarred() {
+      return false;
+    }
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -395,22 +397,7 @@ class albumInfo extends StatelessWidget {
           style: TextStyle(fontSize: 15, fontWeight: FontWeight.normal),
         ),
         SizedBox(height: 10),
-        Row(
-          children: [
-            Text('Rating:'),
-            for (int i = 1; i <= 5; i++)
-              GestureDetector(
-                onTap: () {
-                  // Handle star click, you can call your function here
-                  _onStarClicked(i);
-                },
-                child: Icon(
-                  i <= rating ? Icons.star : Icons.star_border,
-                  color: Colors.yellow,
-                ),
-              ),
-          ],
-        ),
+
       ],
     );
   }

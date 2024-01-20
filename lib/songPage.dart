@@ -77,10 +77,7 @@ class _songPageState extends State<songPage> {
 
   }
 
-  bool isStarred(String songId){
-
-    return false;
-  }
+  bool  isStarred = false;
 
   @override
   Widget build(BuildContext context) {
@@ -173,6 +170,7 @@ class _songPageState extends State<songPage> {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 20),
             ),
+
             SizedBox(height: 16),
             Text(
               'Performers:',
@@ -224,16 +222,28 @@ class _songPageState extends State<songPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('Rating:', style: TextStyle(fontSize: 20)),
-                for (int i = 1; i <= 5; i++)
+
                   GestureDetector(
-                    onTap: () {
-                      // Handle star click, you can call your function here
-                      _onStarClicked(i);
+                    onTap: () async{
+                      if (isStarred){
+                        await AuthService().UnstarASong(songId);
+                        setState(() {
+                          isStarred = false;
+                        });
+                        isStarred = false;
+                      }
+                      else{
+                        await AuthService().starASong(songId);
+                        setState(() {
+                          isStarred = true;
+                        });
+                        isStarred = true;
+                      }
                     },
                     child: Icon(
-                      i <= rating ? Icons.star : Icons.star_border,
+                      size: 50,
+                      isStarred? Icons.star : Icons.star_border,
                       color: Colors.yellow,
-                      size: 30,
                     ),
                   ),
               ],
@@ -306,7 +316,7 @@ class SongCard extends StatelessWidget {
               ),
               child: Center(
                 child: FutureBuilder<String>(
-                  future: AuthService().getSongCoverById(song.id),
+                  future: AuthService().getSongCoverById(global_songId),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
                       if (snapshot.hasData) {
@@ -378,8 +388,8 @@ class SongCard extends StatelessWidget {
                           ),
                           TextButton(
                             child: Text('Delete'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
+                            onPressed: () async{
+                              await AuthService().deleteSong(song.id);
                             },
                           ),
                         ],

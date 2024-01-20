@@ -77,8 +77,7 @@ class _personalPageState extends State<personalPage> {
                       actions: [
                         TextButton(
                           onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/login',
-                                arguments: {});
+                            Navigator.pushReplacementNamed(context, '/login', arguments: {});
                           },
                           child: Text('Yes'),
                         ),
@@ -108,7 +107,10 @@ class _personalPageState extends State<personalPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 GestureDetector(
-                  onTap: (){},
+                  onTap: (){
+                    Navigator.pushReplacementNamed(context, '/starredSongsPage',
+                        arguments: {'userid': userid, 'username': username});
+                  },
                   child: Column(
                     children: [
                       SizedBox(
