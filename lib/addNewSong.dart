@@ -27,84 +27,56 @@ class _addNewSongState extends State<addNewSong> {
   String year = '';
   String month = '';
   String day = '';
-  TextEditingController genre = TextEditingController();
+
   TextEditingController album = TextEditingController();
   int songs_count = 0;
   int albums_count = 0;
 
   Future<void> readAlbumsFromMySQL() async {
-    final response = await http.get(
-        Uri.parse("http://" + connection + "/songradar_sql/get_albums.php"));
+    final response = await http.get(Uri.parse("http://"+connection+"/songradar_sql/get_albums.php"));
 
     if (response.statusCode == 200) {
       final List<dynamic> albumDataList = jsonDecode(response.body);
 
       for (final albumData in albumDataList) {
         if (albumData is Map<String, dynamic>) {
-          // Ensure 'songs' key is present, even if it's an empty list
-          if (!albumData.containsKey('songs')) {
-            albumData['songs'] = [];
-          }
 
-          await addAlbumFromFile(
-              albumData); // from file fonsksiyonu kullanabilmek icin
+          await addAlbumFromFile(albumData);  // from file fonsksiyonu kullanabilmek icin
         }
       }
     } else {
-      print(
-          'Failed to load albums from MySQL. Status code: ${response.statusCode}');
+      print('Failed to load albums from MySQL. Status code: ${response.statusCode}');
     }
   }
 
   Future<void> readSongsFromMySQL() async {
-    final response = await http.get(
-        Uri.parse("http://" + connection + "/songradar_sql/get_songs.php"));
+    final response = await http.get(Uri.parse("http://"+connection+"/songradar_sql/get_songs.php"));
     if (response.statusCode == 200) {
       final List<dynamic> songDataList = jsonDecode(response.body);
 
       for (final songData in songDataList) {
         if (songData is Map<String, dynamic>) {
-          print(songData);
+          print( songData);
+          print( 'inside the loop ');
 
-          if (songData['album_id'] == 0 || songData['album_id'] == null) {
-            songData.remove('album_id');
-            if (!songData.containsKey('album')) {
-              songData.remove('album');
-            }
-            await addSongFromFile(songData);
-          } else {
-            int album_id = songData['album_id'];
-            List<Map<String, dynamic>> albums = await AuthService().getAlbums();
+          if ((songData['album_id']) == '') {
+            songData['album_id'] = 'not_existing_album_id';
 
-            bool album_exists = false;
-            String album_name = '';
-
-            for (var albumLine in albums) {
-              if (albumLine['id'] == album_id) {
-                album_exists = true;
-                album_name = albumLine['title'];
-              }
-            }
-            songData.remove('album_id');
-            if (!songData.containsKey('album')) {
-              songData['album'] = album_name;
-            }
-            print(songData);
-            await addSongFromFile(songData);
           }
-        } else {
+          await addSongFromFile(songData);
+        }
+        else {
           print('Wrong data structure: ${response.statusCode}');
         }
       }
     } else {
-      print(
-          'Failed to load songs from MySQL. Status code: ${response.statusCode}');
+      print('Failed to load songs from MySQL. Status code: ${response.statusCode}');
     }
   }
 
   Future<void> readFromExternal(BuildContext context) async {
     try {
-      await readAlbumsFromMySQL();
+      //await readAlbumsFromMySQL();
 
       await readSongsFromMySQL();
 
@@ -132,185 +104,49 @@ class _addNewSongState extends State<addNewSong> {
   }
 
   Future<void> addAlbumFromFile(Map<String, dynamic> albumData) async {
-    String albumTitle = albumData['title'];
+    String albumTitle = albumData['name'];
     int albumYear = albumData['year'];
-    String albumGenre = albumData['genre'];
-    String albumPerformers = albumData['performers'];
+    int albumMonth = albumData['month'];
+    int albumDay = albumData['day'];
+    String albumPerformers = albumData['artists'] ;
 
-    List<dynamic> songsData = albumData['songs'];
-    print(albumTitle);
-    print(albumYear);
-    print(albumGenre);
-    print(albumPerformers);
-    print(songsData);
+    await AuthService().createAlbumUserInput(albumTitle, albumPerformers, albumYear, albumMonth, albumDay);
+    albums_count = albums_count +1;
 
-    //List<Map<String, dynamic>> albums = await AuthService().getAlbums(); // eklemeden önce album var mı yok mu
-    List<Map<String, dynamic>> albums = await AuthService().getAlbums();
-
-    bool album_exists = false;
-    int album_id_to_add_to = 0;
-    List<dynamic> songs_in_that_album = [];
-
-    for (var albumLine in albums) {
-      if (albumLine['title'] == albumTitle &&
-          albumLine['performers'] == albumPerformers &&
-          albumLine['year'] == albumYear &&
-          albumLine['genre'] == albumGenre) {
-        album_exists = true;
-        album_id_to_add_to = albumLine['id'];
-        songs_in_that_album = albumLine['songs'];
-      }
-    }
-    print(album_exists);
-
-    if (!album_exists) {
-      print(
-          'will add the $albumTitle - $albumYear - $albumGenre - $albumPerformers to albums');
-      final Map<String, dynamic> newlyAddedAlbumFromFile = await AuthService()
-          .createAlbum(albumTitle, albumPerformers, albumYear, albumGenre);
-
-      if (newlyAddedAlbumFromFile.containsKey('id')) {
-        print("SUCCESFULLY ADDED ALBUM");
-        albums_count = albums_count + 1;
-        album_id_to_add_to = newlyAddedAlbumFromFile['id'];
-        songs_in_that_album =
-            List<Map<String, dynamic>>.from(newlyAddedAlbumFromFile['songs']);
-      } else {
-        print("CANNOT ADD ALBUM - ${newlyAddedAlbumFromFile['error']}");
-        // works - album without songs can be added successfully
-      }
-    }
-    // album db de yoksa bile artık var
-
-    if (songsData.isNotEmpty) {
-      // album içinde eklenecek şarkı var
-
-      for (var songData in songsData) {
-        print(songData);
-        bool songexists = false;
-        String songTitle = songData[
-            'title']; // album ile icindeki song zaten aynı genre year ve performersa sahip, sadece song itle al
-        for (var existingsongs in songs_in_that_album) {
-          if (existingsongs['title'] == songTitle &&
-              existingsongs['year'] == albumYear &&
-              existingsongs['genre'] == albumGenre &&
-              existingsongs['performers'] == albumPerformers) {
-            songexists = true;
-          }
-        }
-
-        if (!songexists) {
-          final Map<String, dynamic> newlyAddedSong =
-              await AuthService().createSong(
-            songTitle,
-            albumPerformers,
-            albumYear,
-            albumGenre,
-            album_id_to_add_to,
-          );
-          songs_count = songs_count + 1;
-
-          // update songs_in_that_album
-        }
-      }
-    }
   }
 
-  Future<void> addSongFromFile(Map<String, dynamic> songData) async {
-    //{id: 2, title: TEST SONG, performers: Harry, year: 0, genre: POP, album_id: null}
-    String songTitle = songData['title'];
+  Future<void> addSongFromFile(Map<String, dynamic> songData ) async {
+
+
+    print( songData['album_id']);
+    print('-----');
+    String songTitle = songData['name'];
+
     int songYear = songData['year'];
-    String songGenre = songData['genre'];
-    String songPerformers = songData['performers'];
+    int songMonth = songData['month'];
+    int songDay = songData['day'];
+    String songPerformers = songData['artists'];
 
-    bool songexists = false;
+    print("ı am here now $songData['album_id']");
+    Map<String, dynamic> albumInfo = await AuthService().getAlbumById(songData['album_id']);
+    print("ı am here now $songData['album_id']");
 
-    if (songData.containsKey('album')) {
-      // bu şarkı bir albüme eklenmeli önce albüm var mı check et , yoksa yarat
-      print("songData.containsKey('album'): ${songData.containsKey('album')}");
-      String albumTitle = songData['album'];
-
-      //List<Map<String, dynamic>> albums = await AuthService().getAlbums(); // eklemeden once album var mı yok mu
-      List<Map<String, dynamic>> albums = await AuthService().getAlbums();
-
-      bool album_exists = false;
-      int album_id_to_add_to = 0;
-      List<dynamic> songs_in_that_album = [];
-
-      for (var albumLine in albums) {
-        if (albumLine['title'] == albumTitle &&
-            albumLine['performers'] == songPerformers &&
-            albumLine['year'] == songYear &&
-            albumLine['genre'] == songGenre) {
-          album_exists = true;
-          album_id_to_add_to = albumLine['id'];
-          songs_in_that_album = albumLine['songs'];
-        }
-      }
-
-      if (!album_exists) {
-        final Map<String, dynamic> newlyAddedAlbum = await AuthService()
-            .createAlbum(albumTitle, songPerformers, songYear,
-                songGenre); // album var mı yok mu check ediyor mu hatırlamıyorum
-
-        if (!newlyAddedAlbum.containsKey('error')) {
-          print("SUCCESFULLY ADDDED ALBUM");
-          albums_count = albums_count + 1;
-          album_id_to_add_to = newlyAddedAlbum['id'];
-          songs_in_that_album = newlyAddedAlbum[
-              'songs']; // album içine aynı şarkıyı eklememk için check etmek için tut
-        } else {
-          print("CANNOT ADD ALBUM ");
-        }
-      }
-
-      for (var existingsongs in songs_in_that_album) {
-        if (existingsongs['title'] == songTitle &&
-            existingsongs['year'] == songYear &&
-            existingsongs['genre'] == songGenre &&
-            existingsongs['performers'] == songPerformers) {
-          songexists = true;
-        }
-      }
-
-      if (!songexists) {
-        final Map<String, dynamic> newlyAddedSong =
-            await AuthService().createSong(
-          songTitle,
-          songPerformers,
-          songYear,
-          songGenre,
-          album_id_to_add_to,
-        );
-        print('SUCCESSFULY ADDED THE SONG $newlyAddedSong');
-        songs_count = songs_count + 1;
-      }
-    } else {
-      // album title olmadan ekle
-      //List<Map<String, dynamic>> songs = await AuthService().getSongs();
-      List<Map<String, dynamic>> songs =
-          (await AuthService().getSongs()) as List<Map<String, dynamic>>;
-      bool song_exists = false;
-
-      for (var songLine in songs) {
-        if (songLine['title'] == songTitle &&
-            songLine['performers'] == songPerformers &&
-            songLine['year'] == songYear &&
-            songLine['genre'] == songGenre) {
-          song_exists = true;
-        }
-      }
-
-      if (!song_exists) {
-        int place_holder =
-            0; // albumsuz olduğu için şuan album_id 0 olacak sekilde kaydet
-        final Map<String, dynamic> newlyAddedSong = await AuthService()
-            .createSong(
-                songTitle, songPerformers, songYear, songGenre, place_holder);
-        print('SUCCESSFULY ADDED THE SONG $newlyAddedSong');
-        songs_count = songs_count + 1;
-      }
+    if(songData['album_id'] == 'not_existing_album_id' || albumInfo.containsKey('detail')){  // there is no album with such id so create an album
+      print('need to create album frist');
+      Map<String, dynamic> createdAlbumInfo =  await AuthService().createAlbumUserInput(songTitle, songPerformers, songYear, songMonth, songDay);
+      albums_count = albums_count +1;
+      print('create song');
+      await AuthService().createSongUserInput(songTitle, createdAlbumInfo['id'], songPerformers, songYear, songMonth,songDay );
+      songs_count = songs_count +1;
     }
+
+    else{
+      print('create song');
+      await AuthService().createSongUserInput(songTitle, songData['album_id'], songPerformers, songYear, songMonth,songDay );
+      songs_count = songs_count +1;
+    }
+
+
   }
 
   Future<void> pickAndReadFile(BuildContext context) async {
@@ -325,26 +161,28 @@ class _addNewSongState extends State<addNewSong> {
         File pickedFile = File(file.path!);
 
         try {
-          List<dynamic> jsonData =
-              await jsonDecode(await pickedFile.readAsStringSync());
+
+          List<dynamic> jsonData =await jsonDecode(await pickedFile.readAsStringSync());
           print(jsonData);
 
           await Future.forEach(jsonData, (element) async {
             print(element);
 
             if (element is Map<String, dynamic>) {
-              if (element.containsKey('songs')) {
-                // It's an album
-                await addAlbumFromFile(element);
-                print("added $element - album");
-              } else {
+              if (element.containsKey('album_id')) {
                 // It's a song
                 await addSongFromFile(element);
                 print("added $element - song");
+
+              } else {
+                // It's an album
+                await addAlbumFromFile(element);
+                print("added $element - album");
               }
             } else {
               print('Invalid data structure: $element');
             }
+
           });
 
           showDialog(
@@ -357,7 +195,10 @@ class _addNewSongState extends State<addNewSong> {
                 actions: [
                   TextButton(
                     onPressed: () {
+                      songs_count = 0;
+                      albums_count = 0;
                       Navigator.pop(context);
+
                     },
                     child: Text('OK'),
                   ),
@@ -375,6 +216,7 @@ class _addNewSongState extends State<addNewSong> {
       // User canceled file picking
     }
   }
+
 
   @override
   void initState() {
@@ -546,54 +388,26 @@ class _addNewSongState extends State<addNewSong> {
             SizedBox(height: 45),
             Flexible(
               child: ElevatedButton(
+                child: Text('Add Song'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   shape: BeveledRectangleBorder(),
                 ),
                 onPressed: () async {
-                  try {
-                    List<Map<String, dynamic>> albums =
-                        await AuthService().getAlbums();
+                    String artists = performers.text;
 
-                    int album_id_to_add_to = 0;
-                    bool album_exists = false;
+                    if(artists.contains(',')){
+                    artists = artists.replaceAll(",", "','");
+                    }
+
+                    artists = "['"+ artists +"']";
 
                     if (album.text.isNotEmpty) {
-                      // Check if the album exists
-                      for (var albumLine in albums) {
-                        if (albumLine['title'] == album.text &&
-                            albumLine['performers'] == performers.text &&
-                            albumLine['year'] == int.parse(year) &&
-                            albumLine['genre'] == genre.text) {
-                          album_id_to_add_to = albumLine['id'];
-                          album_exists = true;
-                        }
-                      }
 
-                      if (!album_exists) {
-                        // Add the album first
-                        final Map<String, dynamic> newlyAddedAlbum =
-                            await AuthService().createAlbum(
-                          album.text,
-                          performers.text,
-                          int.parse(year),
-                          genre.text,
-                        );
-
-                        // Get the ID of the newly added album
-                        album_id_to_add_to = newlyAddedAlbum['id'];
-                        print(
-                            'Song will be added to this album id= $album_id_to_add_to');
-
-                        final Map<String, dynamic> newlyAddedSong =
-                            await AuthService().createSong(
-                          title.text,
-                          performers.text,
-                          int.parse(year),
-                          genre.text,
-                          album_id_to_add_to,
-                        );
+                        final Map<String, dynamic> newlyAddedAlbum =await AuthService().createAlbumUserInput(album.text, artists, int.parse(year), int.parse(month), int.parse(day));
+                        print(newlyAddedAlbum['id']);
+                        final Map<String, dynamic> newlyAddedSong = await AuthService().createSongUserInput(title.text, newlyAddedAlbum['id'], artists, int.parse(year), int.parse(month), int.parse(day));
 
                         if (!newlyAddedSong.containsKey('error')) {
                           showDialog(
@@ -606,7 +420,8 @@ class _addNewSongState extends State<addNewSong> {
                                 actions: [
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.pop(context);
+                                      Navigator.pushReplacementNamed(context, '/mainAppPage',
+                                          arguments: {'userid': userid,'username':username});
                                     },
                                     child: Text('OK'),
                                   ),
@@ -614,7 +429,8 @@ class _addNewSongState extends State<addNewSong> {
                               );
                             },
                           );
-                        } else {
+                        }
+                        else {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
@@ -635,33 +451,13 @@ class _addNewSongState extends State<addNewSong> {
                             },
                           );
                         }
-                      } else {
-                        // album exists
-                        List<Map<String, dynamic>> songs =
-                            await AuthService().getSongs();
-                        bool song_exists = false;
 
-                        for (var songLine in songs) {
-                          if (songLine['title'] == title.text &&
-                              songLine['performers'] == performers.text &&
-                              songLine['year'] == int.parse(year) &&
-                              songLine['genre'] == genre.text &&
-                              songLine['id'] == album_id_to_add_to) {
-                            song_exists = true;
-                          }
-                        }
+                      }
+                    else {
+                      final Map<String, dynamic> newlyAddedAlbum = await AuthService().createAlbumUserInput(title.text, artists, int.parse(year), int.parse(month), int.parse(day));
+                      final Map<String, dynamic> newlyAddedSong = await AuthService().createSongUserInput(title.text, newlyAddedAlbum['id'], artists, int.parse(year), int.parse(month), int.parse(day));
 
-                        if (!song_exists) {
-                          final Map<String, dynamic> newlyAddedSong =
-                              await AuthService().createSong(
-                            title.text,
-                            performers.text,
-                            int.parse(year),
-                            genre.text,
-                            album_id_to_add_to,
-                          );
-
-                          if (!newlyAddedSong.containsKey('error')) {
+                      if (!newlyAddedSong.containsKey('error')) {
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
@@ -672,7 +468,8 @@ class _addNewSongState extends State<addNewSong> {
                                   actions: [
                                     TextButton(
                                       onPressed: () {
-                                        Navigator.pop(context);
+                                        Navigator.pushReplacementNamed(context, '/mainAppPage',
+                                            arguments: {'userid': userid,'username':username});
                                       },
                                       child: Text('OK'),
                                     ),
@@ -680,7 +477,8 @@ class _addNewSongState extends State<addNewSong> {
                                 );
                               },
                             );
-                          } else {
+                          }
+                      else {
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
@@ -701,102 +499,9 @@ class _addNewSongState extends State<addNewSong> {
                               },
                             );
                           }
-                        } else {
-                          // both song and album exists
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('Already in System'),
-                                content: Text(
-                                    'Both song and the album are already in the system'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text('OK'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
+
                         }
                       }
-                    } else {
-                      // empty album text , burada elbum id 0 olarak kayıt ediliyor
-                      // ileride single olacak şekile aynı adda bir albüm yaratıp onun içibe eklemek gerekebilir
-                      List<Map<String, dynamic>> songs =
-                          await AuthService().getSongs();
-                      bool song_exists = false;
-
-                      for (var songLine in songs) {
-                        if (songLine['title'] == title.text &&
-                            songLine['performers'] == performers.text &&
-                            songLine['year'] == int.parse(year) &&
-                            songLine['genre'] == genre.text) {
-                          song_exists = true;
-                        }
-                      }
-
-                      if (!song_exists) {
-                        int place_holder = 0;
-                        final Map<String, dynamic> newlyAddedSong =
-                            await AuthService().createSong(
-                                title.text,
-                                performers.text,
-                                int.parse(year),
-                                genre.text,
-                                place_holder);
-
-                        if (!newlyAddedSong.containsKey('error')) {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                content: Text(
-                                  'Song added to system',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text('OK'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('Could not add the song'),
-                                content: Text(
-                                  '${newlyAddedSong['detail']}',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text('OK'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        }
-                      }
-                    }
-                  } catch (e) {
-                    print("Error: $e");
-                    // Handle the error as needed
-                  }
-                },
-                child: Text('Add Song'),
               ),
             ),
             SizedBox(height: 15),

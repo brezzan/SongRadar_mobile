@@ -964,11 +964,11 @@ class AuthService {
       } else {
         // Handle error
         final Map<String, dynamic> errorData = jsonDecode(response.body);
-        return {'error': response.body};
+        return {'error1': response.body};
       }
     } catch (error) {
       // Handle network or unexpected errors
-      print('Error: $error');
+      print('Error3 : $error');
       return {'error': 'An unexpected error occurred.'};
     }
   }
@@ -990,7 +990,11 @@ class AuthService {
         final String responseData = jsonDecode(response.body);
 
         return responseData;
-      } else {
+      }
+      else if (response.statusCode == 404) {
+        return 'An unexpected error occurred.';
+      }
+      else {
 
         return 'An unexpected error occurred.';
       }

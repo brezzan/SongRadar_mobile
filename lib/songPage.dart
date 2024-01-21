@@ -136,6 +136,13 @@ class _songPageState extends State<songPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             SizedBox(height: 40),
+            Text(
+              'Song: ${song.name}',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 20),
+            ),
+
+            SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
 
@@ -164,13 +171,6 @@ class _songPageState extends State<songPage> {
                 ),
               ],
             ),
-            SizedBox(height: 16),
-            Text(
-              'Song: ${song.name}',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 20),
-            ),
-
             SizedBox(height: 16),
             Text(
               'Performers:',
@@ -323,7 +323,7 @@ class SongCard extends StatelessWidget {
                         return Image.network(snapshot.data!);
                       } else {
                         // Handle the case when there's an error in fetching the image
-                        return Text('Error loading image');
+                        return Icon(Icons.music_note );
                       }
                     } else {
                       // While the future is still resolving, you can show a loading indicator

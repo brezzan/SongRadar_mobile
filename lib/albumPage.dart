@@ -132,7 +132,7 @@ class _albumPageState extends State<albumPage> {
                                     return Image.network(snapshot.data!);
                                   } else {
                                     // Handle the case when there's an error in fetching the image
-                                    return Text('Error loading image');
+                                    return Icon(Icons.album );
                                   }
                                 } else {
                                   // While the future is still resolving, you can show a loading indicator
@@ -265,7 +265,7 @@ class SongCard extends StatelessWidget {
                         return Image.network(snapshot.data!);
                       } else {
                         // Handle the case when there's an error in fetching the image
-                        return Text('Error loading image');
+                        return Icon(Icons.music_note );
                       }
                     } else {
                       // While the future is still resolving, you can show a loading indicator
