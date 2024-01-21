@@ -17,8 +17,7 @@ class songPage extends StatefulWidget {
 }
 
 class _songPageState extends State<songPage> {
-  int rating = 0;
-  void _onStarClicked(int starCount) {}
+
 
   late String username, songId;
   late int userid;
@@ -30,43 +29,52 @@ class _songPageState extends State<songPage> {
 
   late Future<Map<String, dynamic>> songData ;
   Map<String, dynamic> data = {};
+  List<dynamic> starredSongs = [];
+
+
 
 
   Future<void> fecthsong() async {
     data = await AuthService().getSongById(global_songId);
+    print(data);
+    starredSongs = await AuthService().getStarred();
+
+    print(starredSongs);
+
+
 
     setState(() {
-      print(global_songId);
-      songData = AuthService().getSongById(global_songId);
 
       song = Song(
-        id: data['id'],
-        name: data['name'],
-        album: data['album'],
-        album_id: data['album_id'],
-        artists: data['artists'],
-        artist_ids: data['artist_ids'],
+        id: data['id']?? '',
+        name: data['name']?? '',
+        album: data['album']?? '',
+        album_id: data['album_id']?? '',
+        artists: data['artists']?? '',
+        artist_ids: data['artist_ids']?? '',
         track_number: 0,
         disc_number: 0,
-        explicit: data['explicit'],
-        danceability: data['danceability'],
-        energy: data['energy'],
-        key: data['key'],
-        loudness: data['loudness'],
-        mode: data['mode'],
-        speechiness: data['speechiness'],
-        acousticness: data['acousticness'],
-        instrumentalness: data['instrumentalness'],
-        liveness: data['liveness'],
-        valence: data['valence'],
-        tempo: data['tempo'],
-        duration_ms: data['duration_ms'],
-        time_signature: data['time_signature'],
-        year: data['year'],
-        month: data['month'],
-        day: data['day'],
-        owner_id: data['owner_id'],
+        explicit: data['explicit']?? false,
+        danceability: data['danceability']?? 0,
+        energy: data['energy']?? 0,
+        key: data['key']?? 0,
+        loudness: data['loudness']?? 0,
+        mode: data['mode']?? 0,
+        speechiness: data['speechiness']?? 0,
+        acousticness: data['acousticness']?? 0,
+        instrumentalness: data['instrumentalness']?? 0,
+        liveness: data['liveness']?? 0,
+        valence: data['valence']?? 0,
+        tempo: data['tempo']?? 0,
+        duration_ms: data['duration_ms']?? 0,
+        time_signature: data['time_signature']?? 0,
+        year: data['year']?? 0,
+        month: data['month']?? 0,
+        day: data['day']?? 0,
+        owner_id: data['owner_id']?? 0,
+
       );
+
     });
   }
 
@@ -77,7 +85,6 @@ class _songPageState extends State<songPage> {
 
   }
 
-  bool  isStarred = false;
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +105,7 @@ class _songPageState extends State<songPage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Text(song.name),
+            Flexible(child: Text(song.name)),
             Flexible(
               child: SizedBox(width: 200),
             ),
@@ -180,21 +187,22 @@ class _songPageState extends State<songPage> {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                for (var artist in song.artists.split(","))
+
+                for (var i = 0; i < song.artists.length; i++)
                   InkWell(
                     onTap: () {
-                      global_artist =
-                          artist; ////////////////////////////////////////////////////////////
+                      global_artist = song.artists[i]; ////////////////////////////////////////////////////////////
+                      global_artist_id = song.artist_ids[i];
                       Navigator.pushReplacementNamed(
                           context, '/performerPage',
                           arguments: {
                             'userid': userid,
                             'username': username,
-                            'performers': artist
+                            'performers': global_artist
                           });
                     },
                     child: Text(
-                      artist.trim(),
+                      song.artists[i].trim(),
                       // trim to remove leading/trailing spaces
                       style: TextStyle(fontSize: 20,
                           fontWeight: FontWeight.normal,
@@ -222,30 +230,23 @@ class _songPageState extends State<songPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('Rating:', style: TextStyle(fontSize: 20)),
-
-                  GestureDetector(
-                    onTap: () async{
-                      if (isStarred){
-                        await AuthService().UnstarASong(songId);
-                        setState(() {
-                          isStarred = false;
-                        });
-                        isStarred = false;
-                      }
-                      else{
-                        await AuthService().starASong(songId);
-                        setState(() {
-                          isStarred = true;
-                        });
-                        isStarred = true;
-                      }
-                    },
-                    child: Icon(
-                      size: 50,
-                      isStarred? Icons.star : Icons.star_border,
-                      color: Colors.yellow,
-                    ),
+                GestureDetector(
+                  onTap: () async {
+                    if (starredSongs.any((song) => song['id'] == data['id'])) {
+                      await AuthService().UnstarASong(songId);
+                    } else {
+                      await AuthService().starASong(songId);
+                    }
+                    // Reload starred songs after updating
+                    await fecthsong(); // You may need to call this if it fetches the latest starred songs
+                    setState(() { });
+                  },
+                  child: Icon(
+                    Icons.star,
+                    size: 50,
+                    color: starredSongs.any((song) => song['id'] == data['id']) ? Colors.yellow : Colors.grey,
                   ),
+                ),
               ],
             ),
             Row(
@@ -260,7 +261,8 @@ class _songPageState extends State<songPage> {
               ],
             ),
             SizedBox(height:10),
-            song.getCharacteristicsChart(),
+            SongCard(userid: userid, song: song, username: username),
+            SizedBox(height:10),
             Row(
               children: [
                 Flexible(
@@ -272,7 +274,8 @@ class _songPageState extends State<songPage> {
                 ),
               ],
             ),
-            SongCard(userid: userid, song: song, username: username),
+            SizedBox(height:10),
+            song.getCharacteristicsChart(),
             SizedBox(height:40),
           ],
         ),
@@ -350,7 +353,7 @@ class SongCard extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      song.artists,
+                      song.artists[0],
                       style: TextStyle(
                           fontSize: 12, fontWeight: FontWeight.normal),
                     ),
@@ -378,7 +381,7 @@ class SongCard extends StatelessWidget {
                       return AlertDialog(
                         title: Text('Confirm Delete'),
                         content: Text(
-                            'Are you sure you want to delete this song? \n NOT IMPLEMENTED YET'),
+                            'Are you sure you want to delete this song?'),
                         actions: <Widget>[
                           TextButton(
                             child: Text('Cancel'),
@@ -390,6 +393,25 @@ class SongCard extends StatelessWidget {
                             child: Text('Delete'),
                             onPressed: () async{
                               await AuthService().deleteSong(song.id);
+
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Deleted Song'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pushReplacementNamed(context, '/albumPage',
+                                              arguments: {'albumId':global_albumId,'userid': userid, 'username': username});
+                                        },
+                                        child: Text('OK'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                              //
                             },
                           ),
                         ],

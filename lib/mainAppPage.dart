@@ -457,9 +457,9 @@ class AlbumCard extends StatelessWidget {
                 ),
                 Text(
                   '  ' +
-                      (album.artists.length > 20
-                          ? album.artists.substring(0, 15)
-                          : album.artists),
+                      (album.artists[0].length > 20
+                          ? album.artists[0].toString().substring(0, 15)
+                          : album.artists[0]),
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
                 ),
               ],
@@ -484,7 +484,7 @@ class SongCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         global_songId = song.id; /////////////////////////////////////////////////////////////////////////
-        print('songid is ${song.id}');
+        global_albumId = song.album_id;
         Navigator.pushReplacementNamed(context, '/songPage', arguments: {
           'userid': userid,
           'username': username,

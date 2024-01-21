@@ -24,16 +24,15 @@ class _performerPageState extends State<performerPage> {
   List<Map<String, dynamic>> albumsData = [];
 
   int rating = 0;
-  void _onStarClicked(int starCount) {}
 
   Future<void> fetchAlbumsbyArtist() async {
+
     albumsData = await AuthService().getAlbumByArtist(global_artist);
     albumsData.sort((a, b) => b['year'].compareTo(a['year']));
 
     setState(() {
       albums = AuthService().getAlbumByArtist(global_artist);
     });
-
   }
 
   Map<String, List<Map<String, dynamic>>> _groupAlbumsByYear(
@@ -63,59 +62,72 @@ class _performerPageState extends State<performerPage> {
     username = '${arguments?['username']}';
     performers = '${arguments?['performers']}';
 
-
     return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.deepOrange,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Text('$performers'),
-              Flexible(
-                child: SizedBox(width: 200),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.deepOrange,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Flexible(child: Text('$performers')),
+            Flexible(
+              child: SizedBox(width: 200),
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.home,
+                size: 30,
               ),
-              IconButton(
-                icon: Icon(
-                  Icons.home,
-                  size: 30,
-                ),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/mainAppPage',
-                      arguments: {'userid': userid, 'username': username});
-                },
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/mainAppPage',
+                    arguments: {'userid': userid, 'username': username});
+              },
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.person_pin_rounded,
+                size: 30,
               ),
-              IconButton(
-                icon: Icon(
-                  Icons.person_pin_rounded,
-                  size: 30,
-                ),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/personalPage',
-                      arguments: {'userid': userid, 'username': username});
-                },
-              ),
-            ],
-          ),
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/personalPage',
+                    arguments: {'userid': userid, 'username': username});
+              },
+            ),
+          ],
         ),
-        body: SingleChildScrollView(
+      ),
+      body: SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: Column(
             children: [
               SizedBox(height: 20),
-              Center(
-                child: SizedBox(
-                  height: 140, // Set the desired height for the box
-                  width: 140, // Set the desired width for the box
-                  child: Container(
-                    margin: EdgeInsets.all(8.0),
-                    padding: EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Center(
-                      child: Icon(Icons.person,size:80,color: Colors.grey,),
+              SizedBox(
+                height: 140,
+                width: 140,
+                child: Container(
+                  margin: EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey,
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Center(
+                    child: FutureBuilder<String>(
+                      future: AuthService().getArtistCoverById(global_artist_id),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          if (snapshot.hasData) {
+                            return Image.network(snapshot.data!);
+                          } else {
+                            // Handle the case when there's an error in fetching the image or no data
+                            return Icon(Icons.album);
+                          }
+                        } else {
+                          // While the future is still resolving, you can show a loading indicator
+                          return CircularProgressIndicator();
+                        }
+                      },
                     ),
                   ),
                 ),
@@ -124,24 +136,7 @@ class _performerPageState extends State<performerPage> {
               Text('$performers',
                   style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
               SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Rating:',style: TextStyle(fontSize: 20)),
-                  for (int i = 1; i <= 5; i++)
-                    GestureDetector(
-                      onTap: () {
-                        // Handle star click, you can call your function here
-                        _onStarClicked(i);
-                      },
-                      child: Icon(
-                        i <= rating ? Icons.star : Icons.star_border,
-                        color: Colors.yellow,
-                        size: 30,
-                      ),
-                    ),
-                ],
-              ),
+
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
                 child: Row(
@@ -159,84 +154,81 @@ class _performerPageState extends State<performerPage> {
               SizedBox(height: 20),
               SingleChildScrollView(
                 scrollDirection: Axis.vertical,
-                  child: Column(
-                    children: [
-                          for (var year in _groupAlbumsByYear(albumsData).keys)
-                            Column(
+                child: Column(
+                  children: [
+                    for (var year in _groupAlbumsByYear(albumsData).keys)
+                      Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 25.0),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                Padding(
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 25.0),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Flexible(
-                                        child: Divider(
-                                          height: 5,
-                                          thickness: 1,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Text(
-                                          year,
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                      Flexible(
-                                        child: Divider(
-                                          height: 5,
-                                          thickness: 1,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
+                                Flexible(
+                                  child: Divider(
+                                    height: 5,
+                                    thickness: 1,
+                                    color: Colors.black,
                                   ),
                                 ),
-                                for (var album in _groupAlbumsByYear(albumsData)[year]!)
-                                  AlbumCard(
-                                      username: username,
-                                      userid: userid,
-                                      album: Album(
-                                          id: album['id'],
-                                          name: album['name'],
-                                          artists: album['artists'],
-                                          artist_ids: album['artist_ids'],
-                                          number_of_tracks:
-                                              album['number_of_tracks'],
-                                          explicit: album['explicit'],
-                                          danceability: album['danceability'],
-                                          energy: album['energy'],
-                                          key: album['key'],
-                                          loudness: album['loudness'],
-                                          mode: album['mode'],
-                                          speechiness: album['speechiness'],
-                                          acousticness: album['acousticness'],
-                                          instrumentalness:
-                                              album['instrumentalness'],
-                                          liveness: album['liveness'],
-                                          valence: album['valence'],
-                                          tempo: album['tempo'],
-                                          duration_ms: album['duration_ms'],
-                                          time_signature:
-                                              album['time_signature'],
-                                          year: album['year'],
-                                          month: album['month'],
-                                          day: album['day'],
-                                          owner_id: album['owner_id'])),
+                                Center(
+                                  child: Text(
+                                    year,
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Flexible(
+                                  child: Divider(
+                                    height: 5,
+                                    thickness: 1,
+                                    color: Colors.black,
+                                  ),
+                                ),
                               ],
                             ),
+                          ),
+                          for (var data
+                              in _groupAlbumsByYear(albumsData)[year]!)
+                            AlbumCard(
+                                username: username,
+                                userid: userid,
+                                album: Album(
+                                  id: data['id'] ?? '',
+                                  name: data['name'] ?? '',
+                                  artists: data['artists'] ?? '[]',
+                                  artist_ids: data['artist_ids'] ?? '[]',
+                                  number_of_tracks:
+                                      data['number_of_tracks'] ?? 0,
+                                  explicit: data['explicit'] ?? false,
+                                  danceability: data['danceability'] ?? 0.0,
+                                  energy: data['energy'] ?? 0.0,
+                                  key: data['key'] ?? 0,
+                                  loudness: data['loudness'] ?? 0.0,
+                                  mode: data['mode'] ?? 0,
+                                  speechiness: data['speechiness'] ?? 0.0,
+                                  acousticness: data['acousticness'] ?? 0,
+                                  instrumentalness:
+                                      data['instrumentalness'] ?? 0,
+                                  liveness: data['liveness'] ?? 0,
+                                  valence: data['valence'] ?? 0,
+                                  tempo: data['tempo'] ?? 0,
+                                  duration_ms: data['duration_ms'] ?? 0,
+                                  time_signature: data['time_signature'] ?? 0,
+                                  year: data['year'] ?? 0,
+                                  month: data['month'] ?? 0,
+                                  day: data['day'] ?? 0,
+                                  owner_id: data['owner_id'] ?? 0,
+                                ))
                         ],
-
-                  ),
+                      ),
+                  ],
+                ),
               ),
             ],
-          )
-        ),
+          )),
     );
   }
 }
@@ -253,7 +245,8 @@ class AlbumCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        global_albumId=  album.id;         /////////////////////////////////////////////////////////////////////
+        global_albumId = album
+            .id; /////////////////////////////////////////////////////////////////////
         Navigator.pushReplacementNamed(context, '/albumPage', arguments: {
           'albumId': album.id,
           'userid': userid,
@@ -278,7 +271,7 @@ class AlbumCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Center(
-                  child:  FutureBuilder<String>(
+                  child: FutureBuilder<String>(
                     future: AuthService().getAlbumCoverById(album.id),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
@@ -299,7 +292,8 @@ class AlbumCard extends StatelessWidget {
             ),
             SizedBox(width: 4.0),
             Expanded(
-              child: SingleChildScrollView(scrollDirection: Axis.horizontal,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
                     Column(

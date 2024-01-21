@@ -662,12 +662,12 @@ class AuthService {
 
         return responseData;
       } else {
-        return 'An unexpected error occurred.';
+        return 'https://gospelmusic.io/build/images/default-album.png';
       }
     } catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return '$error An unexpected error occurred.';
+      return 'https://gospelmusic.io/build/images/default-album.png';
     }
   }
 
@@ -992,15 +992,15 @@ class AuthService {
         return responseData;
       }
       else if (response.statusCode == 404) {
-        return 'An unexpected error occurred.';
+        return 'https://gospelmusic.io/build/images/default-album.png';
       }
       else {
 
-        return 'An unexpected error occurred.';
+        return 'https://gospelmusic.io/build/images/default-album.png';
       }
     } catch (error) {
 
-      return '$error An unexpected error occurred.';
+      return 'https://gospelmusic.io/build/images/default-album.png';
     }
   }
 
@@ -1319,6 +1319,35 @@ class AuthService {
 
 
 
+  Future<String> getArtistCoverById(String id) async {
+    final String url = 'https://embed.spotify.com/oembed?url=https%3A%2F%2Fopen.spotify.com%2Fartist%2F$id';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(
+            response.body);
+        print(responseData);
+
+        String thumbnailUrl = responseData['thumbnail_url'];
+        return thumbnailUrl;
+
+      } else {
+        return 'https://upload.wikimedia.org/wikipedia/commons/6/68/Solid_black.png';
+      }
+    } catch (error) {
+      return 'https://upload.wikimedia.org/wikipedia/commons/6/68/Solid_black.png';
+    }
+  }
+
+
 
 }
 
@@ -1327,8 +1356,8 @@ class Song {
   final String name;
   final String album;
   final String album_id;
-  final String artists;
-  final String artist_ids;
+  final List<String> artists;
+  final List<String> artist_ids;
   final int track_number;
   final int disc_number;
   final bool explicit;
@@ -1377,8 +1406,8 @@ class Song {
     required this.month,
     required this.day,
     required this.owner_id,
-  }) : artists = artists.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" ),
-        artist_ids = artist_ids.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" );
+  }) : artists = artists.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" ).split(','),
+        artist_ids = artist_ids.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" ).split(',');
 
   Color getVibeColor_energy() {
     // Adjust the weights based on the importance of each characteristic
@@ -1517,8 +1546,8 @@ class Song {
 class Album {
   final String id;
   final String name;
-  final String artists;
-  final String artist_ids;
+  final List<String> artists;
+  final List<String> artist_ids;
   final int number_of_tracks;
   final bool explicit;
   final double danceability;
@@ -1563,8 +1592,8 @@ class Album {
     required this.month,
     required this.day,
     required this.owner_id,
-  }): artists = artists.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" ),
-        artist_ids = artist_ids.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" );
+  }): artists = artists.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" ).split(','),
+        artist_ids = artist_ids.replaceAll("'","" ).replaceAll("[","" ).replaceAll("]","" ).split(',');
 
   Future<String> getAlbumCoverByIdFromCsv(String id) async {
     final String url = 'https://embed.spotify.com/oembed?url=https%3A%2F%2Fopen.spotify.com%2Falbum%2F$id';

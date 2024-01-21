@@ -3,6 +3,8 @@ import 'dart:core';
 import 'package:songradar/api.dart';
 import 'package:songradar/variables.dart';
 
+List<dynamic> starredSongs = [];
+
 class albumPage extends StatefulWidget {
   final int userid; // Corrected variable name to userId
   final String username,albumId;
@@ -22,7 +24,7 @@ class _albumPageState extends State<albumPage> {
 
   late Future<Map<String, dynamic>> albumData; // Adjusted the type
   late Album album = Album(
-    id: '', name: '', artists: '', artist_ids: '', number_of_tracks: 0, explicit: false,
+    id: '', name: '', artists: "[]", artist_ids: "[]", number_of_tracks: 0, explicit: false,
     danceability: 0.0, energy: 0.0, key: 0, loudness: 0.0, mode: 0, speechiness: 0.0, acousticness: 0, instrumentalness: 0,
     liveness: 0, valence: 0, tempo: 0, duration_ms: 0, time_signature: 0, year: 0, month: 0, day: 0, owner_id: 0,
   );
@@ -34,25 +36,67 @@ class _albumPageState extends State<albumPage> {
 
     data = await AuthService().getAlbumById(global_albumId);
 
+
     setState(() {
 
     albumData = AuthService().getAlbumById(global_albumId);
 
-    album = Album(id: data['id'], name: data['name'], artists: data['artists'], artist_ids: data['artist_ids'],
-        number_of_tracks: data['number_of_tracks'], explicit :data['explicit'], danceability: data['danceability'], energy: data['energy'],
-        key: data['key'], loudness: data['loudness'], mode: data['mode'], speechiness: data['speechiness'], acousticness: data['acousticness'],
-        instrumentalness: data['instrumentalness'], liveness: data['liveness'], valence: data['valence'], tempo: data['tempo'],
-        duration_ms: data['duration_ms'], time_signature: data['time_signature'], year: data['year'],
-        month: data['month'], day: data['day'], owner_id: data['owner_id']);
+    album = Album(
+      id: data['id'] ?? '',
+      name: data['name'] ?? '',
+      artists: data['artists'] ?? "[]",
+      artist_ids: data['artist_ids'] ?? "[]",
+      number_of_tracks: data['number_of_tracks'] ?? 0,
+      explicit: data['explicit'] ?? false,
+      danceability: data['danceability'] ?? 0.0,
+      energy: data['energy'] ?? 0.0,
+      key: data['key'] ?? 0,
+      loudness: data['loudness'] ?? 0.0,
+      mode: data['mode'] ?? 0,
+      speechiness: data['speechiness'] ?? 0.0,
+      acousticness: data['acousticness'] ?? 0,
+      instrumentalness: data['instrumentalness'] ?? 0,
+      liveness: data['liveness'] ?? 0,
+      valence: data['valence'] ?? 0,
+      tempo: data['tempo'] ?? 0,
+      duration_ms: data['duration_ms'] ?? 0,
+      time_signature: data['time_signature'] ?? 0,
+      year: data['year'] ?? 0,
+      month: data['month'] ?? 0,
+      day: data['day'] ?? 0,
+      owner_id: data['owner_id'] ?? 0,
+    );
 
     for (var data in data['tracks']){
-      tracks.add(Song(id: data['id'], name: data['name'],album:data['album'] ,album_id:data['album_id'] , artists: data['artists'],
-          artist_ids: data['artist_ids'],track_number: 0,disc_number:0,
-           explicit :data['explicit'], danceability: data['danceability'], energy: data['energy'],
-          key: data['key'], loudness: data['loudness'], mode: data['mode'], speechiness: data['speechiness'], acousticness: data['acousticness'],
-          instrumentalness: data['instrumentalness'], liveness: data['liveness'], valence: data['valence'], tempo: data['tempo'],
-          duration_ms: data['duration_ms'], time_signature: data['time_signature'], year: data['year'],
-          month: data['month'], day: data['day'], owner_id: data['owner_id']));
+      tracks.add(Song(
+        id: data['id']?? '',
+        name: data['name']?? '',
+        album: data['album']?? '',
+        album_id: data['album_id']?? "[]",
+        artists: data['artists']?? "[]",
+        artist_ids: data['artist_ids']?? '',
+        track_number: 0,
+        disc_number: 0,
+        explicit: data['explicit']?? false,
+        danceability: data['danceability']?? 0,
+        energy: data['energy']?? 0,
+        key: data['key']?? 0,
+        loudness: data['loudness']?? 0,
+        mode: data['mode']?? 0,
+        speechiness: data['speechiness']?? 0,
+        acousticness: data['acousticness']?? 0,
+        instrumentalness: data['instrumentalness']?? 0,
+        liveness: data['liveness']?? 0,
+        valence: data['valence']?? 0,
+        tempo: data['tempo']?? 0,
+        duration_ms: data['duration_ms']?? 0,
+        time_signature: data['time_signature']?? 0,
+        year: data['year']?? 0,
+        month: data['month']?? 0,
+        day: data['day']?? 0,
+        owner_id: data['owner_id']?? 0,
+
+      ));
     }
     });
 
@@ -78,7 +122,7 @@ class _albumPageState extends State<albumPage> {
               backgroundColor: Colors.deepOrange,
               title: Row(
                 children: [
-                  Text(album.name), // album name
+                  Flexible(child: Text(album.name)), // album name
                   Flexible(
                     child: SizedBox(width: 200),
                   ),
@@ -113,8 +157,8 @@ class _albumPageState extends State<albumPage> {
                     children: [
                       SizedBox(width: 15),
                       SizedBox(
-                        height: 140, // Set the desired height for the box
-                        width: 140, // Set the desired width for the box
+                        height: 140,
+                        width: 140,
                         child: Container(
                           margin: EdgeInsets.all(8.0),
                           padding: EdgeInsets.all(8.0),
@@ -131,8 +175,8 @@ class _albumPageState extends State<albumPage> {
                                   if (snapshot.hasData) {
                                     return Image.network(snapshot.data!);
                                   } else {
-                                    // Handle the case when there's an error in fetching the image
-                                    return Icon(Icons.album );
+                                    // Handle the case when there's an error in fetching the image or no data
+                                    return Icon(Icons.album);
                                   }
                                 } else {
                                   // While the future is still resolving, you can show a loading indicator
@@ -180,6 +224,24 @@ class _albumPageState extends State<albumPage> {
                                         child: Text('Delete'),
                                         onPressed: () async {
                                           await AuthService().deleteAlbum(album.id);
+
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: Text('Deleted Album'),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pushReplacementNamed(context, '/mainAppPage',
+                                                          arguments: {'userid': userid, 'username': username});
+                                                    },
+                                                    child: Text('OK'),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
                                         },
                                       ),
                                     ],
@@ -221,8 +283,6 @@ class SongCard extends StatelessWidget {
   final String username;
   final int userid;
   final Song song;
-  void deletesong() {}
-
   SongCard(
       {required this.userid,
       required this.username,
@@ -242,7 +302,7 @@ class SongCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start, // Set to spaceBetween
         crossAxisAlignment: CrossAxisAlignment.start,
-        
+
         children: [
           SizedBox(width: 20),
           SizedBox(
@@ -287,9 +347,10 @@ class SongCard extends StatelessWidget {
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 4),
+
                 Text(
-                  song.artists,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  song.artists[0],
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal ),
                 ),
                 SizedBox(height: 4),
               ],
@@ -315,7 +376,7 @@ class SongCard extends StatelessWidget {
                       return AlertDialog(
                         title: Text('Confirm Delete'),
                         content: Text(
-                            'Are you sure you want to delete this album? - NOT YET'),
+                            'Are you sure you want to delete this song?'),
                         actions: <Widget>[
                           TextButton(
                             child: Text('Cancel'),
@@ -325,8 +386,26 @@ class SongCard extends StatelessWidget {
                           ),
                           TextButton(
                             child: Text('Delete'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
+                            onPressed: () async{
+                              await AuthService().deleteSong(song.id);
+
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Deleted Song'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pushReplacementNamed(context, '/albumPage',
+                                              arguments: {'albumId':global_albumId,'userid': userid, 'username': username});
+                                        },
+                                        child: Text('OK'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
                               //
                             },
                           ),
@@ -356,12 +435,10 @@ class albumInfo extends StatelessWidget {
     required this.album
   });
 
+
+
   @override
   Widget build(BuildContext context) {
-
-    bool  isStarred() {
-      return false;
-    }
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -377,15 +454,17 @@ class albumInfo extends StatelessWidget {
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            for (var artist in album.artists.split(","))
+            for (var i = 0; i < album.artists.length; i++)
+
               InkWell(
                 onTap: () {
-                  global_artist = artist; //////////////////////////////////////////////////////////////////////
+                  global_artist = album.artists[i]; //////////////////////////////////////////////////////////////////////
+                  global_artist_id = album.artist_ids[i];
                   Navigator.pushReplacementNamed(context, '/performerPage',
-                      arguments: {'userid': userid, 'username': username, 'performers': artist });
+                      arguments: {'userid': userid, 'username': username, 'performers': global_artist });
                 },
                 child: Text(
-                  artist.trim(), // trim to remove leading/trailing spaces
+                  album.artists[i].trim(), // trim to remove leading/trailing spaces
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.normal, decoration: TextDecoration.underline),
                 ),
               ),

@@ -123,7 +123,7 @@ class _starredSongsPageState extends State<starredSongsPage> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              controller: _scrollControllerSong,
+              //controller: _scrollControllerSong,
               scrollDirection: Axis.vertical,
               child: Column(
                 children: [
@@ -240,7 +240,7 @@ class SongCard extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  song.artists,
+                  song.artists[0],
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
                 ),
                 SizedBox(height: 4),
