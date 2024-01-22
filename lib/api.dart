@@ -1292,7 +1292,7 @@ class AuthService {
 
 /////////////////////////////////////////////////////  RECOMMEND  /////////////////////////////////////////////////////////////////////////
 
-  Future<List<Map<String, dynamic>>> recommend(String songID ,int recommend) async {
+  Future<List<Map<String, dynamic>>> recommend(String songID , {int recommend = 5}) async {
     final String url = '$baseUrl/recommend/song/$songID?recommed=$recommend';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',

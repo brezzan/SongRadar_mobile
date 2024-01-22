@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:core';
 import 'package:songradar/api.dart';
 import 'package:songradar/variables.dart';
+import 'dart:math';
 
 class mainAppPage extends StatefulWidget {
   final int userid;
@@ -17,6 +18,7 @@ class _mainAppPageState extends State<mainAppPage> {
   late int userid;
   late String username;
   TextEditingController searchController = TextEditingController(); //searchbar related
+  ScrollController _scrollControllerRecommended = ScrollController();
   ScrollController _scrollControllerAlbum = ScrollController(); // lazy loading for album
   ScrollController _scrollControllerSong = ScrollController(); // lazy loading for album
 
@@ -27,23 +29,50 @@ class _mainAppPageState extends State<mainAppPage> {
   late int count;
   List<Map<String, dynamic>>  songs_to_print = [];
   List<Map<String, dynamic>> albums_to_print = [];
+  List<dynamic> starredSongs_to_print = [];
+  List<dynamic> recommendeds = [];
+  late Future<List<dynamic>> starredSongs;
   bool isSearchActive = false;
 
   int pageSize = 30; // Adjust the page size according to your needs
   int currentPageAlbum = 1;
   int currentPageSong = 1;
 
+
   Future<void> fetchAlbums() async {
+
+    albums_to_print = await AuthService().getAlbumsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
     setState(() {
-      global_songs = AuthService().getSongsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
-      global_albums = AuthService().getAlbumsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
     });
 
-    songs_to_print = await AuthService().getSongsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
-    albums_to_print = await AuthService().getAlbumsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
-
-
   }
+
+  Future<void> fetchSongs() async {
+    songs_to_print = await AuthService().getSongsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
+    setState(() {
+
+    });
+  }
+
+  Future<void> fetchStarred()async{
+    starredSongs_to_print = await AuthService().getStarred();
+    setState(() {
+    });
+  }
+
+  Future<void> fetchRecommend() async {
+    print('length of favorites ${starredSongs_to_print}');
+    Random random = Random();
+    for (int i = 0; i < 3; i++) {
+      int randomIndex = random.nextInt(starredSongs_to_print.length);
+      List<Map<String, dynamic>> recs = await AuthService().recommend(starredSongs_to_print[randomIndex]['id'], recommend: 10);
+      recommendeds.addAll(recs);
+    }
+    setState(() {
+    });
+  }
+
+
 
   //searchbar related
   void search(String query) async {
@@ -78,6 +107,25 @@ class _mainAppPageState extends State<mainAppPage> {
   }
 
   // lazy loading related
+  void _scrollListenerRecommended() {
+    if (_scrollControllerRecommended.position.pixels == _scrollControllerRecommended.position.maxScrollExtent) {
+      // Reached the bottom of the list, load more recommendations if available
+      if (starredSongs_to_print.isNotEmpty) {
+        fetchRecommend();
+        setState(() {
+        });
+      }
+      else{
+        print('stared is empty');
+        fetchStarred();
+        fetchRecommend();
+        setState(() {
+          // Update the state after recommendations are fetched
+        });
+      }
+    }
+  }
+
   void _scrollListenerAlbum() {
     if (_scrollControllerAlbum.position.pixels == _scrollControllerAlbum.position.maxScrollExtent) {
       // Reached the bottom of the list, load more albums
@@ -89,7 +137,7 @@ class _mainAppPageState extends State<mainAppPage> {
     if (_scrollControllerSong.position.pixels == _scrollControllerSong.position.maxScrollExtent) {
       // Reached the bottom of the list, load more albums
       currentPageSong++;
-      fetchAlbums();
+      fetchSongs();
     }
   }
 
@@ -98,13 +146,20 @@ class _mainAppPageState extends State<mainAppPage> {
     super.initState();
     _scrollControllerAlbum.addListener(_scrollListenerAlbum);
     _scrollControllerSong.addListener(_scrollListenerSong);
-
+    _scrollControllerRecommended.addListener(_scrollListenerRecommended);
+    fetchStarred().then((_){
+      setState(() {
+      fetchRecommend();
+      });
+    });
+    fetchSongs();
     fetchAlbums().then((_) {//searchbar related
       setState(() {
         filteredSongs = songs_to_print;
         filteredAlbums = albums_to_print;
       });
     });
+
   }
 
   @override
@@ -210,14 +265,104 @@ class _mainAppPageState extends State<mainAppPage> {
 
             SizedBox(height: 40),
             Text(
-              'Recently Favorited -NOT IMPLEMENTED',
+              'Favorited',
               textAlign: TextAlign.left,
+            ),
+            if(starredSongs_to_print.isEmpty)
+              Text('Start favoriting songs',style: TextStyle(fontSize: 20),)
+            else
+              SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (var starredSong in starredSongs_to_print)
+
+                    SongCard(
+                        userid: userid,
+                        username: username,
+                        song: Song(
+                            id: starredSong['id'],
+                            name: starredSong['name'],
+                            album: starredSong['album'],
+                            album_id: starredSong['album_id'],
+                            artists: starredSong['artists'],
+                            artist_ids: starredSong['artist_ids'],
+                            track_number: 0,
+                            disc_number:0,
+                            explicit: starredSong['explicit'],
+                            danceability: starredSong['danceability'],
+                            energy: starredSong['energy'],
+                            key: starredSong['key'],
+                            loudness: starredSong['loudness'],
+                            mode: starredSong['mode'],
+                            speechiness: starredSong['speechiness'],
+                            acousticness: starredSong['acousticness'],
+                            instrumentalness: starredSong['instrumentalness'],
+                            liveness: starredSong['liveness'],
+                            valence: starredSong['valence'],
+                            tempo: starredSong['tempo'],
+                            duration_ms: starredSong['duration_ms'],
+                            time_signature: starredSong['time_signature'],
+                            year: starredSong['year'],
+                            month: starredSong['month'],
+                            day: starredSong['day'],
+                            owner_id: starredSong['owner_id']))
+                ],
+              ),
             ),
             SizedBox(height: 80),
             Text(
-              'Recommended -NOT IMPLEMENTED',
+              'Recommended ',
               textAlign: TextAlign.left,
             ),
+            if(starredSongs_to_print.isEmpty)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(child: Text('Start favoriting for recommendations',style: TextStyle(fontSize: 20),)),
+                ],
+              )
+            else
+              SingleChildScrollView(
+                controller: _scrollControllerRecommended,
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (var starredSong in recommendeds)
+
+                      SongCard(
+                          userid: userid,
+                          username: username,
+                          song: Song(
+                              id: starredSong['id'],
+                              name: starredSong['name'],
+                              album: starredSong['album'],
+                              album_id: starredSong['album_id'],
+                              artists: starredSong['artists'],
+                              artist_ids: starredSong['artist_ids'],
+                              track_number: 0,
+                              disc_number:0,
+                              explicit: starredSong['explicit'],
+                              danceability: starredSong['danceability'],
+                              energy: starredSong['energy'],
+                              key: starredSong['key'],
+                              loudness: starredSong['loudness'],
+                              mode: starredSong['mode'],
+                              speechiness: starredSong['speechiness'],
+                              acousticness: starredSong['acousticness'],
+                              instrumentalness: starredSong['instrumentalness'],
+                              liveness: starredSong['liveness'],
+                              valence: starredSong['valence'],
+                              tempo: starredSong['tempo'],
+                              duration_ms: starredSong['duration_ms'],
+                              time_signature: starredSong['time_signature'],
+                              year: starredSong['year'],
+                              month: starredSong['month'],
+                              day: starredSong['day'],
+                              owner_id: starredSong['owner_id']))
+                  ],
+                ),
+              ),
             SizedBox(height: 80),
             Text(
               'Discover new Songs',

@@ -39,7 +39,7 @@ class _songPageState extends State<songPage> {
     data = await AuthService().getSongById(global_songId);
 
     starredSongs = await AuthService().getStarred();
-    recommended = await AuthService().recommend(global_songId, 5);
+    recommended = await AuthService().recommend(global_songId,recommend: 10);
 
 
     setState(() {
