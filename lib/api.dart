@@ -432,7 +432,7 @@ class AuthService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getSongsFromCsv({int skip = 0, int limit = 20}) async {  //works
+  Future<List<Map<String, dynamic>>> getSongsFromCsv({int skip = 0, int limit = 30}) async {  //works
     final String url = '$baseUrl/songs/?skip=$skip&limit=$limit';
 
     final Map<String, String> headers = {
@@ -561,7 +561,7 @@ class AuthService {
     }
   }
 
-  Future<List<dynamic>> getSongByArtist(String artistName,{int skip = 0, int limit = 10}) async {
+  Future<List<dynamic>> getSongByArtist(String artistName,{int skip = 0, int limit = 30}) async {
     final String url = '$baseUrl/songs/search_artist?artist=$artistName&skip=$skip&limit=$limit';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -745,7 +745,7 @@ class AuthService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getAlbumsFromCsv({int skip = 0, int limit = 20}) async {
+  Future<List<Map<String, dynamic>>> getAlbumsFromCsv({int skip = 0, int limit = 30}) async {
     final String url = '$baseUrl/albums/?skip=$skip&limit=$limit';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',

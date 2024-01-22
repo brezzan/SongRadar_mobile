@@ -537,6 +537,22 @@ class _recommendsState extends State<recommends> {
         });
       }
     }
+    else if (_scrollControllerRecommended.position.pixels == _scrollControllerRecommended.position.minScrollExtent) {
+      // Reached the top of the list, load previous albums
+      if (starredSongs_to_print.isNotEmpty) {
+        fetchRecommend();
+        setState(() {
+        });
+      }
+      else{
+        print('stared is empty');
+        fetchStarred();
+        fetchRecommend();
+        setState(() {
+          // Update the state after recommendations are fetched
+        });
+      }
+    }
   }
 
   @override
@@ -626,12 +642,12 @@ class _songListState extends State<songList> {
   List<Map<String, dynamic>>  songs_to_print = [];
 
   int pageSize = 30; // Adjust the page size according to your needs
-  int currentPageAlbum = 1;
+
   int currentPageSong = 1;
 
 
   Future<void> fetchSongs() async {
-    songs_to_print = await AuthService().getSongsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
+    songs_to_print = await AuthService().getSongsFromCsv(skip: (currentPageSong - 1) * pageSize, limit: pageSize);
     setState(() {
 
     });
@@ -643,6 +659,14 @@ class _songListState extends State<songList> {
       currentPageSong++;
       fetchSongs();
     }
+    else if (_scrollControllerSong.position.pixels == _scrollControllerSong.position.minScrollExtent) {
+      // Reached the top of the list, load previous albums
+      if (currentPageSong > 1) {
+        currentPageSong--;
+        fetchSongs();
+      }
+    }
+
   }
 
   @override
@@ -727,13 +751,12 @@ class _albumListState extends State<albumList> {
 
 
   int pageSize = 30; // Adjust the page size according to your needs
-  int currentPageAlbum = 1;
-  int currentPageSong = 1;
+  int currentPageAlbum = 0;
 
 
   Future<void> fetchAlbums() async {
 
-    albums_to_print = await AuthService().getAlbumsFromCsv(skip: (currentPageAlbum - 1) * pageSize, limit: pageSize);
+    albums_to_print = await AuthService().getAlbumsFromCsv(skip: (currentPageAlbum ) * pageSize, limit: pageSize);
     setState(() {
     });
 
@@ -743,7 +766,15 @@ class _albumListState extends State<albumList> {
     if (_scrollControllerAlbum.position.pixels == _scrollControllerAlbum.position.maxScrollExtent) {
       // Reached the bottom of the list, load more albums
       currentPageAlbum++;
+
       fetchAlbums();
+    }
+    else if (_scrollControllerAlbum.position.pixels == _scrollControllerAlbum.position.minScrollExtent) {
+      // Reached the top of the list, load previous albums
+      if (currentPageAlbum > 0) {
+        currentPageAlbum--;
+        fetchAlbums();
+      }
     }
   }
 
