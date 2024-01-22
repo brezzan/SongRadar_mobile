@@ -19,7 +19,10 @@ class _personalPageState extends State<personalPage> {
   List<dynamic> playlists = [];
 
   Future<List<dynamic>> fetchPlaylists() async {
+
     return await AuthService().getUserPlaylists();
+
+
   }
 
   @override
@@ -164,7 +167,10 @@ class _personalPageState extends State<personalPage> {
                   height: 20,
                 ),
                 GestureDetector(
-                  onTap: (){},
+                  onTap: (){
+                    Navigator.pushReplacementNamed(context, '/manageFriends',
+                        arguments: {'userid': userid, 'username': username});
+                  },
                   child: Column(
                     children: [
                       SizedBox(
@@ -179,11 +185,11 @@ class _personalPageState extends State<personalPage> {
                             color: Colors.black12,
                           ),
                           child: Center(
-                            child: Icon(Icons.person,size: 60,),
+                            child: Icon(Icons.person_add_rounded,size: 60,),
                           ),
                         ),
                       ),
-                      Text('Favorite Artists',style: TextStyle(fontSize: 15)),
+                      Text('Friends',style: TextStyle(fontSize: 15)),
                     ],
                   ),
                 ),

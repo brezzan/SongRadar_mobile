@@ -3,6 +3,7 @@ import 'package:songradar/addNewAlbum.dart';
 import 'package:songradar/addNewSong.dart';
 import 'package:songradar/api.dart';
 import 'package:songradar/createPlaylist.dart';
+import 'package:songradar/manageFriends.dart';
 import 'package:songradar/performerPage.dart';
 import 'package:songradar/personalPage.dart';
 import 'dart:core';
@@ -44,6 +45,7 @@ class SongRadar extends StatelessWidget {
           '/createplaylist':(BuildContext context) => createPlaylist(userid:0,username:'',),
           '/playlistPage':(BuildContext context) => playlistPage(userid: 0, username: '', playlistId: 0),
           '/starredSongsPage':(BuildContext context) => starredSongsPage(userid:0,username:'',),
+          '/manageFriends':(BuildContext context) => manageFriends(userid:0,username:'',)
         },
     );
   }

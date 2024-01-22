@@ -29,7 +29,6 @@ class _songPageState extends State<songPage> {
 
   late Future<Map<String, dynamic>> songData ;
   Map<String, dynamic> data = {};
-  List<dynamic> starredSongs = [];
   List<dynamic> recommended = [];
 
 
@@ -38,7 +37,7 @@ class _songPageState extends State<songPage> {
   Future<void> fecthsong() async {
     data = await AuthService().getSongById(global_songId);
 
-    starredSongs = await AuthService().getStarred();
+
     recommended = await AuthService().recommend(global_songId,recommend: 10);
 
 
@@ -49,8 +48,8 @@ class _songPageState extends State<songPage> {
         name: data['name']?? '',
         album: data['album']?? '',
         album_id: data['album_id']?? '',
-        artists: data['artists']?? '',
-        artist_ids: data['artist_ids']?? '',
+        artists: data['artists']?? '[]',
+        artist_ids: data['artist_ids']?? '[]',
         track_number: 0,
         disc_number: 0,
         explicit: data['explicit']?? false,
@@ -105,11 +104,11 @@ class _songPageState extends State<songPage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Flexible(child: Text(song.name)),
-            Flexible(
+            const Flexible(
               child: SizedBox(width: 200),
             ),
             IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.home,
                 size: 30,
               ),
@@ -122,7 +121,7 @@ class _songPageState extends State<songPage> {
               },
             ),
             IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.person_pin_rounded,
                 size: 30,
               ),
@@ -141,19 +140,19 @@ class _songPageState extends State<songPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
             Text(
               'Song: ${song.name}',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 20),
+              style: const TextStyle(fontSize: 20),
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
 
               children: [
-                Text(
+                const Text(
                   'Album:',
                   style: TextStyle(fontSize: 20),
                 ),
@@ -170,15 +169,15 @@ class _songPageState extends State<songPage> {
                   child: Text(
                     song.album.trim(),
                     // trim to remove leading/trailing spaces
-                    style: TextStyle(fontSize: 20,
+                    style: const TextStyle(fontSize: 20,
                         fontWeight: FontWeight.normal,
                         decoration: TextDecoration.underline),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Performers:',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 20),
@@ -203,54 +202,64 @@ class _songPageState extends State<songPage> {
                     child: Text(
                       song.artists[i].trim(),
                       // trim to remove leading/trailing spaces
-                      style: TextStyle(fontSize: 20,
+                      style: const TextStyle(fontSize: 20,
                           fontWeight: FontWeight.normal,
                           decoration: TextDecoration.underline),
                     ),
                   ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Publish Date: ${song.day}-${song.month}-${song.year}',
-              style: TextStyle(
+              style: const TextStyle(
                   fontSize: 20, fontWeight: FontWeight.normal),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Duration: ${song.duration_ms ~/ 60000}:${(song
                   .duration_ms %
                   60000 ~/ 1000).toString().padLeft(2, '0')}',
-              style: TextStyle(
+              style: const TextStyle(
                   fontSize: 20, fontWeight: FontWeight.normal),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Rating:', style: TextStyle(fontSize: 20)),
-                GestureDetector(
-                  onTap: () async {
-                    if (starredSongs.any((song) => song['id'] == data['id'])) {
-                      await AuthService().UnstarASong(songId);
+                const Text('Rating:', style: TextStyle(fontSize: 20)),
+                FutureBuilder<bool>(
+                  future: AuthService().isStarred(song.id),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      bool isStarred = snapshot.data ?? false;
+                      return IconButton(
+                        icon: Icon(
+                          Icons.star,
+                          size: 25,
+                          color: isStarred ? Colors.yellow : Colors.grey,
+                        ),
+                        onPressed: () async {
+                          if (await AuthService().isStarred(song.id)) {
+                            await AuthService().UnstarASong(song.id);
+                          } else {
+                            await AuthService().starASong(song.id);
+                          }
+                          setState(() { });
+                        },
+                        color: Colors.grey,
+                      );
                     } else {
-                      await AuthService().starASong(songId);
+                      // You can return a loading indicator or a default color here
+                      return const CircularProgressIndicator();
                     }
-                    // Reload starred songs after updating
-                    await fecthsong(); // You may need to call this if it fetches the latest starred songs
-                    setState(() { });
                   },
-                  child: Icon(
-                    Icons.star,
-                    size: 50,
-                    color: starredSongs.any((song) => song['id'] == data['id']) ? Colors.yellow : Colors.grey,
-                  ),
-                ),
+                )
               ],
             ),
             Row(
               children: [
-                Flexible(
+                const Flexible(
                   child: Divider(
                     height: 5, // Set the height of the divider
                     thickness: 1, // Set the thickness of the divider
@@ -259,12 +268,12 @@ class _songPageState extends State<songPage> {
                 ),
               ],
             ),
-            SizedBox(height:10),
+            const SizedBox(height:10),
             SongCard(userid: userid, song: song, username: username),
-            SizedBox(height:10),
+            const SizedBox(height:10),
             Row(
               children: [
-                Flexible(
+                const Flexible(
                   child: Divider(
                     height: 5, // Set the height of the divider
                     thickness: 1, // Set the thickness of the divider
@@ -273,11 +282,11 @@ class _songPageState extends State<songPage> {
                 ),
               ],
             ),
-            SizedBox(height:10),
+            const SizedBox(height:10),
             song.getCharacteristicsChart(),
-            SizedBox(height:20),
-            Text('You may like these Songs:',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold)),
-            SizedBox(height:10),
+            const SizedBox(height:20),
+            const Text('You may like these Songs:',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold)),
+            const SizedBox(height:10),
             SingleChildScrollView(
 
               scrollDirection: Axis.horizontal,
@@ -285,13 +294,14 @@ class _songPageState extends State<songPage> {
                 children: [
                   for (var recSong in recommended)
                     RecSongCard(userid: userid,
-                      username: username ,song: Song(
+                      username: username ,
+                        song: Song(
                         id: recSong['id']?? '',
                         name: recSong['name']?? '',
                         album: recSong['album']?? '',
                         album_id: recSong['album_id']?? '',
-                        artists: recSong['artists']?? '',
-                        artist_ids: recSong['artist_ids']?? '',
+                        artists: recSong['artists']?? '[]',
+                        artist_ids: recSong['artist_ids']?? '[]',
                         track_number: 0,
                         disc_number: 0,
                         explicit: recSong['explicit']?? false,
@@ -315,7 +325,7 @@ class _songPageState extends State<songPage> {
                 ],
               ),
             ),
-            SizedBox(height:60),
+            const SizedBox(height:60),
           ],
         ),
       ),
@@ -344,13 +354,13 @@ class SongCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start, // Set to spaceBetween
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(width: 20),
+        const SizedBox(width: 20),
         SizedBox(
           height: 90, // Set the desired height for the box
           width: 90, // Set the desired width for the box
           child: Container(
-            margin: EdgeInsets.all(8.0),
-            padding: EdgeInsets.all(8.0),
+            margin: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.black),
               borderRadius: BorderRadius.circular(8.0),
@@ -365,18 +375,18 @@ class SongCard extends StatelessWidget {
                       return Image.network(snapshot.data!);
                     } else {
                       // Handle the case when there's an error in fetching the image
-                      return Icon(Icons.music_note );
+                      return const Icon(Icons.music_note );
                     }
                   } else {
                     // While the future is still resolving, you can show a loading indicator
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   }
                 },
               ),
             ),
           ),
         ),
-        SizedBox(width: 4.0),
+        const SizedBox(width: 4.0),
         Expanded(
           flex: 5,
           child: Row(
@@ -385,17 +395,17 @@ class SongCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 45),
+                  const SizedBox(height: 45),
                   Text(
                     song.name,
                     style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
 
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     song.artists[0],
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 12, fontWeight: FontWeight.normal),
                   ),
                 ],
@@ -403,16 +413,16 @@ class SongCard extends StatelessWidget {
             ],
           ),
         ),
-        Expanded(
+        const Expanded(
           child: SizedBox(
             width: 10,
           ),
         ),
         Column(
           children: [
-            SizedBox(height: 35),
+            const SizedBox(height: 35),
             IconButton(
-              icon: Icon(
+              icon: const Icon(
                   Icons.delete_forever_outlined),
               color: Colors.grey,
               onPressed: () {
@@ -420,12 +430,12 @@ class SongCard extends StatelessWidget {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Text('Confirm Delete'),
-                      content: Text(
+                      title: const Text('Confirm Delete'),
+                      content: const Text(
                           'Are you sure you want to delete this song?'),
                       actions: <Widget>[
                         TextButton(
-                          child: Text('Cancel'),
+                          child: const Text('Cancel'),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
@@ -433,18 +443,21 @@ class SongCard extends StatelessWidget {
                         TextButton(
                           child: Text('Delete'),
                           onPressed: () async{
-                            await AuthService().deleteSong(song.id);
+                            print('gonna delete song with ${song.id}');
+                            Map<String, dynamic> response = await AuthService().deleteSong(song.id);
 
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  title: Text('Deleted Song'),
+                                  title: Text('...Deleting Song...'),
+                                  content: Text('${response['success']}'),
+
                                   actions: [
                                     TextButton(
                                       onPressed: () {
-                                        Navigator.pushReplacementNamed(context, '/albumPage',
-                                            arguments: {'albumId':global_albumId,'userid': userid, 'username': username});
+                                        Navigator.pushReplacementNamed(context, '/mainAppPage',
+                                            arguments: {'userid': userid, 'username': username});
                                       },
                                       child: Text('OK'),
                                     ),
@@ -496,8 +509,8 @@ class RecSongCard extends StatelessWidget {
             height: 120,
             width: 120,
             child: Container(
-              margin: EdgeInsets.all(8.0),
-              padding: EdgeInsets.all(8.0),
+              margin: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black),
                 borderRadius: BorderRadius.circular(8.0),
@@ -512,29 +525,30 @@ class RecSongCard extends StatelessWidget {
                         return Image.network(snapshot.data!);
                       } else {
                         // Handle the case when there's an error in fetching the image
-                        return Text('Error loading image');
+                        return const Text('Error loading image');
                       }
                     } else {
                       // While the future is still resolving, you can show a loading indicator
-                      return CircularProgressIndicator();
+                      return const CircularProgressIndicator();
                     }
                   },
                 ),
               ),
             ),
           ),
-          SizedBox(height: 4.0), // Adjust the spacing between the box and the text
+          const SizedBox(height: 4.0), // Adjust the spacing between the box and the text
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if(song.name.length > 15)
                 Text(
-                  '  ' +(song.name.length > 20 ? song.name.substring(0, 15) :song.name),
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ' ' +(song.name.length > 15 ? song.name.substring(0, 15) :song.name),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '  ' +(song.album.length > 20 ? song.album.substring(0, 15) :song.album),
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+                  ' ' +(song.album.length > 15 ? song.album.substring(0, 15) :song.album),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
                 ),
               ],
             ),

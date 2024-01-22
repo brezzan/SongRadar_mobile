@@ -197,6 +197,7 @@ class _albumPageState extends State<albumPage> {
                           ),
                         ),
                       ),
+
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -223,13 +224,14 @@ class _albumPageState extends State<albumPage> {
                                       TextButton(
                                         child: Text('Delete'),
                                         onPressed: () async {
-                                          await AuthService().deleteAlbum(album.id);
+                                          Map<String, dynamic> response =  await AuthService().deleteAlbum(album.id);
 
                                           showDialog(
                                             context: context,
                                             builder: (BuildContext context) {
                                               return AlertDialog(
                                                 title: Text('Deleted Album'),
+                                                content: Text('${response['success']}'),
                                                 actions: [
                                                   TextButton(
                                                     onPressed: () {
@@ -279,7 +281,7 @@ class _albumPageState extends State<albumPage> {
   }
 }
 
-class SongCard extends StatelessWidget {
+class SongCard extends StatefulWidget {
   final String username;
   final int userid;
   final Song song;
@@ -289,14 +291,19 @@ class SongCard extends StatelessWidget {
       required this.song});
 
   @override
+  State<SongCard> createState() => _SongCardState();
+}
+
+class _SongCardState extends State<SongCard> {
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        global_songId=  song.id;         /////////////////////////////////////////////////////////////////////////
+        global_songId=  widget.song.id;         /////////////////////////////////////////////////////////////////////////
         Navigator.pushReplacementNamed(context, '/songPage', arguments: {
-          'userid': userid,
-          'username': username,
-          'songId': song.id
+          'userid': widget.userid,
+          'username': widget.username,
+          'songId': widget.song.id
         });
       },
       child: Row(
@@ -314,11 +321,11 @@ class SongCard extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black),
                 borderRadius: BorderRadius.circular(8.0),
-                color: song.getVibeColor_energy(),
+                color: widget.song.getVibeColor_energy(),
               ),
               child: Center(
                 child: FutureBuilder<String>(
-                  future: AuthService().getSongCoverById(song.id),
+                  future: AuthService().getSongCoverById(widget.song.id),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
                       if (snapshot.hasData) {
@@ -343,13 +350,13 @@ class SongCard extends StatelessWidget {
               children: [
                 SizedBox(height: 45),
                 Text(
-                  song.name,
+                  widget.song.name,
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 4),
 
                 Text(
-                  song.artists[0],
+                  widget.song.artists[0],
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal ),
                 ),
                 SizedBox(height: 4),
@@ -360,6 +367,38 @@ class SongCard extends StatelessWidget {
             child: SizedBox(
               width: 200,
             ),
+          ),
+          Column(
+            children: [
+              SizedBox(height: 35),
+              FutureBuilder<bool>(
+                future: AuthService().isStarred(widget.song.id),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    bool isStarred = snapshot.data ?? false;
+                    return IconButton(
+                      icon: Icon(
+                        Icons.star,
+                        size: 25,
+                        color: isStarred ? Colors.yellow : Colors.grey,
+                      ),
+                      onPressed: () async {
+                        if (await AuthService().isStarred(widget.song.id)) {
+                          await AuthService().UnstarASong( widget.song.id);
+                        } else {
+                          await AuthService().starASong( widget.song.id);
+                        }
+                        setState(() { });
+                      },
+                      color: Colors.grey,
+                    );
+                  } else {
+                    // You can return a loading indicator or a default color here
+                    return CircularProgressIndicator();
+                  }
+                },
+              )
+            ],
           ),
           Column(
             children: [
@@ -387,19 +426,23 @@ class SongCard extends StatelessWidget {
                           TextButton(
                             child: Text('Delete'),
                             onPressed: () async{
-                              await AuthService().deleteSong(song.id);
+                              print('gonna delete song with ${widget.song.id}');
+                              Map<String, dynamic> response = await AuthService().deleteSong(widget.song.id);
 
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    title: Text('Deleted Song'),
+                                    title: Text('...Deleting Song...'),
+                                    content: Text('${response['success']}'),
+
                                     actions: [
                                       TextButton(
                                         onPressed: () {
-                                          Navigator.pushReplacementNamed(context, '/albumPage',
-                                              arguments: {'albumId':global_albumId,'userid': userid, 'username': username});
-                                        },
+
+                                            Navigator.pushReplacementNamed(context, '/mainAppPage',
+                                                arguments: {'userid': widget.userid, 'username': widget.username});
+                                            },
                                         child: Text('OK'),
                                       ),
                                     ],
@@ -455,7 +498,6 @@ class albumInfo extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             for (var i = 0; i < album.artists.length; i++)
-
               InkWell(
                 onTap: () {
                   global_artist = album.artists[i]; //////////////////////////////////////////////////////////////////////

@@ -362,7 +362,7 @@ class AuthService {
 
   ////////////////////////////////////////////////////  SONGS  /////////////////////////////////////////////////////////////////////////
 
-  Future<List<Map<String, dynamic>>> deleteSong(String id) async {
+  Future<Map<String, dynamic>> deleteSong(String id) async {
     final String url = '$baseUrl/songs/$id';
 
     final Map<String, String> headers = {
@@ -377,21 +377,21 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        return [
-          {'succces': 'Succesfully deleted song with id $id'}
-        ];
+        return
+          {'success': 'Succesfully deleted song with id $id'}
+        ;
       }
       else {
-        return [
-          {'error': '${response.statusCode}'}
-        ];
+        return
+          {'success': 'Cannot delete if not created by user'}
+        ;
       }
     }catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return [
-        {'error': 'An unexpected error occurred.'}
-      ];
+      return
+        {'success': 'An unexpected error occurred.'}
+      ;
     }
   }
 
@@ -432,8 +432,8 @@ class AuthService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getSongsFromCsv({int skip = 0, int limit = 30}) async {  //works
-    final String url = '$baseUrl/songs/?skip=$skip&limit=$limit';
+  Future<List<Map<String, dynamic>>> getSongsFromCsv({int skip = 0, int limit = 5}) async {  //works
+    final String url = '$baseUrl/songs/?skip=$skip&limit=5';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -675,7 +675,7 @@ class AuthService {
 
 /////////////////////////////////////////////////////  ALBUMS  /////////////////////////////////////////////////////////////////////////
 
-  Future<List<Map<String, dynamic>>> deleteAlbum(String id) async {
+  Future<Map<String, dynamic>> deleteAlbum(String id) async {
     final String url = '$baseUrl/albums/$id';
 
     final Map<String, String> headers = {
@@ -690,21 +690,20 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        return [
-          {'succces': 'Succesfully deleted album with id $id'}
-        ];
+        return
+          {'success': 'Succesfully deleted album with id $id'};
       }
       else {
-        return [
-          {'error': '${response.statusCode}'}
-        ];
+        return
+          {'success': 'Cannot delete if not created by user'}
+        ;
       }
     }catch (error) {
       // Handle network or unexpected errors
       print('Error: $error');
-      return [
-        {'error': 'An unexpected error occurred.'}
-      ];
+      return
+        {'success': 'An unexpected error occurred.'}
+      ;
     }
   }
 
@@ -745,8 +744,8 @@ class AuthService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getAlbumsFromCsv({int skip = 0, int limit = 30}) async {
-    final String url = '$baseUrl/albums/?skip=$skip&limit=$limit';
+  Future<List<Map<String, dynamic>>> getAlbumsFromCsv({int skip = 0, int limit = 5}) async {
+    final String url = '$baseUrl/albums/?skip=$skip&limit=5';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
@@ -1288,14 +1287,12 @@ class AuthService {
     }
   }
 
+  Future<bool> isStarred(String id) async {
+    final String url = '$baseUrl/starred/$id';
 
-
-/////////////////////////////////////////////////////  RECOMMEND  /////////////////////////////////////////////////////////////////////////
-
-  Future<List<Map<String, dynamic>>> recommend(String songID , {int recommend = 5}) async {
-    final String url = '$baseUrl/recommend/song/$songID?recommed=$recommend';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
     };
 
     try {
@@ -1306,14 +1303,14 @@ class AuthService {
 
       if (response.statusCode == 200) {
 
-        final List<Map<String, dynamic>> responseData = List<Map<String, dynamic>>.from(jsonDecode(response.body));
-
+        final bool responseData = jsonDecode(response.body);
         return responseData;
+
       } else {
-        return [{'error1': response.body}];
+        return false;
       }
     } catch (error) {
-      return [{'error2': 'An unexpected error occurred.'}];
+      return false;
     }
   }
 
@@ -1347,8 +1344,196 @@ class AuthService {
     }
   }
 
+/////////////////////////////////////////////////////  RECOMMEND  /////////////////////////////////////////////////////////////////////////
+
+  Future<List<Map<String, dynamic>>> recommend(String songID , {int recommend = 5}) async {
+    final String url = '$baseUrl/recommend/song/$songID?recommed=5';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final List<Map<String, dynamic>> responseData = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+
+        return responseData;
+      } else {
+        return [{'error1': response.body}];
+      }
+    } catch (error) {
+      return [{'error2': 'An unexpected error occurred.'}];
+    }
+  }
 
 
+/////////////////////////////////////////////////////  FRIENDS  /////////////////////////////////////////////////////////////////////////
+  Future<List<Map<String, dynamic>>> getFriends()async {
+
+    final String url = '$baseUrl/friends/';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
+    };
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final List<Map<String, dynamic>> responseData = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+
+        return responseData;
+      } else {
+        return [{'error': response.body}];
+      }
+    } catch (error) {
+      return [{'error': 'An unexpected error occurred.'}];
+    }
+  }
+
+  Future<Map<String, dynamic>> sendFriendRequest(int id)async {
+
+    final String url = '$baseUrl/friends/send/$id';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final Map<String, dynamic> responseData = Map<String, dynamic>.from(jsonDecode(response.body));
+
+        return responseData;
+      } else {
+        return {'error': response.body};
+      }
+    } catch (error) {
+      return {'error': 'An unexpected error occurred.'};
+    }
+  }  //works
+
+  Future<List<Map<String, dynamic>>> getFriendRequest()async {
+
+    final String url = '$baseUrl/friends/requests';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
+    };
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final List<Map<String, dynamic>> responseData = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+
+        return responseData;
+      } else {
+        return [{'error1': response.body}];
+      }
+    } catch (error) {
+      return [{'error2': 'An unexpected error occurred.'}];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPendingFriendRequest()async {
+
+    final String url = '$baseUrl/friends/requests/pending';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
+    };
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final List<Map<String, dynamic>> responseData = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+
+        return responseData;
+      } else {
+        return [{'error': response.body}];
+      }
+    } catch (error) {
+      return [{'error': 'An unexpected error occurred.'}];
+    }
+  }
+
+  Future<Map<String, dynamic>> acceptRequest(int id)async {
+
+    final String url = '$baseUrl/friends/requests/$id';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
+    };
+
+    try {
+      final response = await http.put(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final Map<String, dynamic> responseData = Map<String, dynamic>.from(jsonDecode(response.body));
+
+        return responseData;
+      } else {
+        return {'error': response.body};
+      }
+    } catch (error) {
+      return {'error': 'An unexpected error occurred.'};
+    }
+  }
+
+  Future<Map<String, dynamic>> rejectRequest(int id)async {
+
+    final String url = '$baseUrl/friends/requests/$id';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
+    };
+
+    try {
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final Map<String, dynamic> responseData = Map<String, dynamic>.from(jsonDecode(response.body));
+
+        return responseData;
+      } else {
+        return {'error': response.body};
+      }
+    } catch (error) {
+      return {'error': 'An unexpected error occurred.'};
+    }
+  }
 }
 
 class Song {
@@ -1550,8 +1735,8 @@ class Album {
   final List<String> artist_ids;
   final int number_of_tracks;
   final bool explicit;
-  final double danceability;
-  final double energy;
+  double danceability;
+  double energy;
   final int key;
   final double loudness;
   final int mode;
