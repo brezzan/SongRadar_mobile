@@ -37,51 +37,42 @@ In this app, you can
   can read and add json/text files that has the following structure :
 
 
-1-) albums full of songs 
+1-) albums  
 ```json
-  [{"title": "" ,
-  "year": 0 ,
-  "genre": "",
-  "performers": 0 ,
-  "songs": [
+  [
   {
-    "title": "" ,
-    "year": 0 ,
-    "genre": "",
-    "performers": 0 
-  }]}
-  ]
+    "name": "",
+    "year": 0,
+    "month": 0,
+    "day": 0,
+    "artists": ""
+  }]
 ```
 
-2-) songless albums 
+2-) songs
 ```json
 [ {
-  "title": "" ,
-  "year": 0 ,
-  "genre": "",
-  "performers": 0 
-  }]
-```
-3-) albumless songs
-```json  
-  [{
-  "title": "" ,
-  "year": 0 ,
-  "genre": "",
-  "performers": 0 ,
+  "name": "",
+  "album_id": "",
+  "year": 0,
+  "month": 0,
+  "day": 0,
+  "artists": ""
   }]
 ```
 
-4-) songs to already existing albums
-```json
-  [{
-  "title": "" ,
-  "year": 0 ,
-  "genre": "",
-  "performers": 0 ,
-  "album":"" 
-  }]
-```
 - Add songs and albums via data reading from another local database (MVP - Data Collection 3)
-
+- 
+- Ability to favorite/unfavorite songs  (MVP - Data Collection 4)
+- 
 - Delete album and all songs within that album (MVP - Data Collection 5)
+- 
+- Statistical information about their likings (MVP - Analysis )
+- 
+- Display tables and charts about songs/artists/albums  (MVP - Analysis )
+- 
+- Recommandations based on playlist/favorites created by user (MVP -Recommandations )
+- 
+- Create/ Delete/ Add to playlists
+- 
+- Accept/Reject/See friends

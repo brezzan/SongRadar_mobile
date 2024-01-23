@@ -3,6 +3,8 @@ import 'dart:core';
 import 'package:songradar/api.dart';
 import 'package:songradar/variables.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class starredSongsPage extends StatefulWidget {
   final int userid;
@@ -71,6 +73,28 @@ class _starredSongsPageState extends State<starredSongsPage> {
     owner_id: 0,
 
   );
+
+  Future<void> writeToFile(List<dynamic> temp) async {
+    try {
+      // Get the directory for the app's documents
+      final Directory? directory = await getDownloadsDirectory();
+
+      // Check if directory is not null before proceeding
+      if (directory != null) {
+        final File file = File('${directory.path}/temp_file.txt');
+
+        // Write the content of the 'temp' list to the file
+        await file.writeAsString(temp.toString());
+
+        print('File created and written successfully');
+      } else {
+        print('External storage directory is null');
+      }
+    } catch (e) {
+      print('Error writing to file: $e');
+    }
+  }
+
 
   void avarages(List<dynamic> songs){
 
@@ -348,11 +372,12 @@ class _starredSongsPageState extends State<starredSongsPage> {
                           fontSize: 20, fontWeight: FontWeight.normal),
                     ),
                     const SizedBox(height: 16),
+
                     for (var artist in most_repeated_artists.keys)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(artist+'- (${most_repeated_artists[artist]}) songs '),
+                          Text('$artist- (${most_repeated_artists[artist]}) songs '),
                         ],
                       ),
                     const SizedBox(height: 16),
