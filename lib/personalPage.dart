@@ -140,7 +140,10 @@ class _personalPageState extends State<personalPage> {
                   height: 20,
                 ),
                 GestureDetector(
-                  onTap: (){},
+                  onTap: (){
+                    Navigator.pushReplacementNamed(context, '/userAddedMusic',
+                        arguments: {'userid': userid, 'username': username});
+                  },
                   child: Column(
                     children: [
                       SizedBox(
@@ -159,7 +162,7 @@ class _personalPageState extends State<personalPage> {
                           ),
                         ),
                       ),
-                      Text('Favorite Albums',style: TextStyle(fontSize: 15)),
+                      Text('User Added Music',style: TextStyle(fontSize: 15)),
                     ],
                   ),
                 ),

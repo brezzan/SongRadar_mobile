@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:core';
 import 'package:songradar/api.dart';
-import 'package:songradar/starredSongsPage.dart';
 import 'package:songradar/variables.dart';
-import 'dart:math';
+
 
 List<dynamic> filteredSongs = [];
 List<dynamic> filteredAlbums = [];
@@ -506,55 +505,28 @@ class _recommendsState extends State<recommends> {
 
   ScrollController _scrollControllerRecommended = ScrollController();
 
-  List<dynamic> starredSongs_to_print = [];
-  List<dynamic> recommendeds = [];
+  List<Map<String, dynamic>> recommendeds = [];
 
-  Future<void> fetchStarred() async {
-    starredSongs_to_print = await AuthService().getStarred();
-    setState(() {});
-  }
 
   Future<void> fetchRecommend() async {
-    print('length of favorites ${starredSongs_to_print}');
-    Random random = Random();
-    for (int i = 0; i < 3; i++) {
-      int randomIndex = random.nextInt(starredSongs_to_print.length);
-      List<Map<String, dynamic>> recs = await AuthService()
-          .recommend(starredSongs_to_print[randomIndex]['id'], recommend: 10);
-      recommendeds.addAll(recs);
-    }
+      recommendeds= await AuthService().recommendFromStarred();
+      print(recommendeds.length);
     setState(() {});
   }
 
   void _scrollListenerRecommended() {
     if (_scrollControllerRecommended.position.pixels ==
         _scrollControllerRecommended.position.maxScrollExtent) {
-      // Reached the bottom of the list, load more recommendations if available
-      if (starredSongs_to_print.isNotEmpty) {
-        fetchRecommend();
-        setState(() {});
-      } else {
-        print('stared is empty');
-        fetchStarred();
         fetchRecommend();
         setState(() {
           // Update the state after recommendations are fetched
         });
-      }
     } else if (_scrollControllerRecommended.position.pixels ==
         _scrollControllerRecommended.position.minScrollExtent) {
-      // Reached the top of the list, load previous albums
-      if (starredSongs_to_print.isNotEmpty) {
-        fetchRecommend();
-        setState(() {});
-      } else {
-        print('stared is empty');
-        fetchStarred();
         fetchRecommend();
         setState(() {
           // Update the state after recommendations are fetched
         });
-      }
     }
   }
 
@@ -562,11 +534,10 @@ class _recommendsState extends State<recommends> {
   void initState() {
     super.initState();
     _scrollControllerRecommended.addListener(_scrollListenerRecommended);
-    fetchStarred().then((_) {
       setState(() {
         fetchRecommend();
       });
-    });
+
   }
 
   @override
@@ -579,7 +550,7 @@ class _recommendsState extends State<recommends> {
           textAlign: TextAlign.left,
         ),
         SizedBox(height:10),
-        if (starredSongs_to_print.isEmpty)
+        if (recommendeds.length == 1)
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

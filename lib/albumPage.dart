@@ -6,7 +6,7 @@ import 'package:songradar/variables.dart';
 List<dynamic> starredSongs = [];
 
 class albumPage extends StatefulWidget {
-  final int userid; // Corrected variable name to userId
+  final int userid;
   final String username,albumId;
 
   const albumPage({required this.albumId, required this.userid, required this.username,
@@ -32,10 +32,12 @@ class _albumPageState extends State<albumPage> {
   Map<String, dynamic> data ={};
   late List<Song> tracks = [];
 
+  List<dynamic> recommended = [];
+
   Future<void> fetchData() async {
 
     data = await AuthService().getAlbumById(global_albumId);
-
+    recommended = await AuthService().recommendFromAlbum(global_albumId,recommend: 10);
 
     setState(() {
 
@@ -272,7 +274,50 @@ class _albumPageState extends State<albumPage> {
                     ],
                   ),
                   for (var song in tracks)
-                    SongCard(userid: userid, username: username, song: song)
+                    SongCard(userid: userid, username: username, song: song),
+
+                  const SizedBox(height:20),
+                  const Text('You may like these Songs:',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold)),
+                  const SizedBox(height:10),
+                  SingleChildScrollView(
+
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (var recSong in recommended)
+                          RecSongCard(userid: userid,
+                              username: username ,
+                              song: Song(
+                                id: recSong['id']?? '',
+                                name: recSong['name']?? '',
+                                album: recSong['album']?? '',
+                                album_id: recSong['album_id']?? '',
+                                artists: recSong['artists']?? '[]',
+                                artist_ids: recSong['artist_ids']?? '[]',
+                                track_number: 0,
+                                disc_number: 0,
+                                explicit: recSong['explicit']?? false,
+                                danceability: recSong['danceability']?? 0,
+                                energy: recSong['energy']?? 0,
+                                key: recSong['key']?? 0,
+                                loudness: recSong['loudness']?? 0,
+                                mode: recSong['mode']?? 0,
+                                speechiness: recSong['speechiness']?? 0,
+                                acousticness: recSong['acousticness']?? 0,
+                                instrumentalness: recSong['instrumentalness']?? 0,
+                                liveness: recSong['liveness']?? 0,
+                                valence: recSong['valence']?? 0,
+                                tempo: recSong['tempo']?? 0,
+                                duration_ms: recSong['duration_ms']?? 0,
+                                time_signature: recSong['time_signature']?? 0,
+                                year: recSong['year']?? 0,
+                                month: recSong['month']?? 0,
+                                day: recSong['day']?? 0,
+                                owner_id: recSong['owner_id']?? 0,))
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height:60),
 
                 ],
               ),
@@ -526,7 +571,83 @@ class albumInfo extends StatelessWidget {
 
 
 
+class RecSongCard extends StatelessWidget {
+  final String username;
+  final int userid;
+  final Song song;
 
+  RecSongCard({required this.userid, required this.username, required this.song});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        global_songId = song.id; /////////////////////////////////////////////////////////////////////////
+        global_albumId = song.album_id;
+        Navigator.pushReplacementNamed(context, '/songPage', arguments: {
+          'userid': userid,
+          'username': username,
+          'songId': song.id
+        });
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 120,
+            width: 120,
+            child: Container(
+              margin: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(8.0),
+                color: song.getVibeColor_energy(),
+              ),
+              child: Center(
+                child: FutureBuilder<String>(
+                  future: AuthService().getSongCoverById(song.id),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasData) {
+                        return Image.network(snapshot.data!);
+                      } else {
+                        // Handle the case when there's an error in fetching the image
+                        return const Text('Error loading image');
+                      }
+                    } else {
+                      // While the future is still resolving, you can show a loading indicator
+                      return const CircularProgressIndicator();
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4.0), // Adjust the spacing between the box and the text
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if(song.name.length > 15)
+                  Text(
+                    ' ' +(song.name.length > 15 ? song.name.substring(0, 15) :song.name),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                Text(
+                  ' ' +(song.album.length > 15 ? song.album.substring(0, 15) :song.album),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 
 

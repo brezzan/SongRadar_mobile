@@ -1363,11 +1363,88 @@ class AuthService {
         final List<Map<String, dynamic>> responseData = List<Map<String, dynamic>>.from(jsonDecode(response.body));
 
         return responseData;
+
       } else {
-        return [{'error1': response.body}];
+        return [{'error': response.body}];
       }
     } catch (error) {
-      return [{'error2': 'An unexpected error occurred.'}];
+      return [{'error': 'An unexpected error occurred.'}];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> recommendFromAlbum(String albumID , {int recommend = 5}) async {
+    final String url = '$baseUrl/recommend/album/$albumID?recommed=5';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final List<Map<String, dynamic>> responseData = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+        return responseData;
+      } else {
+        return [{'error': response.body}];
+      }
+    } catch (error) {
+      return [{'error': 'An unexpected error occurred.'}];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> recommendFromPlaylist(String playlistID , {int recommend = 5}) async {
+    final String url = '$baseUrl/recommend/playlist/$playlistID?recommed=$recommend';
+
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final List<Map<String, dynamic>> responseData = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+
+        return responseData;
+      } else {
+        return [{'error': response.body}];
+      }
+    } catch (error) {
+      return [{'error': 'An unexpected error occurred.'}];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> recommendFromStarred({int recommend = 20}) async {
+    final String url = '$baseUrl/recommend/starred?recommend=$recommend';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
+    };
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+
+        final List<Map<String, dynamic>> responseData = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+
+        return responseData;
+      } else {
+        return [{'error': response.body}];
+      }
+    } catch (error) {
+      return [{'error': 'An unexpected error occurred.'}];
     }
   }
 

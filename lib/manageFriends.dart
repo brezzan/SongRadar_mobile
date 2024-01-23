@@ -21,20 +21,23 @@ class _manageFriendsState extends State<manageFriends> {
   String friend_id = '';
   TextEditingController friend = TextEditingController();
 
+  Future<List<Map<String, dynamic>>> getPendingRequets() async {
 
+    return await AuthService().getPendingFriendRequest();
+  }
 
   Future<List<Map<String, dynamic>>> getRequets() async {
+
     return await AuthService().getFriendRequest();
   }
 
   Future<List<Map<String, dynamic>>> getFriends() async {
+
     return await AuthService().getFriends();
   }
 
   @override
-  void initState() {
-
-  }
+  void initState() {}
 
   @override
   Widget build(BuildContext context) {
@@ -57,10 +60,7 @@ class _manageFriendsState extends State<manageFriends> {
               ),
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/mainAppPage',
-                    arguments: {
-                      'userid': userid,
-                      'username': username
-                    });
+                    arguments: {'userid': userid, 'username': username});
               },
             ),
             Expanded(
@@ -95,7 +95,6 @@ class _manageFriendsState extends State<manageFriends> {
                         ),
                         TextButton(
                           onPressed: () {
-
                             Navigator.of(context).pop();
                           },
                           child: Text('No'),
@@ -212,7 +211,17 @@ class _manageFriendsState extends State<manageFriends> {
                 color: Colors.grey,
               ),
             ),
-
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Pending Requests: ',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ],
+            ),
             SingleChildScrollView(
               child: FutureBuilder(
                 future: getRequets(),
@@ -225,165 +234,178 @@ class _manageFriendsState extends State<manageFriends> {
                   } else {
                     List<Map<String, dynamic>> requests = snapshot.data ?? [];
                     return Container(
-                      height: 100, // You can adjust the height as needed
+                      height: 200, // You can adjust the height as needed
                       child: ListView.builder(
                         shrinkWrap: true,
                         itemCount: requests.length,
                         itemBuilder: (context, index) {
                           IconData iconData = Icons.person;
                           var request = requests[index];
-                          if(requests.length >0)
-                            if (request['status'] == 'pending')
-                              return ListTile(
-                                leading: Icon(iconData),
-                                title: Text(request['requester_name']),
-                                subtitle: Text(request['status']),
-                                trailing: IconButton(
-                                  onPressed: () async {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          content: Text(
-                                            'Accept/Reject Friendship ?',
+                          if (requests != [] && request['status'] == 'pending')
+                            return ListTile(
+                              leading: Icon(iconData),
+                              title: Text(request['requester_name']),
+                              subtitle: Text(request['status']),
+                              trailing: IconButton(
+                                onPressed: () async {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: Text(
+                                          'Accept/Reject Friendship ?',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () async {
+                                              Map<String, dynamic> response =
+                                                  await AuthService()
+                                                      .acceptRequest(
+                                                          request['id']);
+                                              if (!response
+                                                  .containsKey('error')) {
+                                                showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return AlertDialog(
+                                                      content: Text(
+                                                        'Friendship Request Accepted',
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            Navigator
+                                                                .pushReplacementNamed(
+                                                                    context,
+                                                                    '/personalPage',
+                                                                    arguments: {
+                                                                  'userid':
+                                                                      userid,
+                                                                  'username':
+                                                                      username
+                                                                });
+                                                          },
+                                                          child: Text('OK'),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              } else {
+                                                showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: Text(
+                                                          'Could not accept request'),
+                                                      content: Text(
+                                                        '${response['error']}',
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          child: Text('OK'),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              }
+                                            },
+                                            child: Text('Accept'),
                                           ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () async {
-                                                Map<String, dynamic> response =
-                                                    await AuthService()
-                                                        .acceptRequest(
-                                                            request['id']);
-                                                if (!response
-                                                    .containsKey('error')) {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (BuildContext context) {
-                                                      return AlertDialog(
-                                                        content: Text(
-                                                          'Friendship Request Accepted',
+                                          TextButton(
+                                            onPressed: () async {
+                                              Map<String, dynamic> response =
+                                                  await AuthService()
+                                                      .rejectRequest(
+                                                          request['id']);
+                                              if (!response
+                                                  .containsKey('error')) {
+                                                showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return AlertDialog(
+                                                      content: Text(
+                                                        'Friendship Request Rejected',
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            Navigator
+                                                                .pushReplacementNamed(
+                                                                    context,
+                                                                    '/personalPage',
+                                                                    arguments: {
+                                                                  'userid':
+                                                                      userid,
+                                                                  'username':
+                                                                      username
+                                                                });
+                                                          },
+                                                          child: Text('OK'),
                                                         ),
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pushReplacementNamed(
-                                                                  context, '/personalPage',
-                                                                  arguments: {
-                                                                    'userid': userid,
-                                                                    'username': username
-                                                                  });
-                                                            },
-                                                            child: Text('OK'),
-                                                          ),
-                                                        ],
-                                                      );
-                                                    },
-                                                  );
-                                                } else {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (BuildContext context) {
-                                                      return AlertDialog(
-                                                        title: Text(
-                                                            'Could not accept request'),
-                                                        content: Text(
-                                                          '${response['error']}',
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              } else {
+                                                showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: Text(
+                                                          'Could not reject request'),
+                                                      content: Text(
+                                                        '${response['error']}',
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          child: Text('OK'),
                                                         ),
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                            child: Text('OK'),
-                                                          ),
-                                                        ],
-                                                      );
-                                                    },
-                                                  );
-                                                }
-                                              },
-                                              child: Text('Accept'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () async {
-                                                Map<String, dynamic> response =
-                                                    await AuthService()
-                                                        .rejectRequest(
-                                                            request['id']);
-                                                if (!response
-                                                    .containsKey('error')) {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (BuildContext context) {
-                                                      return AlertDialog(
-                                                        content: Text(
-                                                          'Friendship Request Rejected',
-                                                        ),
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pushReplacementNamed(
-                                                                  context, '/personalPage',
-                                                                  arguments: {
-                                                                    'userid': userid,
-                                                                    'username': username
-                                                                  });
-                                                            },
-                                                            child: Text('OK'),
-                                                          ),
-                                                        ],
-                                                      );
-                                                    },
-                                                  );
-                                                } else {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (BuildContext context) {
-                                                      return AlertDialog(
-                                                        title: Text(
-                                                            'Could not reject request'),
-                                                        content: Text(
-                                                          '${response['error']}',
-                                                        ),
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                            child: Text('OK'),
-                                                          ),
-                                                        ],
-                                                      );
-                                                    },
-                                                  );
-                                                }
-                                              },
-                                              child: Text('Reject'),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                  icon: Icon(Icons.more_horiz),
-                                ),
-                              );
-                          else{
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              }
+                                            },
+                                            child: Text('Reject'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                icon: Icon(Icons.more_horiz),
+                              ),
+                            );
+                          else {
                             return Row(
                               mainAxisSize: MainAxisSize.max,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('You have no friendship requests.',style: TextStyle(fontSize: 20),),
+                                SizedBox(
+                                  height: 30,
+                                ),
+                                Text(
+                                  'You have no friendship requests.',
+                                  style: TextStyle(fontSize: 20),
+                                ),
                               ],
                             );
-                            }
+                          }
                         },
                       ),
                     );
@@ -404,7 +426,10 @@ class _manageFriendsState extends State<manageFriends> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Current Friends: ',style: TextStyle(fontSize: 20),),
+                Text(
+                  'Current Friends: ',
+                  style: TextStyle(fontSize: 20),
+                ),
               ],
             ),
             SingleChildScrollView(
@@ -419,21 +444,34 @@ class _manageFriendsState extends State<manageFriends> {
                   } else {
                     List<Map<String, dynamic>> friends = snapshot.data ?? [];
                     return Container(
-                      height:100, // You can adjust the height as needed
+                      height: 200, // You can adjust the height as needed
                       child: ListView.builder(
                         shrinkWrap: true,
                         itemCount: friends.length,
                         itemBuilder: (context, index) {
                           IconData iconData = Icons.person;
                           var request = friends[index];
-                          if(friends.length >0)
-                              return ListTile(
-                                leading: Icon(iconData),
-                                title: Text(request['username']),
-                              );
-                            else{
-                              return Text('You have no friends :(');
-                            }
+                          if (friends.length > 0 && friends.isNotEmpty)
+                            return ListTile(
+                              leading: Icon(iconData),
+                              title: Text(request['username']),
+                            );
+                          else {
+                            return Row(
+                              mainAxisSize: MainAxisSize.max,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  height: 30,
+                                ),
+                                Text(
+                                  'You have no friendships ',
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ],
+                            );
+                          }
                         },
                       ),
                     );

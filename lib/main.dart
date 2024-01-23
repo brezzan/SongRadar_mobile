@@ -14,6 +14,7 @@ import 'package:songradar/mainAppPage.dart';
 import 'package:songradar/albumPage.dart';
 import 'package:songradar/songPage.dart';
 import 'package:songradar/starredSongsPage.dart';
+import 'package:songradar/userAddedMusic.dart';
 
 void main() async {
 
@@ -45,7 +46,8 @@ class SongRadar extends StatelessWidget {
           '/createplaylist':(BuildContext context) => createPlaylist(userid:0,username:'',),
           '/playlistPage':(BuildContext context) => playlistPage(userid: 0, username: '', playlistId: 0),
           '/starredSongsPage':(BuildContext context) => starredSongsPage(userid:0,username:'',),
-          '/manageFriends':(BuildContext context) => manageFriends(userid:0,username:'',)
+          '/manageFriends':(BuildContext context) => manageFriends(userid:0,username:'',),
+          '/userAddedMusic': (BuildContext context) => userAddedMusic(userid: 0, username: '')
         },
     );
   }
