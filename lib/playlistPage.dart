@@ -20,6 +20,10 @@ class _playlistPageState extends State<playlistPage> {
   List<Map<String, dynamic>> songs_to_be_added = [];
   Map<String,dynamic> playlist_info = {};
 
+
+
+
+
   TextEditingController searchController =
   TextEditingController(); //searchbar related
 
@@ -39,6 +43,7 @@ class _playlistPageState extends State<playlistPage> {
   }
 
   Future<Map<String,dynamic>> fetchPlaylist() async {
+
     return await AuthService().getPlaylistById(global_playlist);
   }
 
@@ -252,9 +257,9 @@ class _playlistPageState extends State<playlistPage> {
                 );
               },
             ),
-            SizedBox(height: 50),
+            SizedBox(height: 20),
             Text('All Songs in Playlist:',style: TextStyle(fontSize: 20),),
-
+            SizedBox(height: 10),
             SingleChildScrollView(
 
               scrollDirection: Axis.vertical,
@@ -299,7 +304,7 @@ class _playlistPageState extends State<playlistPage> {
                 },
               ),
             ),
-            SizedBox(height: 50),
+            SizedBox(height: 30),
 
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
@@ -333,6 +338,7 @@ class _playlistPageState extends State<playlistPage> {
               },
               child: Text('UPDATE PLAYLIST'),
             ),
+            SizedBox(height: 10),
           ],
         ),
       ),

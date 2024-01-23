@@ -390,6 +390,7 @@ class _SongCardState extends State<SongCard> {
           ),
           SizedBox(width: 4.0),
           Expanded(
+            flex:10,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

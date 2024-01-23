@@ -31,12 +31,12 @@ class _songPageState extends State<songPage> {
   Map<String, dynamic> data = {};
   List<dynamic> recommended = [];
 
-
+  List<dynamic>playlists = [];
 
 
   Future<void> fecthsong() async {
     data = await AuthService().getSongById(global_songId);
-
+    playlists = await AuthService().getUserPlaylists();
 
     recommended = await AuthService().recommend(global_songId,recommend: 10);
 
@@ -258,7 +258,91 @@ class _songPageState extends State<songPage> {
                       return const CircularProgressIndicator();
                     }
                   },
+                ),
+
+                FutureBuilder<List<dynamic>>(
+                  future: AuthService().getUserPlaylists(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      List<dynamic> playlists = snapshot.data ?? [];
+                      return IconButton(
+                        icon: Icon(
+                          Icons.view_headline_sharp,
+                          size: 30,
+                        ),
+                        onPressed: () async {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Select a Playlist'),
+                                content: Container(
+                                  width: double.maxFinite,
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: playlists.length,
+                                    itemBuilder: (context, index) {
+                                      var element = playlists[index];
+                                      return GestureDetector(
+                                        onTap: () async {
+                                          Map<String, dynamic> result =await AuthService().putToPlaylist(songId, element['id']);
+                                          if(result.containsKey('error'))
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Text('Could not add to Playlist'),
+                                              content: Text('${result['error']}'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text('OK'),
+                                                ),
+                                              ],
+                                            );
+                                          },);
+                                          else{
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: Text("Added to playlist ${element['name']}"),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      child: Text('OK'),
+                                                    ),
+                                                  ],
+                                                );
+                                              },);
+                                          }
+                                          // Close the dialog
+                                        },
+                                        child: Text(element['name']),
+                                      );
+                                    },
+                                  ),
+                                ),
+
+                              );
+                            },
+                          );
+
+                          setState(() {});
+                        },
+                        color: Colors.grey,
+                      );
+                    } else {
+                      // You can return a loading indicator or a default color here
+                      return const CircularProgressIndicator();
+                    }
+                  },
                 )
+
               ],
             ),
             Row(
@@ -391,7 +475,7 @@ class SongCard extends StatelessWidget {
         ),
         const SizedBox(width: 4.0),
         Expanded(
-          flex: 5,
+          flex: 10,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -405,7 +489,6 @@ class SongCard extends StatelessWidget {
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     maxLines: 4,
                     overflow: TextOverflow.ellipsis,
-
                   ),
                   const SizedBox(height: 4),
                   Text(

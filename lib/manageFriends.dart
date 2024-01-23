@@ -243,7 +243,7 @@ class _manageFriendsState extends State<manageFriends> {
                           var request = friends[index];
                           if (friends.length > 0 && friends.isNotEmpty)
                             return ListTile(
-                              tileColor: Colors.grey[700],
+
                               leading: Icon(iconData),
                               title: Text(request['username']),
                             );

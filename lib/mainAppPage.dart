@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:core';
 import 'package:songradar/api.dart';
 import 'package:songradar/variables.dart';
+import 'dart:math';
 
 
 List<dynamic> filteredSongs = [];
@@ -506,10 +507,21 @@ class _recommendsState extends State<recommends> {
   ScrollController _scrollControllerRecommended = ScrollController();
 
   List<Map<String, dynamic>> recommendeds = [];
-
+  List<Map<String, dynamic>>temps = [];
+  List<Map<String, dynamic>>playlist_recommendeds = [];
+  List<dynamic>playlists = [];
 
   Future<void> fetchRecommend() async {
+      playlists = await AuthService().getUserPlaylists();
+      print(playlists);
+      for (var pl in playlists) {
+        temps = await AuthService().recommendFromPlaylist(pl['id']);
+        playlist_recommendeds.addAll(temps);
+      }
+
       recommendeds= await AuthService().recommendFromStarred();
+      recommendeds.addAll(playlist_recommendeds);
+
       print(recommendeds.length);
     setState(() {});
   }
@@ -563,11 +575,12 @@ class _recommendsState extends State<recommends> {
           )
         else
           SingleChildScrollView(
-            controller: _scrollControllerRecommended,
+
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
                 for (var starredSong in recommendeds)
+                  if(starredSong['danceability'] != null)
                   SongCard(
                       userid: widget.userid,
                       username: widget.username,
@@ -626,7 +639,7 @@ class _songListState extends State<songList> {
 
   List<Map<String, dynamic>> songs_to_print = [];
 
-  int pageSize = 30; // Adjust the page size according to your needs
+  int pageSize = 10; // Adjust the page size according to your needs
 
   int currentPageSong = 1;
 
@@ -739,7 +752,7 @@ class _albumListState extends State<albumList> {
 
   List<Map<String, dynamic>> albums_to_print = [];
 
-  int pageSize = 30; // Adjust the page size according to your needs
+  int pageSize = 10; // Adjust the page size according to your needs
   int currentPageAlbum = 0;
 
   Future<void> fetchAlbums() async {

@@ -3,13 +3,11 @@ import 'dart:core';
 import 'package:songradar/api.dart';
 import 'package:songradar/variables.dart';
 
-
 class userAddedMusic extends StatefulWidget {
   final int userid;
   final String username;
   const userAddedMusic({required this.userid, required this.username, Key? key})
       : super(key: key);
-
 
   @override
   State<userAddedMusic> createState() => _userAddedMusicState();
@@ -19,13 +17,10 @@ class _userAddedMusicState extends State<userAddedMusic> {
   late int userid;
   late String username;
 
-
-
-
   @override
   Widget build(BuildContext context) {
     final arguments =
-    ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     userid = int.parse('${arguments?['userid']}');
     username = '${arguments?['username']}';
 
@@ -71,7 +66,8 @@ class _userAddedMusicState extends State<userAddedMusic> {
                       actions: [
                         TextButton(
                           onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/login', arguments: {});
+                            Navigator.pushReplacementNamed(context, '/login',
+                                arguments: {});
                           },
                           child: Text('Yes'),
                         ),
@@ -120,7 +116,7 @@ class _songListState extends State<songList> {
   late String username;
 
   ScrollController _scrollControllerSong =
-  ScrollController(); // lazy loading for album
+      ScrollController(); // lazy loading for album
 
   List<dynamic> songs_to_print = [];
 
@@ -129,8 +125,8 @@ class _songListState extends State<songList> {
   int currentPageSong = 1;
 
   Future<void> fetchSongs() async {
-    songs_to_print = await AuthService().readUserSongs(
-        skip: (currentPageSong - 1) * pageSize, limit: pageSize);
+    songs_to_print = await AuthService()
+        .readUserSongs(skip: (currentPageSong - 1) * pageSize, limit: pageSize);
     setState(() {});
   }
 
@@ -157,9 +153,7 @@ class _songListState extends State<songList> {
     _scrollControllerSong.addListener(_scrollListenerSong);
     fetchSongs().then((_) {
       //searchbar related
-      setState(() {
-
-      });
+      setState(() {});
     });
   }
 
@@ -167,14 +161,19 @@ class _songListState extends State<songList> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-        'Your songs',
-          style: TextStyle(fontSize: 20),
-          textAlign: TextAlign.left,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Your songs',
+              style: TextStyle(fontSize: 20),
+              textAlign: TextAlign.left,
+            ),
+          ],
         ),
-        SizedBox(height:10),
+        SizedBox(height: 10),
         SingleChildScrollView(
-
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
@@ -199,8 +198,7 @@ class _songListState extends State<songList> {
                         mode: global_song['mode'] ?? 0,
                         speechiness: global_song['speechiness'] ?? 0,
                         acousticness: global_song['acousticness'] ?? 0,
-                        instrumentalness:
-                        global_song['instrumentalness'] ?? 0,
+                        instrumentalness: global_song['instrumentalness'] ?? 0,
                         liveness: global_song['liveness'] ?? 0,
                         valence: global_song['valence'] ?? 0,
                         tempo: global_song['tempo'] ?? 0,
@@ -209,7 +207,9 @@ class _songListState extends State<songList> {
                         year: global_song['year'] ?? 0,
                         month: global_song['month'] ?? 0,
                         day: global_song['day'] ?? 0,
-                        owner_id: global_song['owner_id'] ?? 0))
+                        owner_id: global_song['owner_id'] ?? 0)),
+              if(songs_to_print.isEmpty)
+                Text('No songs added by ${widget.username}'),
             ],
           ),
         ),
@@ -232,7 +232,8 @@ class _albumListState extends State<albumList> {
   late int userid;
   late String username;
 
-  ScrollController _scrollControllerAlbum = ScrollController(); // lazy loading for album
+  ScrollController _scrollControllerAlbum =
+      ScrollController(); // lazy loading for album
 
   List<dynamic> albums_to_print = [];
 
@@ -269,9 +270,7 @@ class _albumListState extends State<albumList> {
 
     fetchAlbums().then((_) {
       //searchbar related
-      setState(() {
-
-      });
+      setState(() {});
     });
   }
 
@@ -279,14 +278,19 @@ class _albumListState extends State<albumList> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          'Your Albums',
-          style: TextStyle(fontSize: 20),
-          textAlign: TextAlign.left,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Your Albums',
+              style: TextStyle(fontSize: 20),
+              textAlign: TextAlign.left,
+            ),
+          ],
         ),
-        SizedBox(height:10),
+        SizedBox(height: 10),
         SingleChildScrollView(
-
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
@@ -300,35 +304,38 @@ class _albumListState extends State<albumList> {
                     album: Album(
                         id: global_album['id'] ?? '',
                         name: global_album['name'] ?? '',
-                        artists: global_album['artists']?? "[]",
-                        artist_ids: global_album['artist_ids']?? "[]",
+                        artists: global_album['artists'] ?? "[]",
+                        artist_ids: global_album['artist_ids'] ?? "[]",
                         number_of_tracks: global_album['number_of_tracks'] ?? 0,
-                        explicit: global_album['explicit']?? false,
+                        explicit: global_album['explicit'] ?? false,
                         danceability: global_album['danceability'] ?? 0,
-                        energy: global_album['energy']?? 0,
-                        key: global_album['key']?? 0,
-                        loudness: global_album['loudness']?? 0,
-                        mode: global_album['mode']?? 0,
-                        speechiness: global_album['speechiness']?? 0,
-                        acousticness: global_album['acousticness']?? 0,
-                        instrumentalness: global_album['instrumentalness']?? 0,
-                        liveness: global_album['liveness']?? 0,
-                        valence: global_album['valence']?? 0,
-                        tempo: global_album['tempo']?? 0,
-                        duration_ms: global_album['duration_ms']?? 0,
-                        time_signature: global_album['time_signature']?? 0,
-                        year: global_album['year']?? 0,
+                        energy: global_album['energy'] ?? 0,
+                        key: global_album['key'] ?? 0,
+                        loudness: global_album['loudness'] ?? 0,
+                        mode: global_album['mode'] ?? 0,
+                        speechiness: global_album['speechiness'] ?? 0,
+                        acousticness: global_album['acousticness'] ?? 0,
+                        instrumentalness: global_album['instrumentalness'] ?? 0,
+                        liveness: global_album['liveness'] ?? 0,
+                        valence: global_album['valence'] ?? 0,
+                        tempo: global_album['tempo'] ?? 0,
+                        duration_ms: global_album['duration_ms'] ?? 0,
+                        time_signature: global_album['time_signature'] ?? 0,
+                        year: global_album['year'] ?? 0,
                         month: global_album['month'] ?? 0,
-                        day: global_album['day']?? 0,
-                        owner_id: global_album['owner_id']?? 0 ))
+                        day: global_album['day'] ?? 0,
+                        owner_id: global_album['owner_id'] ?? 0)),
+
+              if(albums_to_print.isEmpty)
+                Text('No albums added by ${widget.username}'),
             ],
+
           ),
         ),
       ],
     );
   }
 }
-
 
 class AlbumCard extends StatelessWidget {
   final String username;

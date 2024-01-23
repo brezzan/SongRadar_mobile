@@ -432,8 +432,8 @@ class AuthService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getSongsFromCsv({int skip = 0, int limit = 5}) async {  //works
-    final String url = '$baseUrl/songs/?skip=$skip&limit=5';
+  Future<List<Map<String, dynamic>>> getSongsFromCsv({int skip = 0, int limit = 10}) async {  //works
+    final String url = '$baseUrl/songs/?skip=$skip&limit=$limit';
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -745,7 +745,7 @@ class AuthService {
   }
 
   Future<List<Map<String, dynamic>>> getAlbumsFromCsv({int skip = 0, int limit = 5}) async {
-    final String url = '$baseUrl/albums/?skip=$skip&limit=5';
+    final String url = '$baseUrl/albums/?skip=$skip&limit=$limit';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
@@ -1396,7 +1396,7 @@ class AuthService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> recommendFromPlaylist(String playlistID , {int recommend = 5}) async {
+  Future<List<Map<String, dynamic>>> recommendFromPlaylist(int playlistID , {int recommend = 1}) async {
     final String url = '$baseUrl/recommend/playlist/$playlistID?recommed=$recommend';
 
     final Map<String, String> headers = {
@@ -1691,7 +1691,6 @@ class Song {
       width: 400,
       child: BarChart(
         BarChartData(
-
           barGroups: [
             BarChartGroupData(
               x: 0,
