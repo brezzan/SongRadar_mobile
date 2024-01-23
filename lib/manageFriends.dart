@@ -49,7 +49,7 @@ class _manageFriendsState extends State<manageFriends> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.grey,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -217,11 +217,80 @@ class _manageFriendsState extends State<manageFriends> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
+                  'Current Friends: ',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ],
+            ),
+            SingleChildScrollView(
+              child: FutureBuilder(
+                future: getFriends(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    List<Map<String, dynamic>> friends = snapshot.data ?? [];
+                    return Container(
+                      height: 200, // You can adjust the height as needed
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: friends.length,
+                        itemBuilder: (context, index) {
+                          IconData iconData = Icons.person;
+                          var request = friends[index];
+                          if (friends.length > 0 && friends.isNotEmpty)
+                            return ListTile(
+                              tileColor: Colors.grey[700],
+                              leading: Icon(iconData),
+                              title: Text(request['username']),
+                            );
+                          else {
+                            return Row(
+                              mainAxisSize: MainAxisSize.max,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  height: 30,
+                                ),
+                                Text(
+                                  'You have no friendships ',
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ],
+                            );
+                          }
+                        },
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+
+            SizedBox(height: 15),
+            Flexible(
+              child: Divider(
+                height: 5,
+                thickness: 1,
+                color: Colors.grey,
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
                   'Pending Requests: ',
                   style: TextStyle(fontSize: 20),
                 ),
               ],
             ),
+            SizedBox(height: 15),
             SingleChildScrollView(
               child: FutureBuilder(
                 future: getRequets(),
@@ -243,6 +312,7 @@ class _manageFriendsState extends State<manageFriends> {
                           var request = requests[index];
                           if (requests != [] && request['status'] == 'pending')
                             return ListTile(
+
                               leading: Icon(iconData),
                               title: Text(request['requester_name']),
                               subtitle: Text(request['status']),
@@ -259,9 +329,9 @@ class _manageFriendsState extends State<manageFriends> {
                                           TextButton(
                                             onPressed: () async {
                                               Map<String, dynamic> response =
-                                                  await AuthService()
-                                                      .acceptRequest(
-                                                          request['id']);
+                                              await AuthService()
+                                                  .acceptRequest(
+                                                  request['id']);
                                               if (!response
                                                   .containsKey('error')) {
                                                 showDialog(
@@ -277,13 +347,13 @@ class _manageFriendsState extends State<manageFriends> {
                                                           onPressed: () {
                                                             Navigator
                                                                 .pushReplacementNamed(
-                                                                    context,
-                                                                    '/personalPage',
-                                                                    arguments: {
+                                                                context,
+                                                                '/personalPage',
+                                                                arguments: {
                                                                   'userid':
-                                                                      userid,
+                                                                  userid,
                                                                   'username':
-                                                                      username
+                                                                  username
                                                                 });
                                                           },
                                                           child: Text('OK'),
@@ -322,9 +392,9 @@ class _manageFriendsState extends State<manageFriends> {
                                           TextButton(
                                             onPressed: () async {
                                               Map<String, dynamic> response =
-                                                  await AuthService()
-                                                      .rejectRequest(
-                                                          request['id']);
+                                              await AuthService()
+                                                  .rejectRequest(
+                                                  request['id']);
                                               if (!response
                                                   .containsKey('error')) {
                                                 showDialog(
@@ -340,13 +410,13 @@ class _manageFriendsState extends State<manageFriends> {
                                                           onPressed: () {
                                                             Navigator
                                                                 .pushReplacementNamed(
-                                                                    context,
-                                                                    '/personalPage',
-                                                                    arguments: {
+                                                                context,
+                                                                '/personalPage',
+                                                                arguments: {
                                                                   'userid':
-                                                                      userid,
+                                                                  userid,
                                                                   'username':
-                                                                      username
+                                                                  username
                                                                 });
                                                           },
                                                           child: Text('OK'),
@@ -401,72 +471,6 @@ class _manageFriendsState extends State<manageFriends> {
                                 ),
                                 Text(
                                   'You have no friendship requests.',
-                                  style: TextStyle(fontSize: 20),
-                                ),
-                              ],
-                            );
-                          }
-                        },
-                      ),
-                    );
-                  }
-                },
-              ),
-            ),
-            SizedBox(height: 15),
-            Flexible(
-              child: Divider(
-                height: 5,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-            ),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Current Friends: ',
-                  style: TextStyle(fontSize: 20),
-                ),
-              ],
-            ),
-            SingleChildScrollView(
-              child: FutureBuilder(
-                future: getFriends(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else {
-                    List<Map<String, dynamic>> friends = snapshot.data ?? [];
-                    return Container(
-                      height: 200, // You can adjust the height as needed
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: friends.length,
-                        itemBuilder: (context, index) {
-                          IconData iconData = Icons.person;
-                          var request = friends[index];
-                          if (friends.length > 0 && friends.isNotEmpty)
-                            return ListTile(
-                              leading: Icon(iconData),
-                              title: Text(request['username']),
-                            );
-                          else {
-                            return Row(
-                              mainAxisSize: MainAxisSize.max,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  height: 30,
-                                ),
-                                Text(
-                                  'You have no friendships ',
                                   style: TextStyle(fontSize: 20),
                                 ),
                               ],

@@ -265,7 +265,7 @@ class _starredSongsPageState extends State<starredSongsPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.grey,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -347,8 +347,14 @@ class _starredSongsPageState extends State<starredSongsPage> {
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.normal),
                     ),
+                    const SizedBox(height: 16),
                     for (var artist in most_repeated_artists.keys)
-                      Text(artist),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(artist+'- (${most_repeated_artists[artist]}) songs '),
+                        ],
+                      ),
                     const SizedBox(height: 16),
                     Text(
                       'Favorite Music Eras:',

@@ -127,7 +127,7 @@ class _mainAppPageState extends State<mainAppPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.grey,
         title: Row(
           children: [
             Text('Welcome, $username'),
@@ -435,7 +435,7 @@ class _favoritesState extends State<favorites> {
     return Column(
       children: [
         Text(
-          'Favorited',
+          'Favorite Songs',
           style: TextStyle(fontSize: 20),
           textAlign: TextAlign.left,
         ),

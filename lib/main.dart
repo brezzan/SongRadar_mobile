@@ -29,9 +29,7 @@ class SongRadar extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'SongRadar',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData.dark(),
       home: LoginPage(),
         routes: <String, WidgetBuilder>{
           '/login': (BuildContext context) => LoginPage(),

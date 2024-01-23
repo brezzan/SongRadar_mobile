@@ -99,11 +99,11 @@ class _songPageState extends State<songPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.grey,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Flexible(child: Text(song.name)),
+            Flexible(child: Text(song.name,)),
             const Flexible(
               child: SizedBox(width: 200),
             ),
@@ -145,6 +145,8 @@ class _songPageState extends State<songPage> {
               'Song: ${song.name}',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 20),
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
             ),
 
             const SizedBox(height: 16),
@@ -172,6 +174,8 @@ class _songPageState extends State<songPage> {
                     style: const TextStyle(fontSize: 20,
                         fontWeight: FontWeight.normal,
                         decoration: TextDecoration.underline),
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -236,7 +240,7 @@ class _songPageState extends State<songPage> {
                       return IconButton(
                         icon: Icon(
                           Icons.star,
-                          size: 25,
+                          size: 30,
                           color: isStarred ? Colors.yellow : Colors.grey,
                         ),
                         onPressed: () async {
@@ -345,8 +349,7 @@ class SongCard extends StatelessWidget {
         required this.username,
       });
 
-  void _onStarClicked(int starCount) {}
-  int rating = 0;
+
 
   @override
   Widget build(BuildContext context) {
@@ -400,13 +403,16 @@ class SongCard extends StatelessWidget {
                     song.name,
                     style:
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
 
                   ),
                   const SizedBox(height: 4),
                   Text(
                     song.artists[0],
-                    style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.normal),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -541,7 +547,7 @@ class RecSongCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if(song.name.length > 15)
+
                 Text(
                   ' ' +(song.name.length > 15 ? song.name.substring(0, 15) :song.name),
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),

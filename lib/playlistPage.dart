@@ -109,7 +109,7 @@ class _playlistPageState extends State<playlistPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.grey,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -236,7 +236,7 @@ class _playlistPageState extends State<playlistPage> {
 
                     return ListTile(
                       leading: Icon(iconData),
-                      tileColor: Colors.green[100],
+                      tileColor: Colors.green[300],
                       title: Text(song['name']),
                       subtitle: Text(song['artists']),
                       trailing: IconButton(
@@ -253,8 +253,10 @@ class _playlistPageState extends State<playlistPage> {
               },
             ),
             SizedBox(height: 50),
+            Text('All Songs in Playlist:',style: TextStyle(fontSize: 20),),
 
             SingleChildScrollView(
+
               scrollDirection: Axis.vertical,
               child: FutureBuilder(
                 future: fetchPlaylist(),

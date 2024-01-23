@@ -98,7 +98,7 @@ class _createPlaylistState extends State<createPlaylist> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.grey,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -222,7 +222,7 @@ class _createPlaylistState extends State<createPlaylist> {
 
                     return ListTile(
                       leading: Icon(iconData),
-                      tileColor: Colors.green[100],
+                      tileColor: Colors.green[300],
                       title: Text(song['name']),
                       subtitle: Text(song['artists']),
                       trailing: IconButton(

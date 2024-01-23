@@ -32,7 +32,7 @@ class _userAddedMusicState extends State<userAddedMusic> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.grey,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -393,14 +393,14 @@ class AlbumCard extends StatelessWidget {
               children: [
                 Text(
                   '  ' +
-                      (album.name.length > 20
+                      (album.name.length > 150
                           ? album.name.substring(0, 15)
                           : album.name),
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 Text(
                   '  ' +
-                      (album.artists[0].length > 20
+                      (album.artists[0].length > 15
                           ? album.artists[0].toString().substring(0, 15)
                           : album.artists[0]),
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),

@@ -41,7 +41,7 @@ class _personalPageState extends State<personalPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.grey,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -260,7 +260,7 @@ class _personalPageState extends State<personalPage> {
                                 arguments: {'userid': userid, 'username': username,'playlistId':global_playlist});
                           },
                           leading: Icon(iconData),
-                          tileColor: Colors.grey[50],
+                          tileColor: Colors.grey[700],
                           title: Text(playlist['name']),
                           trailing: IconButton(
                             onPressed: () async {

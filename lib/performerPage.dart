@@ -65,7 +65,7 @@ class _performerPageState extends State<performerPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.grey,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -134,7 +134,9 @@ class _performerPageState extends State<performerPage> {
               ),
               SizedBox(height: 20),
               Text('$performers',
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),maxLines: 4,
+                overflow: TextOverflow.ellipsis, ),
+
               SizedBox(height: 20),
 
               Padding(

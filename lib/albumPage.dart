@@ -121,7 +121,7 @@ class _albumPageState extends State<albumPage> {
           return Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,
-              backgroundColor: Colors.deepOrange,
+              backgroundColor: Colors.grey,
               title: Row(
                 children: [
                   Flexible(child: Text(album.name)), // album name
@@ -397,12 +397,16 @@ class _SongCardState extends State<SongCard> {
                 Text(
                   widget.song.name,
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 4),
 
                 Text(
                   widget.song.artists[0],
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal ),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 4),
               ],
@@ -631,13 +635,12 @@ class RecSongCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if(song.name.length > 15)
                   Text(
-                    ' ' +(song.name.length > 15 ? song.name.substring(0, 15) :song.name),
+                    (song.name.length > 15 ? song.name.substring(0, 15) : song.name),
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                 Text(
-                  ' ' +(song.album.length > 15 ? song.album.substring(0, 15) :song.album),
+                  (song.album.length > 15 ? song.album.substring(0, 15) :song.album),
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
                 ),
               ],

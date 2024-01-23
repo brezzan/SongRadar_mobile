@@ -228,7 +228,7 @@ class _addNewAlbumState extends State<addNewAlbum> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.grey,
         title: Row(
           children: [
             Text('Add a New Album'),
